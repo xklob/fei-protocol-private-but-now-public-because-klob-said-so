@@ -2,7 +2,7 @@ import { ProposalsConfigMap } from '@custom-types/types';
 
 // import fip_xx_proposal from '@proposals/description/fip_xx';
 
-import fip_48_proposal from '@proposals/description/fip_48';
+import permanently_revoke_burner_proposal from '@proposals/description/permanently_revoke_burner';
 
 const proposals: ProposalsConfigMap = {
   /*
@@ -13,11 +13,11 @@ const proposals: ProposalsConfigMap = {
         proposal: fip_xx_proposal // full proposal file, imported from '@proposals/description/fip_xx.ts'
     }
     */
-  fip_48: {
-    deploy: false,
+  permanently_revoke_burner: {
+    deploy: true,
     skipDAO: false,
     totalValue: 0,
-    proposal: fip_48_proposal
+    proposal: permanently_revoke_burner_proposal
   }
 };
 
