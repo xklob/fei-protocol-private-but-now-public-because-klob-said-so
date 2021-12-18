@@ -24,6 +24,7 @@ const MainnetAddresses = {
     address: '0xFC3532b443383d9022b1B2c6FD5Fd0895943360A'
   },
   tribeRariDAO: { artifactName: 'FeiDAO', address: '0x637deEED4e4deb1D222650bD4B64192abf002c00' },
+  rariDAO: { artifactName: 'FeiDAO', address: '0x91d9c2b5cf81d55a5f2ecc0fc84e62f9cd2cefd6' },
   tribeRagequit: { artifactName: 'TRIBERagequit', address: '0xE77d572F04904fFea40899FD907F7ADd6Ea5228A' },
   pegExchanger: { artifactName: 'PegExchanger', address: '0xc09BB5ECf865e6f69Fe62A43c27f036A426909f7' },
   rariTimelock: { artifactName: 'Timelock', address: '0x8ace03Fc45139fDDba944c6A4082b604041d19FC' },

@@ -200,6 +200,7 @@ export interface MainnetContracts {
   aaveTribeIncentivesController: IAaveIncentivesController;
   optimisticTimelock: OptimisticTimelock;
   feiDAO: FeiDAO;
+  rariDao: FeiDAO;
   autoRewardsDistributor: AutoRewardsDistributor;
   rewardsDistributorAdmin: RewardsDistributorAdmin;
   restrictedPermissions: RestrictedPermissions;
