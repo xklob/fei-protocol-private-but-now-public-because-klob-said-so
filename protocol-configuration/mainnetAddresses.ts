@@ -536,6 +536,11 @@ const MainnetAddresses: MainnetAddresses = {
     address: '0x89DfBC12001b41985eFAbd7dFCae6a77B22E4Ec3',
     category: AddressCategory.PCV
   },
+  fuseFixer: {
+    artifactName: 'FuseFixer',
+    address: '0xFE7547F583aAe1212e72e063Aac25057C06c4797',
+    category: AddressCategory.Governance
+  },
   feiOATimelockWrapper: {
     artifactName: 'PCVDepositWrapper',
     address: '0x7Eb88140af813294aEDce981b6aC08fcd139d408',
@@ -2116,22 +2121,22 @@ const MainnetAddresses: MainnetAddresses = {
     address: '0x8096314D9014EbB69Fc777ED3791DDE6FFbaFAed',
     category: AddressCategory.Governance
   },
-  feiDev1Deployer: {
+  tribeDev1Deployer: {
     artifactName: 'unknown',
     address: '0x64c4Bffb220818F0f2ee6DAe7A2F17D92b359c5d',
     category: AddressCategory.External
   },
-  feiDev2Deployer: {
+  tribeDev2Deployer: {
     artifactName: 'unknown',
     address: '0xcE96fE7Eb7186E9F894DE7703B4DF8ea60E2dD77',
     category: AddressCategory.External
   },
-  feiDev3Deployer: {
+  tribeDev3Deployer: {
     artifactName: 'unknown',
     address: '0xE2388f22cf5e328C197D6530663809cc0408a510',
     category: AddressCategory.External
   },
-  feiDev4Deployer: {
+  tribeDev4Deployer: {
     artifactName: 'unknown',
     address: '0x5346b4ff3e924508d33d93f352d11e392a7a9d3b',
     category: AddressCategory.External
