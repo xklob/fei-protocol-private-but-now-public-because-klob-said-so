@@ -55,7 +55,11 @@ contract BPTLens is IPCVDepositBalances {
 
         bytes32 _id = _pool.getPoolId();
         id = _id;
-        (IERC20[] memory tokens, uint256[] memory balances, ) = _vault.getPoolTokens(_id);
+        (
+            IERC20[] memory tokens, /*uint256[] memory balances*/
+            ,
+
+        ) = _vault.getPoolTokens(_id);
 
         // Check the token is in the BPT and its only a 2 token pool
         require(address(tokens[0]) == _token || address(tokens[1]) == _token);
@@ -72,7 +76,12 @@ contract BPTLens is IPCVDepositBalances {
     }
 
     function balance() public view override returns (uint256) {
-        (IERC20[] memory _tokens, uint256[] memory balances, ) = VAULT.getPoolTokens(id);
+        (
+            ,
+            /*IERC20[] memory _tokens*/
+            uint256[] memory balances,
+
+        ) = VAULT.getPoolTokens(id);
 
         return balances[index];
     }
@@ -95,7 +104,12 @@ contract BPTLens is IPCVDepositBalances {
 
         require(reportedValid && otherValid, "BPTLens: Invalid Oracle");
 
-        (IERC20[] memory _tokens, uint256[] memory balances, ) = VAULT.getPoolTokens(id);
+        (
+            ,
+            /*IERC20[] memory _tokens*/
+            uint256[] memory balances,
+
+        ) = VAULT.getPoolTokens(id);
 
         uint256[] memory weights = pool.getNormalizedWeights();
 
