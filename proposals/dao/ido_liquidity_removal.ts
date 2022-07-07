@@ -22,6 +22,13 @@ IDO liquidity removal
 
 const fipNumber = 'ido_liquidity_removal';
 
+// TODO
+// Expected amount of FEI to be transferred to the new timelock after LP tokens redeemed
+const NEW_FEI_TIMELOCK_AMOUNT = ethers.constants.WeiPerEther.mul(100_000);
+
+// Expected amount of TRIBE to be transferred to the new timelock after LP tokens redeemed
+const NEW_TRIBE_TIMELOCK_AMOUNT = ethers.constants.WeiPerEther.mul(100_000);
+
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
@@ -41,7 +48,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   );
   await feiIDOTimelock.deployTransaction.wait();
 
-  logging && console.log('New Rari infra FEI timelock deployed to: ', feiIDOTimelock.address);
+  logging && console.log('New FEI timelock deployed to: ', feiIDOTimelock.address);
 
   // 2. Deploy new TRIBE linear token delegator timelock
   const LinearTokenTimelockedDelegatorFactory = await ethers.getContractFactory('LinearTimelockedDelegator');
@@ -81,7 +88,31 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  console.log(`No actions to complete in validate for fip${fipNumber}`);
+  // TODO: Validate duration on these timelocks
+  // 1. Validate FEI timelock configured
+  expect(await contracts.feiIDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.feiIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.feiIDOTimelock.lockedToken()).to.be.equal(addresses.fei);
+  // expect(await contracts.feiIDOTimelock.duration()).to.be.equal();
+  expect(await contracts.feiIDOTimelock.cliffSeconds()).to.be.equal(0);
+
+  // 2. Validate TRIBE timelock configured
+  expect(await contracts.tribeDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeDOTimelock.lockedToken()).to.be.equal(addresses.tribe);
+  // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
+  expect(await contracts.tribeDOTimelock.cliffSeconds()).to.be.equal(0);
+
+  // 3. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
+  expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
+  expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
+  expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
+
+  // 4. New IDO FEI and TRIBE timelocks should have FEI and TRIBE
+  expect(await contracts.fei.balanceOf(addresses.feiIDOTimelock)).to.be.bignumber.greaterThan(NEW_FEI_TIMELOCK_AMOUNT);
+  expect(await contracts.tribe.balanceOf(addresses.tribeIDOTimelock)).to.be.bignumber.greaterThan(
+    NEW_TRIBE_TIMELOCK_AMOUNT
+  );
 };
 
 export { deploy, setup, teardown, validate };
