@@ -49,9 +49,7 @@ contract IDORemoverIntegrationTest is DSTest {
     }
 
     /// @notice Validate that excess slippage on the trade is rejected
-    function testExcessSlippageRejected() public {
-
-    }
+    function testExcessSlippageRejected() public {}
 
     /// @notice Validate that can withdraw ERC20s on the contract
     function testCanWithdrawERC20() public {}
