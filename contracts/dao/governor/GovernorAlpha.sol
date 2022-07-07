@@ -260,9 +260,9 @@ contract GovernorAlpha {
     }
 
     function cancel(uint256 proposalId) public {
-        ProposalState state = state(proposalId);
+        ProposalState _state = state(proposalId);
         require(
-            state == ProposalState.Active || state == ProposalState.Pending,
+            _state == ProposalState.Active || _state == ProposalState.Pending,
             "GovernorAlpha: can only cancel Active or Pending Proposal"
         );
 
