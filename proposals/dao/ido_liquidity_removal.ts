@@ -1,4 +1,4 @@
-import hre, { ethers, artifacts } from 'hardhat';
+import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import {
   DeployUpgradeFunc,
@@ -18,7 +18,6 @@ IDO liquidity removal
 3. Convert an amount of FEI into TRIBE
 4. Lock remaining in new timelocks
 
-Beneficiary of the IDO liquidity is
 */
 
 const fipNumber = 'ido_liquidity_removal';
@@ -26,10 +25,40 @@ const fipNumber = 'ido_liquidity_removal';
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  console.log(`No deploy actions for fip${fipNumber}`);
-  // Deploy new FEI and TRIBE vesting timelocks for new liquidity here
+  const idoLiquidityTimelock = await ethers.getContractAt('LinearTokenTimelock', addresses.idoLiquidityTimelock);
+  const idoTimelockRemainingDuration = await idoLiquidityTimelock.remainingTime();
+  console.log('Remaining time: ', idoTimelockRemainingDuration.toString());
+
+  // 1. Deploy new FEI linear token timelock - Fei timelock, no vote delegation
+  const LinearTokenTimelockedFactory = await ethers.getContractFactory('LinearTokenTimelock');
+  const feiIDOTimelock = await LinearTokenTimelockedFactory.deploy(
+    addresses.feiDAOTimelock, // beneficiary
+    idoTimelockRemainingDuration, // duration
+    addresses.fei, // token
+    0, // secondsUntilCliff - have already passed the cliff
+    addresses.feiDAOTimelock, // clawbackAdmin
+    0 // startTime
+  );
+  await feiIDOTimelock.deployTransaction.wait();
+
+  logging && console.log('New Rari infra FEI timelock deployed to: ', feiIDOTimelock.address);
+
+  // 2. Deploy new TRIBE linear token delegator timelock
+  const LinearTokenTimelockedDelegatorFactory = await ethers.getContractFactory('LinearTimelockedDelegator');
+  const tribeIDOTimelock = await LinearTokenTimelockedDelegatorFactory.deploy(
+    addresses.feiDAOTimelock, // beneficiary
+    idoTimelockRemainingDuration, // duration
+    addresses.tribe, // token
+    0, // secondsUntilCliff - have already passed the cliff
+    addresses.feiDAOTimelock, // clawbackAdmin
+    0 // startTime
+  );
+  await tribeIDOTimelock.deployTransaction.wait();
+  logging && console.log('New TRIBE delegator timelock deployed to: ', tribeIDOTimelock.address);
+
   return {
-    // put returned contract objects here
+    feiIDOTimelock,
+    tribeIDOTimelock
   };
 };
 
