@@ -36,7 +36,9 @@ contract NopeDAO is
         CoreRef(_core)
     {}
 
-    function quorum(uint256 blockNumber) public view override returns (uint256) {
+    function quorum(
+        uint256 /* blockNumber*/
+    ) public view override returns (uint256) {
         return _quorum;
     }
 
