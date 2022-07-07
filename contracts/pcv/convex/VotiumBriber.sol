@@ -63,14 +63,14 @@ contract VotiumBriber is CoreRef {
     }
 
     /// @notice withdraw ERC20 from the contract
-    /// @param token address of the ERC20 to send
+    /// @param _token address of the ERC20 to send
     /// @param to address destination of the ERC20
     /// @param amount quantity of ERC20 to send
     function withdrawERC20(
-        address token,
+        address _token,
         address to,
         uint256 amount
     ) external onlyPCVController {
-        IERC20(token).safeTransfer(to, amount);
+        IERC20(_token).safeTransfer(to, amount);
     }
 }
