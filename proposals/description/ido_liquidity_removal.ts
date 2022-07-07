@@ -13,41 +13,24 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     {
       target: 'idoLiquidityTimelock',
       values: '0',
-      method: 'releaseMax(address)',
-      arguments: (addresses) => [],
-      description: 'Call releaseMax on IDO timelock to Fei Labs Multisig'
-    },
-    {
-      target: 'idoLiquidityTimelock',
-      values: '0',
       method: 'unlockLiquidity()',
       arguments: (addresses) => [],
-      description: 'Call unlockLiquidity on Fei Labs IDO Timelock'
-    },
-    {
-      target: 'idoLiquidityTimelock',
-      values: '0',
-      method: 'releaseMax(address)',
-      arguments: (addresses) => ['{liquidityRemovalHelper}'],
-      description: 'Call releaseMax on IDO timelock to intermediary helper contract'
-    },
-    {
-      target: 'liquidityRemovalHelper',
-      values: '0',
-      method: 'doLiquidityTransfer()',
-      arguments: (addresses) => [],
-      description: 'Call doLiquidityTransfer on helper contract to transfer liquidity to new timelocks'
-    },
-    {
-      target: 'idoLiquidityTimelock',
-      values: '0',
-      method: 'setPendingBeneficiary(address)',
-      arguments: (addresses) => [addresses.guardianMultisig],
-      description: 'Set pending beneficiary on old timelock back to guardian multisig'
+      description: 'Release all Fei-Tribe LP tokens to the Tribe DAO timelock'
     }
   ],
   description: `
   Remove the IDO liquidity of Fei-Tribe from Uniswap V2
+
+  Specifically, this proposal:
+  1. Accepts the pending beneficiary of the IDO liquidity timelock 
+     as the Tribe DAO timelock
+  2. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock and sends it to 
+     the beneficiary, now the Tribe DAO timelock
+  3. Transfers the Fei-Tribe LP tokens to an intermediate contract. This intermediate contract
+     will redeem the LP tokens for the underlying Fei and Tribe tokens in the Uniswap pool.
+  4. [Flesh out] Convert some amount of FEI into TRIBE
+  5. Lock the remaining FEI and TRIBE in new FEI and TRIBE timelocks, which have the same vesting
+     properties as the original LP timelock
   `
 };
 
