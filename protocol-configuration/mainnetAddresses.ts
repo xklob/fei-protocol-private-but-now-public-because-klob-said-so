@@ -882,6 +882,11 @@ const MainnetContractsConfig: MainnetContractsConfig = {
     address: '0xaa189e7f4aac757216b62849f78f1236749ba814',
     category: AddressCategory.FeiRari
   },
+  idoLiquidityTimelock: {
+    artifactName: 'unknown',
+    address: '0x7D809969f6A04777F0A87FF94B57E56078E5fE0F',
+    category: AddressCategory.TBD
+  },
 
   rariCErc20PluginImpl: {
     artifactName: 'unknown',
