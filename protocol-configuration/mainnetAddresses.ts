@@ -883,7 +883,7 @@ const MainnetContractsConfig: MainnetContractsConfig = {
     category: AddressCategory.FeiRari
   },
   idoLiquidityTimelock: {
-    artifactName: 'IIDOTimelock',
+    artifactName: 'IIDOInterface',
     address: '0x7D809969f6A04777F0A87FF94B57E56078E5fE0F',
     category: AddressCategory.TBD
   },

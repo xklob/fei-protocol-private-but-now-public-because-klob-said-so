@@ -115,11 +115,11 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.feiIDOTimelock.cliffSeconds()).to.be.equal(0);
 
   // 2. Validate TRIBE timelock configured
-  expect(await contracts.tribeDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.tribeDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.tribeDOTimelock.lockedToken()).to.be.equal(addresses.tribe);
+  expect(await contracts.tribeIDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeIDOTimelock.lockedToken()).to.be.equal(addresses.tribe);
   // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
-  expect(await contracts.tribeDOTimelock.cliffSeconds()).to.be.equal(0);
+  expect(await contracts.tribeIDOTimelock.cliffSeconds()).to.be.equal(0);
 
   // 3. Validate IDO liquidity remover configured
   expect(await contracts.idoLiquidityRemover.feiTo()).to.be.equal(addresses.feiIDOTimelock);

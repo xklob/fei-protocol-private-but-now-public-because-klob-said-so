@@ -5,7 +5,7 @@ import {Decimal} from "../../external/Decimal.sol";
 
 /// @title IDO interface
 /// @author Fei Protocol
-interface IDOInterface {
+interface IIDOInterface {
     // ----------- Events -----------
 
     event Deploy(uint256 _amountFei, uint256 _amountTribe);
@@ -17,6 +17,8 @@ interface IDOInterface {
     function setPendingBeneficiary(address) external;
 
     function pendingBeneficiary(address) external;
+
+    function acceptBeneficiary() external;
 
     // ----------- Genesis Group only state changing API -----------
 

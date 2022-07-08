@@ -6,8 +6,8 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     {
       target: 'idoLiquidityTimelock',
       values: '0',
-      method: 'acceptBeneficiary(address)',
-      arguments: (addresses) => [addresses.feiDAOTimelock],
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
       description: 'Accept beneficiary for Fei Labs IDO Timelock (Uni-LP)'
     },
     {
