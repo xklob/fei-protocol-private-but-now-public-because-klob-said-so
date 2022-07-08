@@ -33,19 +33,21 @@ contract IDORemoverIntegrationTest is DSTest {
         vm.label(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, "Router");
     }
 
+    /// @notice Validate initial constructor params set
     function testInitialState() public {
         assertEq(idoRemover.feiTo(), feiReceiver);
         assertEq(idoRemover.tribeTo(), tribeReceiver);
         assertEq(idoRemover.maxBasisPointsFromPegLP(), maxBasisPointsFromPegLP);
     }
 
-    /// @notice Validate LP tokens can be redeemed for underlying, and underlying FEI and TRIBE
-    ///         can be sent to destinations
+    /// @notice Validate LP tokens can be redeemed and underlying sent to destination
     function testRedeemLiquidity() public {
-        // Drop LP tokens onto the contract
         address feiTribeLPHolder = 0x9e1076cC0d19F9B0b8019F384B0a29E48Ee46f7f;
         vm.prank(feiTribeLPHolder);
         feiTribeLP.transfer(address(idoRemover), 1000);
+
+        // Get the minimum amounts out
+        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(1000);
 
         idoRemover.redeemLiquidity();
 
@@ -55,13 +57,26 @@ contract IDORemoverIntegrationTest is DSTest {
         assertEq(tribe.balanceOf(address(idoRemover)), 0);
 
         // Check FEI and TRIBE arrives at destinations
-        assertGt(fei.balanceOf(address(feiReceiver)), 10);
-        assertGt(tribe.balanceOf(address(tribeReceiver)), 10);
+        assertGt(fei.balanceOf(address(feiReceiver)), minFeiOut);
+        assertGt(tribe.balanceOf(address(tribeReceiver)), minTribeOut);
     }
 
     /// @notice Validate that excess slippage on the trade is rejected
     function testExcessSlippageRejected() public {}
 
-    /// @notice Validate that can withdraw ERC20s on the contract
-    function testCanWithdrawERC20() public {}
+    /// @notice Validate that can withdraw ERC20s on the contract in an emergency
+    function testCanWithdrawERC20() public {
+        // Drop tokens onto contract
+        vm.prank(MainnetAddresses.CORE);
+        tribe.transfer(address(idoRemover), 1000);
+
+        address to = address(4);
+
+        // Withdraw
+        vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
+        idoRemover.withdrawERC20(address(tribe), to, 1000);
+
+        assertEq(tribe.balanceOf(address(idoRemover)), 0);
+        assertEq(tribe.balanceOf(to), 1000);
+    }
 }
