@@ -27,13 +27,10 @@ contract IDOLiquidityRemover is CoreRef {
     address public immutable tribeTo;
 
     /// @notice Fei-Tribe LP token
-    IUniswapV2Pair public constant pair = IUniswapV2Pair(0x9928e4046d7c6513326cCeA028cD3e7a91c7590A);
-
-    /// @notice Uniswap V2 Factory
-    address public constant uniswapFactory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    IUniswapV2Pair public immutable pair;
 
     /// @notice Uniswap V2 router
-    IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    IUniswapV2Router02 public immutable uniswapRouter;
 
     /// @notice Slippage protection parameter on withdraw
     uint256 public immutable maxBasisPointsFromPegLP;
@@ -42,17 +39,21 @@ contract IDOLiquidityRemover is CoreRef {
         address _core,
         address _feiTo,
         address _tribeTo,
+        address _uniswapRouter,
+        address _uniswapPair,
         uint256 _maxBasisPointsFromPegLP
     ) CoreRef(_core) {
         feiTo = _feiTo;
         tribeTo = _tribeTo;
+        uniswapRouter = IUniswapV2Router02(_uniswapRouter);
+        pair = IUniswapV2Pair(_uniswapPair);
         maxBasisPointsFromPegLP = _maxBasisPointsFromPegLP;
     }
 
     ///////////   Public state changing API, NON-PERMISSIONED   ///////////////
 
     /// @notice Redeem contract LP tokens for underlying feiERC20 and tribeERC20, then transfer to destinations
-    function redeemLiquidity() external {
+    function redeemLiquidity() external returns (uint256, uint256) {
         require(pair.balanceOf(address(this)) > 0, "IDORemover: Insufficient liquidity");
 
         uint256 amountLP = pair.balanceOf(address(this));
@@ -68,8 +69,8 @@ contract IDOLiquidityRemover is CoreRef {
             address(fei()),
             address(tribe()),
             amountLP,
-            0, // TODO
-            0, // TODO
+            minFeiOut,
+            minTribeOut,
             address(this),
             type(uint256).max
         );
@@ -82,6 +83,7 @@ contract IDOLiquidityRemover is CoreRef {
         tribe().safeTransfer(tribeTo, amountTribe);
 
         emit RemoveLiquidity(feiTo, amountFei, tribeTo, amountTribe);
+        return (amountFei, amountTribe);
     }
 
     /////////   Public state changing API, PERMISSIONED  /////////
