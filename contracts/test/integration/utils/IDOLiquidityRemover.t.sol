@@ -12,6 +12,7 @@ contract IDORemoverIntegrationTest is DSTest {
     IDOLiquidityRemover idoRemover;
     address feiReceiver = address(1);
     address tribeReceiver = address(2);
+    uint256 maxBasisPointsFromPegLP = 200;
 
     IERC20 private feiTribeLP = IERC20(0x9928e4046d7c6513326cCeA028cD3e7a91c7590A);
     IERC20 private fei = IERC20(MainnetAddresses.FEI);
@@ -20,12 +21,22 @@ contract IDORemoverIntegrationTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
     function setUp() public {
-        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE, feiReceiver, tribeReceiver);
+        idoRemover = new IDOLiquidityRemover(
+            MainnetAddresses.CORE,
+            feiReceiver,
+            tribeReceiver,
+            maxBasisPointsFromPegLP
+        );
+
+        vm.label(address(idoRemover), "IDO remover");
+        vm.label(address(feiTribeLP), "Pair");
+        vm.label(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, "Router");
     }
 
     function testInitialState() public {
         assertEq(idoRemover.feiTo(), feiReceiver);
         assertEq(idoRemover.tribeTo(), tribeReceiver);
+        assertEq(idoRemover.maxBasisPointsFromPegLP(), maxBasisPointsFromPegLP);
     }
 
     /// @notice Validate LP tokens can be redeemed for underlying, and underlying FEI and TRIBE
