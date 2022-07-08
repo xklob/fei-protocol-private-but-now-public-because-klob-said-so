@@ -16,6 +16,20 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       method: 'unlockLiquidity()',
       arguments: (addresses) => [],
       description: 'Release all Fei-Tribe LP tokens to the Tribe DAO timelock'
+    },
+    {
+      target: 'feiTribePair',
+      values: '0',
+      method: 'transfer(address,uint256)',
+      arguments: (addresses) => [addresses.idoLiquidityRemover, '170449948038045919878524525'],
+      description: 'Send all FEI-TRIBE LP tokens to the IDO Liquidity withdrawl helper contract'
+    },
+    {
+      target: 'idoLiquidityRemover',
+      values: '0',
+      method: 'redeemLiquidity()',
+      arguments: (addresses) => [],
+      description: 'Remove liquidity from Uniswap pool, convert to FEI and TRIBE and send to destinations'
     }
   ],
   description: `

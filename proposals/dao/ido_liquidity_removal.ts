@@ -22,12 +22,16 @@ IDO liquidity removal
 
 const fipNumber = 'ido_liquidity_removal';
 
-// TODO
-// Expected amount of FEI to be transferred to the new timelock after LP tokens redeemed
-const NEW_FEI_TIMELOCK_AMOUNT = ethers.constants.WeiPerEther.mul(100_000);
+// Approximate bounds on the FEI to be transferred to the new timelock after LP tokens redeemed
+const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(37_000_000);
+const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(50_000_000);
 
-// Expected amount of TRIBE to be transferred to the new timelock after LP tokens redeemed
-const NEW_TRIBE_TIMELOCK_AMOUNT = ethers.constants.WeiPerEther.mul(100_000);
+// Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
+const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000);
+const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000);
+
+// Maxmimum slippage permitted on the liquidity extraction
+const MAX_SLIPPAGE_BASIS_POINTS = 200;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -63,9 +67,23 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   await tribeIDOTimelock.deployTransaction.wait();
   logging && console.log('New TRIBE delegator timelock deployed to: ', tribeIDOTimelock.address);
 
+  // 3. Deploy IDO Liquidity Withdrawal helper contract
+  const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
+  const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(
+    addresses.core,
+    feiIDOTimelock.address,
+    tribeIDOTimelock.address,
+    addresses.uniswapRouter,
+    addresses.feiTribePair,
+    MAX_SLIPPAGE_BASIS_POINTS
+  );
+  await idoLiquidityRemover.deployTransaction.wait();
+  console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
+
   return {
     feiIDOTimelock,
-    tribeIDOTimelock
+    tribeIDOTimelock,
+    idoLiquidityRemover
   };
 };
 
@@ -103,16 +121,38 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
   expect(await contracts.tribeDOTimelock.cliffSeconds()).to.be.equal(0);
 
-  // 3. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
+  // 3. Validate IDO liquidity remover configured
+  expect(await contracts.idoLiquidityRemover.feiTo()).to.be.equal(addresses.feiIDOTimelock);
+  expect(await contracts.idoLiquidityRemover.tribeTo()).to.be.equal(addresses.tribeIDOTimelock);
+  expect(await contracts.idoLiquidityRemover.uniswapRouter()).to.be.equal(addresses.uniswapRouter);
+  expect(await contracts.idoLiquidityRemover.pair()).to.be.equal(addresses.feiTribePair);
+  expect(await contracts.idoLiquidityRemover.maxBasisPointsFromPegLP()).to.be.equal(MAX_SLIPPAGE_BASIS_POINTS);
+
+  // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
 
-  // 4. New IDO FEI and TRIBE timelocks should have FEI and TRIBE
-  expect(await contracts.fei.balanceOf(addresses.feiIDOTimelock)).to.be.bignumber.greaterThan(NEW_FEI_TIMELOCK_AMOUNT);
-  expect(await contracts.tribe.balanceOf(addresses.tribeIDOTimelock)).to.be.bignumber.greaterThan(
-    NEW_TRIBE_TIMELOCK_AMOUNT
-  );
+  // 5. New IDO FEI and TRIBE timelocks should have FEI and TRIBE
+  // Fei-Tribe LP worth ~$85M
+  // Constant product AMM, so equal worth of FEI and TRIBE
+  // $42.5M FEI, $42.5M TRIBE
+  // 1 FEI = $1, 1 TRIBE ~= $0.15
+  // Expect, ~42.5M FEI, ~280M TRIBE
+  const feiTimelockBalance = await contracts.fei.balanceOf(addresses.feiIDOTimelock);
+  expect(feiTimelockBalance).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
+  expect(feiTimelockBalance).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
+
+  const tribeTimelockBalance = await contracts.tribe.balanceOf(addresses.tribeIDOTimelock);
+  expect(tribeTimelockBalance).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
+  expect(tribeTimelockBalance).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
+
+  // TODO: Calculate how much FEI is needed to be burned to make stable backing 100%
+  // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts
+
+  // 6. Beneficiary should be able to claim from Fei timelock
+
+  // 7. Beneficiary should be able to claim from Tribe timelock
 };
 
 export { deploy, setup, teardown, validate };
