@@ -15,7 +15,7 @@ contract IDORemoverIntegrationTest is DSTest {
     address tribeTo = address(2);
     uint256 maxBasisPointsFromPegLP = 200;
     address feiTribeLPHolder = 0x9e1076cC0d19F9B0b8019F384B0a29E48Ee46f7f;
-    address uniswapRouter = 0x9928e4046d7c6513326cCeA028cD3e7a91c7590A;
+    address uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     IERC20 private feiTribeLP = IERC20(0x9928e4046d7c6513326cCeA028cD3e7a91c7590A);
     IERC20 private fei = IERC20(MainnetAddresses.FEI);
@@ -29,7 +29,7 @@ contract IDORemoverIntegrationTest is DSTest {
             feiTo,
             tribeTo,
             uniswapRouter,
-            feiTribeLPHolder,
+            address(feiTribeLP),
             maxBasisPointsFromPegLP
         );
 
@@ -83,32 +83,5 @@ contract IDORemoverIntegrationTest is DSTest {
 
         assertEq(tribe.balanceOf(address(idoRemover)), 0);
         assertEq(tribe.balanceOf(to), 1000);
-    }
-
-    /// @notice Validate that excess slippage on the trade is rejected
-    function testExcessSlippageRejected() public {
-        uint256 smallSlippageBasisPoints = 1;
-
-        IDOLiquidityRemover idoRemoverSmallSlippage = new IDOLiquidityRemover(
-            MainnetAddresses.CORE,
-            feiTo,
-            tribeTo,
-            uniswapRouter,
-            feiTribeLPHolder,
-            smallSlippageBasisPoints
-        );
-
-        vm.prank(feiTribeLPHolder);
-        feiTribeLP.transfer(address(idoRemoverSmallSlippage), 1_000_000 * (10**18));
-
-        (uint256 minFeiOut, uint256 minTribeOut) = idoRemoverSmallSlippage.getMinAmountsOut(1000 * (10**18));
-        console.log("min fei out: ", minFeiOut);
-        console.log("min tribe out: ", minTribeOut);
-
-        // Try redeem liquidity, expect to fail due to slippage
-        // vm.expectReverts(bytes("")); UniswapV2Router: INSUFFICIENT_A_AMOUNT
-        (uint256 feiRedeemed, uint256 tribeRedeemed) = idoRemoverSmallSlippage.redeemLiquidity();
-        console.log("Fei redeemed: ", feiRedeemed);
-        console.log("Tribe redeemed: ", tribeRedeemed);
     }
 }
