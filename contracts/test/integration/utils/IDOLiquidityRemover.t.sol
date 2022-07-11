@@ -8,8 +8,6 @@ import {IDOLiquidityRemover} from "../../../utils/IDOLiquidityRemover.sol";
 import {DSTest} from "../../utils/DSTest.sol";
 import {Vm} from "../../utils/Vm.sol";
 
-import "hardhat/console.sol";
-
 contract IDORemoverIntegrationTest is DSTest {
     IDOLiquidityRemover idoRemover;
     address feiTo = address(1);
@@ -53,11 +51,13 @@ contract IDORemoverIntegrationTest is DSTest {
 
         // Get the minimum amounts out
         (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(1000);
-        console.log("Min fei out: ", minFeiOut);
 
         uint256 amountFeiToTimelock = 100;
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
-        (uint256 feiRedeemed, uint256 tribeRedeemed) = idoRemover.redeemLiquidity(amountFeiToTimelock);
+        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(amountFeiToTimelock);
+
+        assertGt(feiLiquidity, minFeiOut);
+        assertGt(tribeLiquidity, minTribeOut);
 
         // Validate contract holds no tokens
         assertEq(feiTribeLP.balanceOf(address(idoRemover)), 0);
@@ -67,10 +67,8 @@ contract IDORemoverIntegrationTest is DSTest {
         // Check FEI and TRIBE arrives at destinations
         uint256 feiToBalance = fei.balanceOf(address(feiTo));
         uint256 tribeToBalance = tribe.balanceOf(address(tribeTo));
-        assertGt(feiToBalance, minFeiOut);
-        assertGt(tribeToBalance, minTribeOut);
-        assertEq(feiToBalance, feiRedeemed);
-        assertEq(tribeToBalance, tribeRedeemed);
+        assertEq(feiToBalance, feiLiquidity - amountFeiToTimelock);
+        assertEq(tribeToBalance, tribeLiquidity);
 
         // Verify DAO timelock received expected Fei
         assertEq(fei.balanceOf(MainnetAddresses.FEI_DAO_TIMELOCK), amountFeiToTimelock);

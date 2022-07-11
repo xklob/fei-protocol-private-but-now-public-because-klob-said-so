@@ -4,6 +4,7 @@ import { TemplatedProposalDescription } from '@custom-types/types';
 const ido_liquidity_removal: TemplatedProposalDescription = {
   title: 'Remove IDO liquidity from Uniswap V2',
   commands: [
+    // 1. Prepare for liquidity removal by accepting timelock beneficiary
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -11,6 +12,8 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       arguments: (addresses) => [],
       description: 'Accept beneficiary for Fei Labs IDO Timelock (Uni-LP)'
     },
+
+    // 2. Unlock, remove and split the liquidity
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -36,7 +39,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       to the new TRIBE timelock.
       `
     },
-    // 3. Allocate TRIBE from Core to the TRIBE vesting contract, equivalent to the 10M burn
+    // 3. Burn FEI to get to 100% stable backing and allocate TRIBE to cover shortfall
     {
       target: 'fei',
       values: '0',

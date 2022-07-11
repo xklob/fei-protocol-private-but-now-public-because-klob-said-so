@@ -160,7 +160,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 5. Validate FEI burned
   const finalFeiTotalSupply = await contracts.fei.totalSupply();
   console.log('Final FEI total supply: ', finalFeiTotalSupply.toString());
-  expect(finalFeiTotalSupply.sub(FEI_BURNED)).to.be.equal(initialFeiTotalSupply);
+  expect(finalFeiTotalSupply.add(FEI_BURNED)).to.be.equal(initialFeiTotalSupply);
 
   // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts
 
