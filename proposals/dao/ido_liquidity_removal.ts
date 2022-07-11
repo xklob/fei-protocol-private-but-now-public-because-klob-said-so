@@ -147,7 +147,10 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(tribeTimelockBalance).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeTimelockBalance).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
 
-  // TODO: Calculate how much FEI is needed to be burned to make stable backing 100%
+  // Stable backing currently 93%. To get to 100%, need 8.3M
+  // Burn 10M FEI
+  // Send remainder to the Fei timelock
+
   // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts
 
   // 6. Beneficiary should be able to claim from Fei timelock

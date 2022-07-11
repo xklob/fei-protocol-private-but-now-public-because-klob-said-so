@@ -16,7 +16,14 @@ import {Constants} from "../Constants.sol";
 contract IDOLiquidityRemover is CoreRef {
     using SafeERC20 for IERC20;
 
-    event RemoveLiquidity(address indexed feiTo, uint256 amountFei, address indexed tribeTo, uint256 amountTribe);
+    event RemoveLiquidity(
+        address indexed feiTo,
+        uint256 amountFei,
+        address indexed tribeTo,
+        uint256 amountTribe,
+        address indexed daoTimelock,
+        uint256 amountFeiToBurn
+    );
 
     event WithdrawERC20(address indexed _caller, address indexed _token, address indexed _to, uint256 _amount);
 
@@ -31,6 +38,9 @@ contract IDOLiquidityRemover is CoreRef {
 
     /// @notice Uniswap V2 router
     IUniswapV2Router02 public immutable uniswapRouter;
+
+    /// @notice DAO timelock to send Fei to be burned
+    address public constant daoTimelock = 0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c;
 
     /// @notice Slippage protection parameter on withdraw
     uint256 public immutable maxBasisPointsFromPegLP;
@@ -50,10 +60,18 @@ contract IDOLiquidityRemover is CoreRef {
         maxBasisPointsFromPegLP = _maxBasisPointsFromPegLP;
     }
 
-    ///////////   Public state changing API, NON-PERMISSIONED   ///////////////
+    ///////////   Public state changing API   ///////////////
 
-    /// @notice Redeem contract LP tokens for underlying feiERC20 and tribeERC20, then transfer to destinations
-    function redeemLiquidity() external returns (uint256, uint256) {
+    /// @notice Redeem LP tokens for underlying FEI and TRIBE. Then splits the liquidity three ways:
+    ///         1. Send an amount of FEI, amountFeiToTimelock, to the DAO timelock, where it will be burned
+    ///         2. Send the remaining FEI to a destination, intended to be a new FEI timelock
+    ///         3. Send all unlocked TRIBE liquidity to a destination, intended to be a new TRIBE timelock
+    /// @param amountFeiToTimelock Amount of FEI to be transferred to DAO timelock, where it will then be burned
+    function redeemLiquidity(uint256 amountFeiToTimelock)
+        external
+        onlyTribeRole(TribeRoles.GOVERNOR)
+        returns (uint256, uint256)
+    {
         require(pair.balanceOf(address(this)) > 0, "IDORemover: Insufficient liquidity");
 
         uint256 amountLP = pair.balanceOf(address(this));
@@ -75,18 +93,22 @@ contract IDOLiquidityRemover is CoreRef {
             type(uint256).max
         );
 
-        uint256 amountFei = fei().balanceOf(address(this));
-        uint256 amountTribe = tribe().balanceOf(address(this));
+        uint256 feiLiquidity = fei().balanceOf(address(this));
+        require(amountFeiToTimelock <= feiLiquidity, "IDORemover: Insufficient FEI");
+        uint256 amountFeiTo = feiLiquidity - amountFeiToTimelock;
 
-        // Send Fei and Tribe to destinations
-        IERC20(fei()).safeTransfer(feiTo, amountFei);
-        tribe().safeTransfer(tribeTo, amountTribe);
+        uint256 tribeLiquidity = tribe().balanceOf(address(this));
 
-        emit RemoveLiquidity(feiTo, amountFei, tribeTo, amountTribe);
-        return (amountFei, amountTribe);
+        // Send FEI to be burned to the DAO timelock
+        IERC20(fei()).safeTransfer(daoTimelock, amountFeiToTimelock);
+
+        // Send remaining FEI and all TRIBE liquidity to destinations
+        IERC20(fei()).safeTransfer(feiTo, amountFeiTo);
+        tribe().safeTransfer(tribeTo, tribeLiquidity);
+
+        emit RemoveLiquidity(feiTo, amountFeiTo, tribeTo, tribeLiquidity, daoTimelock, amountFeiToTimelock);
+        return (feiLiquidity, tribeLiquidity);
     }
-
-    /////////   Public state changing API, PERMISSIONED  /////////
 
     /// @notice Emergency withdraw function to withdraw funds from the contract
     function withdrawERC20(
