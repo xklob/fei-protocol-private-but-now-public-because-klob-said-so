@@ -27,15 +27,21 @@ const fipNumber = 'ido_liquidity_removal';
 const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(27_000_000);
 const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(40_000_000);
 
-// Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
-const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000);
-const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000);
-
 // Maxmimum slippage permitted on the liquidity extraction
 const MAX_SLIPPAGE_BASIS_POINTS = 200;
 
 // FEI liquidity sent to the DAO timelock upon redemption and burned
 const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
+
+// Additional TRIBE being sent to new timelock, to compensate for FEI burning
+const TRIBE_PRICE = 0.15; // TRIBE price in USD. TODO: Get Storm's help to verify this
+const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 15M TRIBE
+
+// Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
+// Bounds calculated from the approximate amount of TRIBE expected to be unlocked + the additional
+// TRIBE that is being allocated to compensate the FEI burn
+const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000).add(TRIBE_COMPENSATION);
+const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000).add(TRIBE_COMPENSATION);
 
 let initialFeiTotalSupply: BigNumber;
 
@@ -103,7 +109,6 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   await contracts.idoLiquidityTimelock.connect(beneficiarySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 
   initialFeiTotalSupply = await contracts.fei.totalSupply();
-  console.log('Initial FEI total supply: ', initialFeiTotalSupply.toString());
 };
 
 // Tears down any changes made in setup() that need to be
@@ -159,7 +164,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // 5. Validate FEI burned
   const finalFeiTotalSupply = await contracts.fei.totalSupply();
-  console.log('Final FEI total supply: ', finalFeiTotalSupply.toString());
   expect(finalFeiTotalSupply.add(FEI_BURNED)).to.be.equal(initialFeiTotalSupply);
 
   // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts

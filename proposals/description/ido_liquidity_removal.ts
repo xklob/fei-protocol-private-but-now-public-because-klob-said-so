@@ -53,7 +53,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       target: 'core',
       values: '0',
       method: 'allocateTribe(address,uint256)',
-      arguments: (addresses) => [addresses.tribeIDOTimelock, ethers.constants.WeiPerEther.mul(5_000_000)],
+      arguments: (addresses) => [addresses.tribeIDOTimelock, '1500000000000000000000000'],
       description: 'Send 5M TRIBE from the Treasury to the new TRIBE IDO timelock, to cover the burned FEI shortfall'
     }
   ],
