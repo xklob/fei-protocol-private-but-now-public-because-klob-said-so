@@ -28,30 +28,30 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     {
       target: 'idoLiquidityRemover',
       values: '0',
-      method: 'redeemLiquidity()',
-      arguments: (addresses) => [],
-      description: 'Remove liquidity from Uniswap pool, convert to FEI and TRIBE and send to destinations'
+      method: 'redeemLiquidity(uint256)',
+      arguments: (addresses) => [ethers.constants.WeiPerEther.mul(10_000_000)],
+      description: `
+      Remove liquidity from Uniswap pool, convert to FEI and TRIBE. Send 10M FEI to 
+      the DAO to be burned, the remaining FEI to the new FEI timelock and all the TRIBE 
+      to the new TRIBE timelock.
+      `
     },
-    // Off-chain, calculate how much additional TRIBE to allocate
-    // Plan:
-    // 1. Send all recovered FEI to the DAO
-    // 2. Burn 10M Fei, which pushes us to 100% stable backed. This removes 10M user circulating FEI
     // 3. Allocate TRIBE from Core to the TRIBE vesting contract, equivalent to the 10M burn
-    // 4. Send remaining FEI to the FEI timelock
     {
       target: 'fei',
       values: '0',
       method: 'burn(uint256)',
       arguments: (addresses) => [ethers.constants.WeiPerEther.mul(10_000_000)],
-      description: 'Burn 10M FEI'
+      description: `
+      Burn 10M FEI that was sent to the DAO timelock. This will push stable backing to ~100%
+      `
     },
-    // How much FEI do I have to send? It can change
     {
-      target: 'fei',
+      target: 'core',
       values: '0',
-      method: 'transfer(address,uint256)',
-      arguments: (addresses) => [ethers.constants.WeiPerEther.mul(10_000_000)],
-      description: 'Send remainder ~30M FEI to the new Fei linear timelock'
+      method: 'allocateTribe(address,uint256)',
+      arguments: (addresses) => [addresses.tribeIDOTimelock, ethers.constants.WeiPerEther.mul(5_000_000)],
+      description: 'Send 5M TRIBE from the Treasury to the new TRIBE IDO timelock, to cover the burned FEI shortfall'
     }
   ],
   description: `
@@ -60,13 +60,18 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
   Specifically, this proposal:
   1. Accepts the pending beneficiary of the IDO liquidity timelock 
      as the Tribe DAO timelock
-  2. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock and sends it to 
-     the beneficiary, now the Tribe DAO timelock
-  3. Transfers the Fei-Tribe LP tokens to an intermediate contract. This intermediate contract
-     will redeem the LP tokens for the underlying Fei and Tribe tokens in the Uniswap pool.
-  4. [Flesh out] Convert some amount of FEI into TRIBE
-  5. Lock the remaining FEI and TRIBE in new FEI and TRIBE timelocks, which have the same vesting
-     properties as the original LP timelock
+  2. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
+  3. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
+     redeems the LP tokens for the underlying FEI and TRIBE tokens in the Uniswap pool.
+
+     It then splits the liquidity accordingly:
+     a. Send 10M FEI to the DAO timelock, where it will then be burned. This is enough to 
+        push the stable backing to 100%
+     b. Send the remaining FEI to the new FEI timelock
+     c. Send all unlocked TRIBE liquidity to the new TRIBE timelock
+  4. Convert the 10M burned FEI to TRIBE (to cover the investor shortfall from burning)
+     and send to the new TRIBE timelock. This is done by allocating from the Core Treasury
+     the equivalent amount of TRIBE for the FEI burned.
   `
 };
 

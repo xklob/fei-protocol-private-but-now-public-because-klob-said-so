@@ -8,6 +8,7 @@ import {
   ValidateUpgradeFunc
 } from '@custom-types/types';
 import { getImpersonatedSigner } from '@test/helpers';
+import { BigNumber } from 'ethers';
 
 /*
 
@@ -23,8 +24,8 @@ IDO liquidity removal
 const fipNumber = 'ido_liquidity_removal';
 
 // Approximate bounds on the FEI to be transferred to the new timelock after LP tokens redeemed
-const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(37_000_000);
-const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(50_000_000);
+const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(27_000_000);
+const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(40_000_000);
 
 // Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
 const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000);
@@ -32,6 +33,11 @@ const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000);
 
 // Maxmimum slippage permitted on the liquidity extraction
 const MAX_SLIPPAGE_BASIS_POINTS = 200;
+
+// FEI liquidity sent to the DAO timelock upon redemption and burned
+const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
+
+let initialFeiTotalSupply: BigNumber;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -95,6 +101,9 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   const beneficiary = '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea';
   const beneficiarySigner = await getImpersonatedSigner(beneficiary);
   await contracts.idoLiquidityTimelock.connect(beneficiarySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
+
+  initialFeiTotalSupply = await contracts.fei.totalSupply();
+  console.log('Initial FEI total supply: ', initialFeiTotalSupply.toString());
 };
 
 // Tears down any changes made in setup() that need to be
@@ -138,7 +147,8 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // Constant product AMM, so equal worth of FEI and TRIBE
   // $42.5M FEI, $42.5M TRIBE
   // 1 FEI = $1, 1 TRIBE ~= $0.15
-  // Expect, ~42.5M FEI, ~280M TRIBE
+  // 10M FEI sent to DAO timelock for burning
+  // Expect, ~32.5M FEI, ~280M TRIBE
   const feiTimelockBalance = await contracts.fei.balanceOf(addresses.feiIDOTimelock);
   expect(feiTimelockBalance).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
   expect(feiTimelockBalance).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
@@ -147,9 +157,10 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(tribeTimelockBalance).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeTimelockBalance).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
 
-  // Stable backing currently 93%. To get to 100%, need 8.3M
-  // Burn 10M FEI
-  // Send remainder to the Fei timelock
+  // 5. Validate FEI burned
+  const finalFeiTotalSupply = await contracts.fei.totalSupply();
+  console.log('Final FEI total supply: ', finalFeiTotalSupply.toString());
+  expect(finalFeiTotalSupply.sub(FEI_BURNED)).to.be.equal(initialFeiTotalSupply);
 
   // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts
 
