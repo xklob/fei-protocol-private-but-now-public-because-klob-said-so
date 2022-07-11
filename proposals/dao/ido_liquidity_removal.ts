@@ -14,7 +14,7 @@ import { BigNumber } from 'ethers';
 
 IDO liquidity removal
 
-1. Transfer ownership of the IDO liquidity to the DAO timelock
+1. Transfer ownership of the IDO liquidity
 2. Early unlock the IDO liquidity and split liquidity
 3. Convert an amount of FEI into TRIBE
 4. Lock remaining in new timelocks
@@ -34,14 +34,17 @@ const MAX_SLIPPAGE_BASIS_POINTS = 200;
 const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
 
 // Additional TRIBE being sent to new timelock, to compensate for FEI burning
-const TRIBE_PRICE = 0.15; // TRIBE price in USD. TODO: Get Storm's help to verify this
-const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 15M TRIBE
+const TRIBE_PRICE = 15; // TRIBE price in USD. TODO: Get Storm's help to verify this
+const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 15M TRIBE, Tribe price = $0.15
 
 // Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
 // Bounds calculated from the approximate amount of TRIBE expected to be unlocked + the additional
 // TRIBE that is being allocated to compensate the FEI burn
 const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000).add(TRIBE_COMPENSATION);
 const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000).add(TRIBE_COMPENSATION);
+
+// Fei Labs multisig controlling the Fei Labs treasury
+const feiLabsTreasuryMultisig = '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea';
 
 let initialFeiTotalSupply: BigNumber;
 
@@ -55,7 +58,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   // 1. Deploy new FEI linear token timelock - Fei timelock, no vote delegation
   const LinearTokenTimelockedFactory = await ethers.getContractFactory('LinearTokenTimelock');
   const feiIDOTimelock = await LinearTokenTimelockedFactory.deploy(
-    addresses.feiDAOTimelock, // beneficiary
+    feiLabsTreasuryMultisig, // beneficiary
     idoTimelockRemainingDuration, // duration
     addresses.fei, // token
     0, // secondsUntilCliff - have already passed the cliff
@@ -69,7 +72,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   // 2. Deploy new TRIBE linear token delegator timelock
   const LinearTokenTimelockedDelegatorFactory = await ethers.getContractFactory('LinearTimelockedDelegator');
   const tribeIDOTimelock = await LinearTokenTimelockedDelegatorFactory.deploy(
-    addresses.feiDAOTimelock, // beneficiary
+    feiLabsTreasuryMultisig, // beneficiary
     idoTimelockRemainingDuration, // duration
     addresses.tribe, // token
     0, // secondsUntilCliff - have already passed the cliff
@@ -87,7 +90,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     tribeIDOTimelock.address,
     addresses.uniswapRouter,
     addresses.feiTribePair,
-    MAX_SLIPPAGE_BASIS_POINTS
+    MAX_SLIPPAGE_BASIS_POINTS // TODO: Possibly set on the function call rather than in the constructor
   );
   await idoLiquidityRemover.deployTransaction.wait();
   console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
@@ -104,9 +107,10 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // Set pending beneficiary to the DAO timelock
-  const beneficiary = '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea';
-  const beneficiarySigner = await getImpersonatedSigner(beneficiary);
-  await contracts.idoLiquidityTimelock.connect(beneficiarySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
+  const feiLabsTreasurySigner = await getImpersonatedSigner(feiLabsTreasuryMultisig);
+  await contracts.idoLiquidityTimelock
+    .connect(feiLabsTreasurySigner)
+    .setPendingBeneficiary(addresses.feiLabsTreasuryMultisig);
 
   initialFeiTotalSupply = await contracts.fei.totalSupply();
 };
@@ -122,14 +126,14 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // TODO: Validate duration on these timelocks
   // 1. Validate FEI timelock configured
-  expect(await contracts.feiIDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.feiIDOTimelock.beneficiary()).to.be.equal(feiLabsTreasuryMultisig);
   expect(await contracts.feiIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
   expect(await contracts.feiIDOTimelock.lockedToken()).to.be.equal(addresses.fei);
   // expect(await contracts.feiIDOTimelock.duration()).to.be.equal();
   expect(await contracts.feiIDOTimelock.cliffSeconds()).to.be.equal(0);
 
   // 2. Validate TRIBE timelock configured
-  expect(await contracts.tribeIDOTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeIDOTimelock.beneficiary()).to.be.equal(feiLabsTreasuryMultisig);
   expect(await contracts.tribeIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
   expect(await contracts.tribeIDOTimelock.lockedToken()).to.be.equal(addresses.tribe);
   // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
@@ -165,12 +169,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 5. Validate FEI burned
   const finalFeiTotalSupply = await contracts.fei.totalSupply();
   expect(finalFeiTotalSupply.add(FEI_BURNED)).to.be.equal(initialFeiTotalSupply);
-
-  // TODO: Calculate how much additional TRIBE is going to the Fei Labs vesting contracts
-
-  // 6. Beneficiary should be able to claim from Fei timelock
-
-  // 7. Beneficiary should be able to claim from Tribe timelock
 };
 
 export { deploy, setup, teardown, validate };
