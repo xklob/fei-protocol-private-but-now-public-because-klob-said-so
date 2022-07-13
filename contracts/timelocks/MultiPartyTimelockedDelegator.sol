@@ -21,8 +21,11 @@ contract MultiPartyTimelockedDelegator is TimelockedDelegator {
         delegationManager = _delegationManager;
     }
 
-    modifier onlyDelegationManager() {
-        require(msg.sender == beneficiary, "TokenTimelock: Caller is not a beneficiary");
+    modifier onlyDelegationManagerOrBeneficiary() {
+        require(
+            msg.sender == delegationManager || msg.sender == beneficiary,
+            "Timelock: Caller not delegation manager or beneficiary"
+        );
         _;
     }
 
@@ -35,13 +38,13 @@ contract MultiPartyTimelockedDelegator is TimelockedDelegator {
         emit SetDelegationManager(oldDelegationManager, _newDelegationManager);
     }
 
-    /// @notice Pass through delegate method, permissioned to the delegate manager
-    function delegate(address delegatee, uint256 amount) public override onlyDelegationManager {
+    /// @notice Pass through delegate method, permissioned to the delegate manager or beneficiary
+    function delegate(address delegatee, uint256 amount) public override onlyDelegationManagerOrBeneficiary {
         super.delegate(delegatee, amount);
     }
 
-    /// @notice Pass through undelegate method, permissioned to the delegation manager
-    function undelegate(address delegatee) public override onlyDelegationManager returns (uint256) {
+    /// @notice Pass through undelegate method, permissioned to the delegation manager or beneficiary
+    function undelegate(address delegatee) public override onlyDelegationManagerOrBeneficiary returns (uint256) {
         return super.undelegate(delegatee);
     }
 }

@@ -62,7 +62,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     idoTimelockRemainingDuration, // duration
     addresses.fei, // token
     0, // secondsUntilCliff - have already passed the cliff
-    addresses.feiDAOTimelock, // clawbackAdmin
+    ethers.constants.AddressZero, // clawbackAdmin - no clawback admin. Won't be able to early unlock
     0 // startTime
   );
   await feiIDOTimelock.deployTransaction.wait();
@@ -76,7 +76,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     idoTimelockRemainingDuration, // duration
     addresses.tribe, // token
     0, // secondsUntilCliff - have already passed the cliff
-    addresses.feiDAOTimelock, // clawbackAdmin
+    ethers.constants.AddressZero, // clawbackAdmin - no clawback admin. Won't be able to early unlock
     0 // startTime
   );
   await tribeIDOTimelock.deployTransaction.wait();
@@ -127,14 +127,14 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // TODO: Validate duration on these timelocks
   // 1. Validate FEI timelock configured
   expect(await contracts.feiIDOTimelock.beneficiary()).to.be.equal(feiLabsTreasuryMultisig);
-  expect(await contracts.feiIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.feiIDOTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
   expect(await contracts.feiIDOTimelock.lockedToken()).to.be.equal(addresses.fei);
   // expect(await contracts.feiIDOTimelock.duration()).to.be.equal();
   expect(await contracts.feiIDOTimelock.cliffSeconds()).to.be.equal(0);
 
   // 2. Validate TRIBE timelock configured
   expect(await contracts.tribeIDOTimelock.beneficiary()).to.be.equal(feiLabsTreasuryMultisig);
-  expect(await contracts.tribeIDOTimelock.clawbackAdmin()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeIDOTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
   expect(await contracts.tribeIDOTimelock.lockedToken()).to.be.equal(addresses.tribe);
   // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
   expect(await contracts.tribeIDOTimelock.cliffSeconds()).to.be.equal(0);
