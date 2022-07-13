@@ -1,6 +1,19 @@
 import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
+// Amount of FEI to send to DAO timelock for burning
+const AMOUNT_FEI_TO_DAO_TIMELOCK = ethers.constants.WeiPerEther.mul(10_000_000);
+
+// Minimum amount of FEI to be redeemed from Uniswap when liquidity removed
+const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(40_000_000);
+
+// Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
+const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(280_000_000);
+
+// Amount of additional TRIBE to be sent from Core treasury to new timelock
+// to compensate the burning of FEI (to get stable backing to 100%)
+const OTC_TRIBE_AMOUNT = ethers.constants.WeiPerEther.mul(67_000_000);
+
 const ido_liquidity_removal: TemplatedProposalDescription = {
   title: 'Remove IDO liquidity from Uniswap V2',
   commands: [
@@ -31,8 +44,8 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     {
       target: 'idoLiquidityRemover',
       values: '0',
-      method: 'redeemLiquidity(uint256)',
-      arguments: (addresses) => [ethers.constants.WeiPerEther.mul(10_000_000)],
+      method: 'redeemLiquidity(uint256,uint256,uint256)',
+      arguments: (addresses) => [AMOUNT_FEI_TO_DAO_TIMELOCK, MIN_FEI_OUT, MIN_TRIBE_OUT],
       description: `
       Remove liquidity from Uniswap pool, convert to FEI and TRIBE. Send 10M FEI to 
       the DAO to be burned, the remaining FEI to the new FEI timelock and all the TRIBE 
@@ -44,7 +57,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       target: 'fei',
       values: '0',
       method: 'burn(uint256)',
-      arguments: (addresses) => [ethers.constants.WeiPerEther.mul(10_000_000)],
+      arguments: (addresses) => [AMOUNT_FEI_TO_DAO_TIMELOCK],
       description: `
       Burn 10M FEI that was sent to the DAO timelock. This will push stable backing to ~100%
       `
@@ -53,8 +66,9 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       target: 'core',
       values: '0',
       method: 'allocateTribe(address,uint256)',
-      arguments: (addresses) => [addresses.tribeIDOTimelock, '1500000000000000000000000'],
-      description: 'Send 5M TRIBE from the Treasury to the new TRIBE IDO timelock, to cover the burned FEI shortfall'
+      arguments: (addresses) => [addresses.tribeIDOTimelock, OTC_TRIBE_AMOUNT],
+      description:
+        'Send 67M TRIBE from the Treasury to the new TRIBE IDO timelock, to compensate the burned FEI shortfall'
     }
   ],
   description: `

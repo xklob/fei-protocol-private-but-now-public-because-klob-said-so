@@ -4,7 +4,7 @@ import fip_x from '@proposals/description/fip_x';
 
 import ido_liquidity_removal from '@proposals/description/ido_liquidity_removal';
 
-const proposals: TemplatedProposalsConfigMap = {
+export const ProposalsConfig: TemplatedProposalsConfigMap = {
   ido_liquidity_removal: {
     deploy: true, // deploy flag for whether to run deploy action during e2e tests or use mainnet state
     totalValue: 0, // amount of ETH to send to DAO execution

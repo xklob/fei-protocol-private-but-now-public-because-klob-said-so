@@ -12,7 +12,6 @@ contract IDORemoverIntegrationTest is DSTest {
     IDOLiquidityRemover idoRemover;
     address feiTo = address(1);
     address tribeTo = address(2);
-    uint256 maxBasisPointsFromPegLP = 200;
     address feiTribeLPHolder = 0x9e1076cC0d19F9B0b8019F384B0a29E48Ee46f7f;
     address uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
@@ -23,25 +22,16 @@ contract IDORemoverIntegrationTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
     function setUp() public {
-        idoRemover = new IDOLiquidityRemover(
-            MainnetAddresses.CORE,
-            feiTo,
-            tribeTo,
-            uniswapRouter,
-            address(feiTribeLP),
-            maxBasisPointsFromPegLP
-        );
+        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE, feiTo, tribeTo, uniswapRouter, address(feiTribeLP));
 
         vm.label(address(idoRemover), "IDO remover");
         vm.label(address(feiTribeLP), "Pair");
-        vm.label(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, "Router");
     }
 
     /// @notice Validate initial constructor params set
     function testInitialState() public {
         assertEq(idoRemover.feiTo(), feiTo);
         assertEq(idoRemover.tribeTo(), tribeTo);
-        assertEq(idoRemover.maxBasisPointsFromPegLP(), maxBasisPointsFromPegLP);
     }
 
     /// @notice Validate LP tokens can be redeemed and underlying sent to destination
@@ -50,11 +40,16 @@ contract IDORemoverIntegrationTest is DSTest {
         feiTribeLP.transfer(address(idoRemover), 1000);
 
         // Get the minimum amounts out
-        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(1000);
+        uint256 maxSlippageBasisPoints = 200;
+        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(1000, maxSlippageBasisPoints);
 
         uint256 amountFeiToTimelock = 100;
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
-        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(amountFeiToTimelock);
+        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(
+            amountFeiToTimelock,
+            minFeiOut,
+            minTribeOut
+        );
 
         assertGt(feiLiquidity, minFeiOut);
         assertGt(tribeLiquidity, minTribeOut);
@@ -72,6 +67,20 @@ contract IDORemoverIntegrationTest is DSTest {
 
         // Verify DAO timelock received expected Fei
         assertEq(fei.balanceOf(MainnetAddresses.FEI_DAO_TIMELOCK), amountFeiToTimelock);
+    }
+
+    /// @notice Validate that too high slippage fails
+    function testRedeemLiquidityFailsForTooHighSlippage() public {
+        vm.prank(feiTribeLPHolder);
+        feiTribeLP.transfer(address(idoRemover), 1000);
+
+        // Make min amounts out greater than expected redeemed liquidity
+        (uint256 minFeiOut, uint256 minTribeOut) = (1000, 1000);
+
+        uint256 amountFeiToTimelock = 100;
+        vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
+        vm.expectRevert(bytes("UniswapV2Router: INSUFFICIENT_A_AMOUNT"));
+        idoRemover.redeemLiquidity(amountFeiToTimelock, minFeiOut, minTribeOut);
     }
 
     /// @notice Validate that can withdraw ERC20s on the contract in an emergency
@@ -93,6 +102,6 @@ contract IDORemoverIntegrationTest is DSTest {
     /// @notice Validate that redeemLiquidity() only calleable by the Governor
     function testRedeemLiquidityOnlyGovernor() public {
         vm.expectRevert(bytes("UNAUTHORIZED"));
-        idoRemover.redeemLiquidity(5);
+        idoRemover.redeemLiquidity(5, 0, 0);
     }
 }

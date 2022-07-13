@@ -18,7 +18,6 @@ contract IDOLiquidityRemoverTest is DSTest {
     IDOLiquidityRemover idoRemover;
     address feiTo = address(1);
     address tribeTo = address(1);
-    uint256 maxSlippageBasisPoints = 200;
 
     FeiTestAddresses public addresses = getAddresses();
     Core core = getCore();
@@ -32,14 +31,7 @@ contract IDOLiquidityRemoverTest is DSTest {
         MockUniswapV2PairLiquidity pair = new MockUniswapV2PairLiquidity(address(core.fei()), address(token));
         MockRouter router = new MockRouter(address(pair));
 
-        idoRemover = new IDOLiquidityRemover(
-            address(core),
-            feiTo,
-            tribeTo,
-            address(router),
-            address(pair),
-            maxSlippageBasisPoints
-        );
+        idoRemover = new IDOLiquidityRemover(address(core), feiTo, tribeTo, address(router), address(pair));
 
         // Set reserves
         pair.set(reserve0, reserve1, initialLiquidity);
@@ -56,7 +48,8 @@ contract IDOLiquidityRemoverTest is DSTest {
     //          when a number of LP tokens are burned, with a maxmimum slippage factor applied
     function testGetMinAmountsOut() public {
         uint256 amountLP = 1000;
-        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(amountLP);
+        uint256 maxSlippageBasisPoints = 200;
+        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(amountLP, maxSlippageBasisPoints);
 
         uint256 expectedFeiOut = (((amountLP * reserve0) / initialLiquidity) *
             (Constants.BASIS_POINTS_GRANULARITY - maxSlippageBasisPoints)) / Constants.BASIS_POINTS_GRANULARITY;

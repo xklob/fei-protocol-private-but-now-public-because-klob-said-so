@@ -27,15 +27,12 @@ const fipNumber = 'ido_liquidity_removal';
 const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(27_000_000);
 const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(40_000_000);
 
-// Maxmimum slippage permitted on the liquidity extraction
-const MAX_SLIPPAGE_BASIS_POINTS = 200;
-
 // FEI liquidity sent to the DAO timelock upon redemption and burned
 const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
 
 // Additional TRIBE being sent to new timelock, to compensate for FEI burning
 const TRIBE_PRICE = 15; // TRIBE price in USD. TODO: Get Storm's help to verify this
-const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 15M TRIBE, Tribe price = $0.15
+const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 67M TRIBE, Tribe price = $0.15
 
 // Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
 // Bounds calculated from the approximate amount of TRIBE expected to be unlocked + the additional
@@ -89,8 +86,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     feiIDOTimelock.address,
     tribeIDOTimelock.address,
     addresses.uniswapRouter,
-    addresses.feiTribePair,
-    MAX_SLIPPAGE_BASIS_POINTS // TODO: Possibly set on the function call rather than in the constructor
+    addresses.feiTribePair
   );
   await idoLiquidityRemover.deployTransaction.wait();
   console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
@@ -108,9 +104,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // Set pending beneficiary to the DAO timelock
   const feiLabsTreasurySigner = await getImpersonatedSigner(feiLabsTreasuryMultisig);
-  await contracts.idoLiquidityTimelock
-    .connect(feiLabsTreasurySigner)
-    .setPendingBeneficiary(addresses.feiLabsTreasuryMultisig);
+  await contracts.idoLiquidityTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 
   initialFeiTotalSupply = await contracts.fei.totalSupply();
 };
@@ -144,7 +138,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.idoLiquidityRemover.tribeTo()).to.be.equal(addresses.tribeIDOTimelock);
   expect(await contracts.idoLiquidityRemover.uniswapRouter()).to.be.equal(addresses.uniswapRouter);
   expect(await contracts.idoLiquidityRemover.pair()).to.be.equal(addresses.feiTribePair);
-  expect(await contracts.idoLiquidityRemover.maxBasisPointsFromPegLP()).to.be.equal(MAX_SLIPPAGE_BASIS_POINTS);
 
   // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
