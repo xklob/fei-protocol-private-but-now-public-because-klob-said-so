@@ -24,7 +24,7 @@ contract MultiPartyTimelockedDelegator is TimelockedDelegator {
     modifier onlyDelegationManagerOrBeneficiary() {
         require(
             msg.sender == delegationManager || msg.sender == beneficiary,
-            "Timelock: Caller not delegation manager or beneficiary"
+            "TokenTimelock: Caller not delegation manager or beneficiary"
         );
         _;
     }
