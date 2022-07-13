@@ -40,11 +40,11 @@ contract MultiPartyTimelockedDelegator is TimelockedDelegator {
 
     /// @notice Pass through delegate method, permissioned to the delegate manager or beneficiary
     function delegate(address delegatee, uint256 amount) public override onlyDelegationManagerOrBeneficiary {
-        super.delegate(delegatee, amount);
+        _delegate(delegatee, amount);
     }
 
     /// @notice Pass through undelegate method, permissioned to the delegation manager or beneficiary
     function undelegate(address delegatee) public override onlyDelegationManagerOrBeneficiary returns (uint256) {
-        return super.undelegate(delegatee);
+        return _undelegate(delegatee);
     }
 }

@@ -61,6 +61,13 @@ contract TimelockedDelegator is ITimelockedDelegator, LinearTokenTimelock {
     /// @param delegatee the target address to delegate to
     /// @param amount the amount of TRIBE to delegate. Will increment existing delegated TRIBE
     function delegate(address delegatee, uint256 amount) public virtual override onlyBeneficiary {
+        _delegate(delegatee, amount);
+    }
+
+    /// @notice Interal _delegate() method to expose logic to a higher level permissioned function
+    /// @param delegatee the target address to delegate to
+    /// @param amount the amount of TRIBE to delegate. Will increment existing delegated TRIBE
+    function _delegate(address delegatee, uint256 amount) internal {
         require(amount <= _tribeBalance(), "TimelockedDelegator: Not enough Tribe");
 
         // withdraw and include an existing delegation
@@ -84,6 +91,13 @@ contract TimelockedDelegator is ITimelockedDelegator, LinearTokenTimelock {
     /// @param delegatee the target address to undelegate from
     /// @return the amount of TRIBE returned
     function undelegate(address delegatee) public virtual override onlyBeneficiary returns (uint256) {
+        return _undelegate(delegatee);
+    }
+
+    /// @notice Internal _undelegate() method to expose logic to higher level permissioned functions
+    /// @param delegatee the target address to undelegate from
+    /// @return the amount of TRIBE returned
+    function _undelegate(address delegatee) internal returns (uint256) {
         address _delegateContract = delegateContract[delegatee];
         require(_delegateContract != address(0), "TimelockedDelegator: Delegate contract nonexistent");
 

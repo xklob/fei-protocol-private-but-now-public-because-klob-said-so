@@ -58,6 +58,8 @@ contract MultiPartyTimelockedDelegatorTest is DSTest {
 
         // Verify delegation was made
         assertEq(timelockDelegator.totalDelegated(), delegateAmount);
+        assertEq(timelockDelegator.totalToken(), tribeMint);
+
         address delegateeContract = timelockDelegator.delegateContract(delegatee);
         assertEq(tribe.balanceOf(delegateeContract), delegateAmount);
     }
@@ -70,7 +72,34 @@ contract MultiPartyTimelockedDelegatorTest is DSTest {
         timelockDelegator.delegate(delegatee, delegateAmount);
     }
 
-    function testUndelegateFromBeneficiary() public {}
+    function testUndelegateFromBeneficiary() public {
+        address delegatee = address(4);
+        uint256 delegateAmount = 100;
 
-    function testUndelegateFromManager() public {}
+        vm.prank(beneficiary);
+        timelockDelegator.delegate(delegatee, delegateAmount);
+
+        // Undelegate
+        vm.prank(beneficiary);
+        timelockDelegator.undelegate(delegatee);
+
+        // Verify undelegation was made
+        assertEq(timelockDelegator.totalDelegated(), 0);
+        assertEq(timelockDelegator.totalToken(), tribeMint);
+
+        address delegateeContract = timelockDelegator.delegateContract(delegatee);
+        assertEq(tribe.balanceOf(delegateeContract), 0);
+    }
+
+    function testUndelegateFromManager() public {
+        address delegatee = address(4);
+        uint256 delegateAmount = 100;
+
+        vm.prank(beneficiary);
+        timelockDelegator.delegate(delegatee, delegateAmount);
+
+        // Undelegate
+        vm.prank(delegationManager);
+        timelockDelegator.undelegate(delegatee);
+    }
 }
