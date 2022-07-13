@@ -40,24 +40,19 @@ contract IDOLiquidityRemover is CoreRef {
     IUniswapV2Router02 public immutable uniswapRouter;
 
     /// @notice DAO timelock to send Fei to be burned
-    address public constant daoTimelock = 0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c;
-
-    /// @notice Slippage protection parameter on withdraw
-    uint256 public immutable maxBasisPointsFromPegLP;
+    address public constant DAO_TIMELOCK = 0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c;
 
     constructor(
         address _core,
         address _feiTo,
         address _tribeTo,
         address _uniswapRouter,
-        address _uniswapPair,
-        uint256 _maxBasisPointsFromPegLP
+        address _uniswapPair
     ) CoreRef(_core) {
         feiTo = _feiTo;
         tribeTo = _tribeTo;
         uniswapRouter = IUniswapV2Router02(_uniswapRouter);
         pair = IUniswapV2Pair(_uniswapPair);
-        maxBasisPointsFromPegLP = _maxBasisPointsFromPegLP;
     }
 
     ///////////   Public state changing API   ///////////////
@@ -67,17 +62,16 @@ contract IDOLiquidityRemover is CoreRef {
     ///         2. Send the remaining FEI to a destination, intended to be a new FEI timelock
     ///         3. Send all unlocked TRIBE liquidity to a destination, intended to be a new TRIBE timelock
     /// @param amountFeiToTimelock Amount of FEI to be transferred to DAO timelock, where it will then be burned
-    function redeemLiquidity(uint256 amountFeiToTimelock)
-        external
-        onlyTribeRole(TribeRoles.GOVERNOR)
-        returns (uint256, uint256)
-    {
+    /// @param minAmountFeiOut Minimum amount of FEI to be redeemed
+    /// @param minAmountTribeOut Minimum amount of TRIBE to be redeemed
+    function redeemLiquidity(
+        uint256 amountFeiToTimelock,
+        uint256 minAmountFeiOut,
+        uint256 minAmountTribeOut
+    ) external onlyTribeRole(TribeRoles.GOVERNOR) returns (uint256, uint256) {
         require(pair.balanceOf(address(this)) > 0, "IDORemover: Insufficient liquidity");
 
         uint256 amountLP = pair.balanceOf(address(this));
-
-        // Get minimum amounts out after withdrawing liquidity
-        (uint256 minFeiOut, uint256 minTribeOut) = getMinAmountsOut(amountLP);
 
         // Approve Uniswap router to swap tokens
         pair.approve(address(uniswapRouter), amountLP);
@@ -87,10 +81,10 @@ contract IDOLiquidityRemover is CoreRef {
             address(fei()),
             address(tribe()),
             amountLP,
-            minFeiOut,
-            minTribeOut,
+            minAmountFeiOut,
+            minAmountTribeOut,
             address(this),
-            type(uint256).max
+            block.timestamp
         );
 
         uint256 feiLiquidity = fei().balanceOf(address(this));
@@ -100,13 +94,13 @@ contract IDOLiquidityRemover is CoreRef {
         uint256 tribeLiquidity = tribe().balanceOf(address(this));
 
         // Send FEI to be burned to the DAO timelock
-        IERC20(fei()).safeTransfer(daoTimelock, amountFeiToTimelock);
+        IERC20(fei()).safeTransfer(DAO_TIMELOCK, amountFeiToTimelock);
 
         // Send remaining FEI and all TRIBE liquidity to destinations
         IERC20(fei()).safeTransfer(feiTo, amountFeiTo);
         tribe().safeTransfer(tribeTo, tribeLiquidity);
 
-        emit RemoveLiquidity(feiTo, amountFeiTo, tribeTo, tribeLiquidity, daoTimelock, amountFeiToTimelock);
+        emit RemoveLiquidity(feiTo, amountFeiTo, tribeTo, tribeLiquidity, DAO_TIMELOCK, amountFeiToTimelock);
         return (feiLiquidity, tribeLiquidity);
     }
 
@@ -120,10 +114,10 @@ contract IDOLiquidityRemover is CoreRef {
         emit WithdrawERC20(msg.sender, token, to, amount);
     }
 
-    /////////////  Read only API  //////////////////
+    /////////////  Read only, helper API  //////////////////
 
     /// @notice Used for slippage protection when removing liquidity from Uniswap
-    function getMinAmountsOut(uint256 amountLP) public view returns (uint256, uint256) {
+    function getMinAmountsOut(uint256 amountLP, uint256 maxBasisPointsSlippage) public view returns (uint256, uint256) {
         uint256 totalSupply = pair.totalSupply();
         (uint256 feiReserves, uint256 tribeReserves) = getReserves();
 
@@ -131,8 +125,11 @@ contract IDOLiquidityRemover is CoreRef {
         uint256 amountFeiOut = (amountLP * feiReserves) / totalSupply;
         uint256 amountTribeOut = (amountLP * tribeReserves) / totalSupply;
 
-        // Apply slippage protection
-        return (_getMinLiquidity(amountFeiOut), _getMinLiquidity(amountTribeOut));
+        // Slippage protection
+        return (
+            _getMinLiquidity(amountFeiOut, maxBasisPointsSlippage),
+            _getMinLiquidity(amountTribeOut, maxBasisPointsSlippage)
+        );
     }
 
     /// @notice Get the pair reserves, with fei listed first
@@ -144,9 +141,9 @@ contract IDOLiquidityRemover is CoreRef {
     }
 
     /// @notice Apply a slippage factor to determine minimum amount out
-    function _getMinLiquidity(uint256 amount) internal view returns (uint256) {
+    function _getMinLiquidity(uint256 amount, uint256 maxBasisPointsSlippage) internal pure returns (uint256) {
         return
-            (amount * (Constants.BASIS_POINTS_GRANULARITY - maxBasisPointsFromPegLP)) /
+            (amount * (Constants.BASIS_POINTS_GRANULARITY - maxBasisPointsSlippage)) /
             Constants.BASIS_POINTS_GRANULARITY;
     }
 }
