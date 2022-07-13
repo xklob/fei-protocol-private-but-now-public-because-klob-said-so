@@ -1,4 +1,4 @@
-import { ProposalCategory, TemplatedProposalDescription, TemplatedProposalsConfigMap } from '@custom-types/types';
+import { ProposalCategory, TemplatedProposalsConfigMap } from '@custom-types/types';
 
 import fip_x from '@proposals/description/fip_x';
 
@@ -15,5 +15,3 @@ const proposals: TemplatedProposalsConfigMap = {
     category: ProposalCategory.DEBUG
   }
 };
-
-export default proposals;
