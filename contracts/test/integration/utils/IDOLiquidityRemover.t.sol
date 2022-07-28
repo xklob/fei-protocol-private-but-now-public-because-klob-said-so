@@ -22,34 +22,31 @@ contract IDORemoverIntegrationTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
     function setUp() public {
-        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE, feiTo, tribeTo, uniswapRouter, address(feiTribeLP));
+        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE);
 
         vm.label(address(idoRemover), "IDO remover");
         vm.label(address(feiTribeLP), "Pair");
+        vm.label(address(uniswapRouter), "Router");
     }
 
-    /// @notice Validate initial constructor params set
     function testInitialState() public {
-        assertEq(idoRemover.feiTo(), feiTo);
-        assertEq(idoRemover.tribeTo(), tribeTo);
+        assertEq(address(idoRemover.UNISWAP_ROUTER()), uniswapRouter);
+        assertEq(address(idoRemover.FEI_TRIBE_PAIR()), address(feiTribeLP));
     }
 
-    /// @notice Validate LP tokens can be redeemed and underlying sent to destination
-    function testRedeemLiquidity() public {
+    /// @notice Validate LP tokens can be redeemed, the underlying FEI burned and the 
+    ///         underlying TRIBE sent to Core
+    function testRedeemLiquidityOnly() public {
+        uint256 initialFeiSupply = fei.totalSupply();
+        uint256 initialCoreBalance = tribe.balanceOf(MainnetAddresses.CORE);
+
         vm.prank(feiTribeLPHolder);
         feiTribeLP.transfer(address(idoRemover), 1000);
 
-        // Get the minimum amounts out
-        uint256 maxSlippageBasisPoints = 200;
-        (uint256 minFeiOut, uint256 minTribeOut) = idoRemover.getMinAmountsOut(1000, maxSlippageBasisPoints);
-
-        uint256 amountFeiToTimelock = 100;
+        // Set minimum amounts out
+        (uint256 minFeiOut, uint256 minTribeOut) = (50, 50);
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
-        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(
-            amountFeiToTimelock,
-            minFeiOut,
-            minTribeOut
-        );
+        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(minFeiOut, minTribeOut);
 
         assertGt(feiLiquidity, minFeiOut);
         assertGt(tribeLiquidity, minTribeOut);
@@ -59,14 +56,15 @@ contract IDORemoverIntegrationTest is DSTest {
         assertEq(fei.balanceOf(address(idoRemover)), 0);
         assertEq(tribe.balanceOf(address(idoRemover)), 0);
 
-        // Check FEI and TRIBE arrives at destinations
-        uint256 feiToBalance = fei.balanceOf(address(feiTo));
-        uint256 tribeToBalance = tribe.balanceOf(address(tribeTo));
-        assertEq(feiToBalance, feiLiquidity - amountFeiToTimelock);
-        assertEq(tribeToBalance, tribeLiquidity);
+        // Validate FEI was burned
+        uint256 feiBurned = initialFeiSupply - fei.totalSupply();
+        assertGt(feiBurned, 0);
+        assertEq(feiBurned, feiLiquidity);
 
-        // Verify DAO timelock received expected Fei
-        assertEq(fei.balanceOf(MainnetAddresses.FEI_DAO_TIMELOCK), amountFeiToTimelock);
+        // Validate TRIBE arrived at Core
+        uint256 tribeRedeemed = tribe.balanceOf(MainnetAddresses.CORE) - initialCoreBalance;
+        assertGt(tribeRedeemed, 0);
+        assertEq(tribeRedeemed, tribeLiquidity);
     }
 
     /// @notice Validate that too high slippage fails
@@ -77,10 +75,9 @@ contract IDORemoverIntegrationTest is DSTest {
         // Make min amounts out greater than expected redeemed liquidity
         (uint256 minFeiOut, uint256 minTribeOut) = (1000, 1000);
 
-        uint256 amountFeiToTimelock = 100;
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
         vm.expectRevert(bytes("UniswapV2Router: INSUFFICIENT_A_AMOUNT"));
-        idoRemover.redeemLiquidity(amountFeiToTimelock, minFeiOut, minTribeOut);
+        idoRemover.redeemLiquidity(minFeiOut, minTribeOut);
     }
 
     /// @notice Validate that can withdraw ERC20s on the contract in an emergency
@@ -102,6 +99,6 @@ contract IDORemoverIntegrationTest is DSTest {
     /// @notice Validate that redeemLiquidity() only calleable by the Governor
     function testRedeemLiquidityOnlyGovernor() public {
         vm.expectRevert(bytes("UNAUTHORIZED"));
-        idoRemover.redeemLiquidity(5, 0, 0);
+        idoRemover.redeemLiquidity(0, 0);
     }
 }
