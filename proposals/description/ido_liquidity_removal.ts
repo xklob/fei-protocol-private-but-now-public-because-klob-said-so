@@ -2,31 +2,15 @@ import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
 // Minimum amount of FEI to be redeemed from Uniswap when liquidity removed
-const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(40_000_000);
+const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(35_000_000);
 
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
-const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(280_000_000);
+const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(260_000_000);
 
 const ido_liquidity_removal: TemplatedProposalDescription = {
   title: 'Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity',
   commands: [
-    // 1. Clawback Rari Infra timelocks
-    {
-      target: 'newRariInfraFeiTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback the FEI from the Rari Infra FEI timelock to the DAO timelock'
-    },
-    {
-      target: 'newRariInfraTribeTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback the TRIBE from the Rari Infra TRIBE timelock to the DAO timelock'
-    },
-
-    // 2. Clawback the La Tribu timelocks
+    // 1. Clawback the La Tribu timelocks
     {
       target: 'laTribuFeiTimelock',
       values: '0',
@@ -42,10 +26,10 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       description: 'Clawback the TRIBE from the La Tribu FEI timelock to the DAO timelock'
     },
 
-    // 3. Accept the beneficiary of the vesting FEI/TRIBE contracts to a sink contract
+    // 2. Accept the beneficiary of the vesting FEI/TRIBE contracts to a sink contract
     //    ensuring that the TRIBE is inaccessible
 
-    // 4. Prepare for liquidity removal by accepting timelock beneficiary
+    // 3. Prepare for liquidity removal by accepting timelock beneficiary
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -95,14 +79,13 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
   whilst the redeemed TRIBE is sent to the Treasury.
 
   Specifically, this proposal:
-  1. Claws back the Rari Infra FEI and TRIBE timelocks
-  2. Claws back the La Tribue FEI and TRIBE timelocks
-  3. Accepts the beneficiary of all FEI and TRIBE vesting timelocks to a sink contract,
+  1. Claws back the La Tribue FEI and TRIBE timelocks
+  2. Accepts the beneficiary of all FEI and TRIBE vesting timelocks to a sink contract,
      where the vested funds will become inaccessible
-  4. Accepts the pending beneficiary of the IDO liquidity timelock 
+  3. Accepts the pending beneficiary of the IDO liquidity timelock 
      as the Tribe DAO timelock
-  5. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
-  6. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
+  4. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
+  5. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
      redeems the LP tokens for the underlying FEI and TRIBE tokens in the Uniswap pool.
 
      It then burns all redeemed FEI and sends all redeemed TRIBE to the Treasury.

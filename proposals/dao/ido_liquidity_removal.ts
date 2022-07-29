@@ -25,8 +25,8 @@ IDO liquidity removal
 const fipNumber = 'ido_liquidity_removal';
 
 // Approximate bounds on the FEI to be transferred to the new timelock after LP tokens redeemed
-const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(27_000_000);
-const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(40_000_000);
+const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(30_000_000);
+const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(50_000_000);
 
 // FEI liquidity sent to the DAO timelock upon redemption and burned
 const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
@@ -88,10 +88,6 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // 1. Validate Rari Infra clawed back
-  expect(await contracts.fei.balanceOf(addresses.newRariInfraFeiTimelock)).to.be.equal(0);
-  expect(await contracts.tribe.balanceOf(addresses.newRariInfraTribeTimelock)).to.be.equal(0);
-
   // 2. Validate La Tribu clawed back
   expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.be.equal(0);
