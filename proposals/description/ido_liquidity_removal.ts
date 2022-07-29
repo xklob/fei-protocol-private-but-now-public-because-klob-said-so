@@ -1,23 +1,51 @@
 import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
-// Amount of FEI to send to DAO timelock for burning
-const AMOUNT_FEI_TO_DAO_TIMELOCK = ethers.constants.WeiPerEther.mul(10_000_000);
-
 // Minimum amount of FEI to be redeemed from Uniswap when liquidity removed
 const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(40_000_000);
 
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
 const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(280_000_000);
 
-// Amount of additional TRIBE to be sent from Core treasury to new timelock
-// to compensate the burning of FEI (to get stable backing to 100%)
-const OTC_TRIBE_AMOUNT = ethers.constants.WeiPerEther.mul(67_000_000);
-
 const ido_liquidity_removal: TemplatedProposalDescription = {
   title: 'Remove IDO liquidity from Uniswap V2',
   commands: [
-    // 1. Prepare for liquidity removal by accepting timelock beneficiary
+    // 1. Clawback Rari Infra timelocks
+    {
+      target: 'newRariInfraFeiTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback the FEI from the Rari Infra FEI timelock to the DAO timelock'
+    },
+    {
+      target: 'newRariInfraTribeTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback the TRIBE from the Rari Infra TRIBE timelock to the DAO timelock'
+    },
+
+    // 2. Clawback the La Tribu timelocks
+    {
+      target: 'laTribuFeiTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback the FEI from the La Tribu FEI timelock to the DAO timelock'
+    },
+    {
+      target: 'laTribuTribeTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback the TRIBE from the La Tribu FEI timelock to the DAO timelock'
+    },
+
+    // 3. Accept the beneficiary of the vesting FEI/TRIBE contracts to a sink contract
+    //    ensuring that the TRIBE is inaccessible
+
+    // 4. Prepare for liquidity removal by accepting timelock beneficiary
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -26,7 +54,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       description: 'Accept beneficiary for Fei Labs IDO Timelock (Uni-LP)'
     },
 
-    // 2. Unlock, remove and split the liquidity
+    // Unlock, remove and split the liquidity
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -39,36 +67,23 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       values: '0',
       method: 'transfer(address,uint256)',
       arguments: (addresses) => [addresses.idoLiquidityRemover, '170449948038045919878524525'],
-      description: 'Send all FEI-TRIBE LP tokens to the IDO Liquidity withdrawl helper contract'
+      description: 'Send all FEI-TRIBE LP tokens to the IDO Liquidity withdrawal helper contract'
     },
+
+    // WARNING: ASSUMES TIMELOCK.RELEASE_MAX() HAS ALREADY BEEN CALLED TO FUND BENEFICIARY
     {
       target: 'idoLiquidityRemover',
       values: '0',
-      method: 'redeemLiquidity(uint256,uint256,uint256)',
-      arguments: (addresses) => [AMOUNT_FEI_TO_DAO_TIMELOCK, MIN_FEI_OUT, MIN_TRIBE_OUT],
+      method: 'redeemLiquidity(uint256,uint256)',
+      arguments: (addresses) => [MIN_FEI_OUT, MIN_TRIBE_OUT],
       description: `
-      Remove liquidity from Uniswap pool, convert to FEI and TRIBE. Send 10M FEI to 
-      the DAO to be burned, the remaining FEI to the new FEI timelock and all the TRIBE 
-      to the new TRIBE timelock.
+      WARNING: ASSUMES TIMELOCK.RELEASE_MAX() HAS ALREADY BEEN CALLED TO FUND BENEFICIARY
+
+      Remove liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
+      
+      Then as part of this contract call, burn all FEI redeemed and send all redeemed TRIBE
+      to Core
       `
-    },
-    // 3. Burn FEI to get to 100% stable backing and allocate TRIBE to cover shortfall
-    {
-      target: 'fei',
-      values: '0',
-      method: 'burn(uint256)',
-      arguments: (addresses) => [AMOUNT_FEI_TO_DAO_TIMELOCK],
-      description: `
-      Burn 10M FEI that was sent to the DAO timelock. This will push stable backing to ~100%
-      `
-    },
-    {
-      target: 'core',
-      values: '0',
-      method: 'allocateTribe(address,uint256)',
-      arguments: (addresses) => [addresses.tribeIDOTimelock, OTC_TRIBE_AMOUNT],
-      description:
-        'Send 67M TRIBE from the Treasury to the new TRIBE IDO timelock, to compensate the burned FEI shortfall'
     }
   ],
   description: `
