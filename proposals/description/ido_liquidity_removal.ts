@@ -8,7 +8,7 @@ const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(40_000_000);
 const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(280_000_000);
 
 const ido_liquidity_removal: TemplatedProposalDescription = {
-  title: 'Remove IDO liquidity from Uniswap V2',
+  title: 'Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity',
   commands: [
     // 1. Clawback Rari Infra timelocks
     {
@@ -87,23 +87,25 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     }
   ],
   description: `
-  Remove the IDO liquidity of Fei-Tribe from Uniswap V2
+  Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
+
+  This proposal overall stops the vesting of FEI and TRIBE throughout the ecosystem
+  - including Rari Infrastructure team, La Tribu and team - 
+  and it also removes all FEI/TRIBE liquidity from Uniswap V2. The redeemed FEI is burned
+  whilst the redeemed TRIBE is sent to the Treasury.
 
   Specifically, this proposal:
-  1. Accepts the pending beneficiary of the IDO liquidity timelock 
+  1. Claws back the Rari Infra FEI and TRIBE timelocks
+  2. Claws back the La Tribue FEI and TRIBE timelocks
+  3. Accepts the beneficiary of all FEI and TRIBE vesting timelocks to a sink contract,
+     where the vested funds will become inaccessible
+  4. Accepts the pending beneficiary of the IDO liquidity timelock 
      as the Tribe DAO timelock
-  2. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
-  3. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
+  5. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
+  6. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
      redeems the LP tokens for the underlying FEI and TRIBE tokens in the Uniswap pool.
 
-     It then splits the liquidity accordingly:
-     a. Send 10M FEI to the DAO timelock, where it will then be burned. This is enough to 
-        push the stable backing to 100%
-     b. Send the remaining FEI to the new FEI timelock
-     c. Send all unlocked TRIBE liquidity to the new TRIBE timelock
-  4. Convert the 10M burned FEI to TRIBE (to cover the investor shortfall from burning)
-     and send to the new TRIBE timelock. This is done by allocating from the Core Treasury
-     the equivalent amount of TRIBE for the FEI burned.
+     It then burns all redeemed FEI and sends all redeemed TRIBE to the Treasury.
   `
 };
 
