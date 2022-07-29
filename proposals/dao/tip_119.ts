@@ -9,22 +9,42 @@ import {
   ValidateUpgradeFunc
 } from '@custom-types/types';
 import { BigNumber } from 'ethers';
-import { overwriteChainlinkAggregator } from '@test/helpers';
+import { getImpersonatedSigner, overwriteChainlinkAggregator } from '@test/helpers';
+import { forceEth } from '@test/integration/setup/utils';
 
 const toBN = BigNumber.from;
 
 /*
 
-Tribal Council Proposal: TIP-119: Add gOHM to Collaterisation Oracle
+TIP-119: gOHM to Collaterisation Oracle, Swap USDC
 
 1. Deploy gOHM oracle
 2. Set oracle on collaterisation oracle
-3. Add gOHM to CR 
+3. Add gOHM holding deposit to CR 
+4. Swap USDC on TC timelock for DAI
+5. Add Fuse pool 146 deposit to the Fuse withdrawal guard
 
 */
 
 const fipNumber = 'tip_119';
+
+// Minimum expected DAI from exchanging USDC with DAI via the Maker PSM
+const MINIMUM_DAI_FROM_SALE = ethers.constants.WeiPerEther.mul(1_000_000);
+
+// FEI being paid back by Volt in return for 10M VOLT
+const FEI_LOAN_PAID_BACK = ethers.constants.WeiPerEther.mul(10_170_000);
+
+// Amount of VOLT to swap in the OTC for 10.17M FEI
+const VOLT_OTC_AMOUNT = ethers.constants.WeiPerEther.mul(10_000_000);
+
+// ETH withdrawn from the CEther token in Fuse pool 146
+const CETHER_WITHDRAW = toBN('37610435021674550600');
+
 let pcvStatsBefore: PcvStats;
+let initialCompoundDAIBalance: BigNumber;
+let initialWethBalance: BigNumber;
+let initialFeiTotalSupply: BigNumber;
+let initialVoltTimelockBalance: BigNumber;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -72,6 +92,16 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   // Otherwise fork block is well out of date, oracle will report invalid and CR will be invalid
   const ohmPrice = (await contracts.chainlinkOhmV2EthOracleWrapper.read())[0];
   await overwriteChainlinkAggregator(addresses.chainlinkOHMV2EthOracle, ohmPrice.toString(), '18');
+
+  initialCompoundDAIBalance = await contracts.compoundDaiPCVDeposit.balance();
+  initialWethBalance = await contracts.wethHoldingPCVDeposit.balance();
+  initialFeiTotalSupply = await contracts.fei.totalSupply();
+  initialVoltTimelockBalance = await contracts.volt.balanceOf(addresses.voltOptimisticTimelock);
+
+  // Prepare OTC escrow contract on the Volt side, mock transferring Fei to it
+  const voltSafeSigner = await getImpersonatedSigner(addresses.voltSafe);
+  await forceEth(addresses.voltSafe);
+  await contracts.fei.connect(voltSafeSigner).transfer(addresses.voltOTCEscrow, FEI_LOAN_PAID_BACK);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -104,7 +134,15 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await collateralizationOracle.isTokenInPcv(addresses.gohm)).to.be.true;
   expect(await collateralizationOracle.depositToToken(gOHMHoldingPCVDeposit.address)).to.be.equal(addresses.gohm);
 
-  // 4. Verify pcvStats increased as expected
+  // 4. Verify USDC sold for DAI
+  const finalCompoundDaiBalance = await contracts.compoundDaiPCVDeposit.balance();
+  const depositDAIIncrease = finalCompoundDaiBalance.sub(initialCompoundDAIBalance);
+  expect(depositDAIIncrease).to.be.bignumber.greaterThan(MINIMUM_DAI_FROM_SALE);
+
+  const finalTCUSDCBalance = await contracts.usdc.balanceOf(addresses.tribalCouncilTimelock);
+  expect(finalTCUSDCBalance).to.be.equal(0);
+
+  // 5. Verify pcvStats increased as expected
   // display pcvStats
   console.log('----------------------------------------------------');
   console.log(' pcvStatsBefore.protocolControlledValue [M]e18 ', Number(pcvStatsBefore.protocolControlledValue) / 1e24);
@@ -124,9 +162,31 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   console.log(' Equity diff                            [M]e18 ', Number(eqDiff) / 1e24);
   console.log('----------------------------------------------------');
 
-  // PCV Equity change should be neutral for this proposal
-  expect(Number(eqDiff) / 1e18).to.be.at.least(1_000_000);
+  // PCV Equity increase should be ~$2.5M
+  expect(Number(eqDiff) / 1e18).to.be.at.least(2_000_000);
   expect(Number(eqDiff) / 1e18).to.be.at.most(3_000_000);
+
+  // 6. Verify ETH withdrawn from Fuse pool 146
+  const balanceDiff = (await contracts.wethHoldingPCVDeposit.balance()).sub(initialWethBalance);
+  expect(balanceDiff).to.be.equal(CETHER_WITHDRAW);
+
+  expect(await contracts.wethHoldingPCVDeposit.provider.getBalance(addresses.rariPool146Eth)).to.be.equal(0);
+
+  // 7. Verify VOLT OTC executed
+  expect(await contracts.voltHoldingPCVDeposit.balance()).to.be.equal(0);
+  expect(await contracts.volt.balanceOf(addresses.tribalCouncilTimelock)).to.be.equal(0);
+
+  const feiTotalSupplyDiff = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
+  expect(feiTotalSupplyDiff).to.be.equal(FEI_LOAN_PAID_BACK);
+
+  // Verify Volt optimistic timelock received their VOLT tokens
+  const voltOptimisticTimelockDiff = (await contracts.volt.balanceOf(addresses.voltOptimisticTimelock)).sub(
+    initialVoltTimelockBalance
+  );
+  expect(voltOptimisticTimelockDiff).to.be.equal(VOLT_OTC_AMOUNT);
+
+  // 8. Verify Tribal Council timelock is not a safe address
+  expect(await contracts.pcvGuardian.isSafeAddress(addresses.tribalCouncilTimelock)).to.be.false;
 };
 
 export { deploy, setup, teardown, validate };

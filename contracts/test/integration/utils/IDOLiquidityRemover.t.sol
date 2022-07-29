@@ -34,7 +34,7 @@ contract IDORemoverIntegrationTest is DSTest {
         assertEq(address(idoRemover.FEI_TRIBE_PAIR()), address(feiTribeLP));
     }
 
-    /// @notice Validate LP tokens can be redeemed, the underlying FEI burned and the 
+    /// @notice Validate LP tokens can be redeemed, the underlying FEI burned and the
     ///         underlying TRIBE sent to Core
     function testRedeemLiquidityOnly() public {
         uint256 initialFeiSupply = fei.totalSupply();
