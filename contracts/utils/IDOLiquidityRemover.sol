@@ -11,9 +11,9 @@ import {CoreRef} from "../refs/CoreRef.sol";
 import {Constants} from "../Constants.sol";
 
 /// @title IDO liquidity remover
-/// @notice Removes the IDO liquidity from Uniswap V2, burns the redeemed FEI and sends the 
-///         redeemed TRIBE to Core. Expected that this contract holds all LP tokens 
-///         to be redeemed prior to
+/// @notice Removes the IDO liquidity from Uniswap V2, burns the redeemed FEI and sends the
+///         redeemed TRIBE to Core.
+///         Expected that this contract holds all LP tokens prior to redemption
 contract IDOLiquidityRemover is CoreRef {
     using SafeERC20 for IERC20;
 
