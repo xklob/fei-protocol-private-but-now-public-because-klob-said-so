@@ -1,5 +1,10 @@
 # Merkle Redeemer Spec
 
+## Contract
+ - Contract will store one merkle root per cToken; this stores the amount of that cToken each user can exchange
+ - Contract will store the signatures provided by each user, and won't allow them to claim until they've provided their sig
+ - After signature has been provided, contract stores the amount of each cToken the user can still exchange; this can only decrement as the user withdraws
+
 ## Governance Flow
  - Deploy contract
  - Configure base token
