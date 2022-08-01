@@ -137,15 +137,13 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
   description: `
   Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
 
-  This proposal overall stops the vesting of FEI and TRIBE throughout the ecosystem
-  - including Rari Infrastructure team, La Tribu and team - 
-  and it also removes all FEI/TRIBE liquidity from Uniswap V2. The redeemed FEI is burned
-  whilst the redeemed TRIBE is sent to the Treasury.
+  This proposal overall stops the vesting of FEI and TRIBE throughout the ecosystem, including
+  La Tribu and the team, and it also removes all FEI/TRIBE liquidity from Uniswap V2.
+  The redeemed FEI is burned whilst the redeemed TRIBE is sent to the Treasury.
 
   Specifically, this proposal:
   1. Claws back the La Tribu FEI and TRIBE timelocks
-  2. Accepts the beneficiary of all FEI and TRIBE vesting timelocks to a sink contract,
-     where the vested funds will become inaccessible
+  2. Accepts the beneficiary of all FEI and TRIBE vesting timelocks as the DAO timelock
   3. Accepts the pending beneficiary of the IDO liquidity timelock 
      as the Tribe DAO timelock
   4. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.

@@ -11,17 +11,14 @@ import {CoreRef} from "../refs/CoreRef.sol";
 import {Constants} from "../Constants.sol";
 
 /// @title IDO liquidity remover
-/// @notice Allows for the removal of IDO liquidity from Uniswap V2 and sends it to a destination
-///         Expected that this contract holds all LP tokens to be redeemed prior to
+/// @notice Removes the IDO liquidity from Uniswap V2, burns the redeemed FEI and sends the 
+///         redeemed TRIBE to Core. Expected that this contract holds all LP tokens 
+///         to be redeemed prior to
 contract IDOLiquidityRemover is CoreRef {
     using SafeERC20 for IERC20;
 
     event RemoveLiquidity(uint256 amountFei, uint256 amountTribe);
-
     event WithdrawERC20(address indexed _caller, address indexed _token, address indexed _to, uint256 _amount);
-
-    /// @notice DAO timelock to send Fei to be burned
-    address public constant DAO_TIMELOCK = 0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c;
 
     /// @notice Uniswap V2 version 2 Router
     IUniswapV2Router02 public constant UNISWAP_ROUTER = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
@@ -44,9 +41,8 @@ contract IDOLiquidityRemover is CoreRef {
         onlyTribeRole(TribeRoles.GOVERNOR)
         returns (uint256, uint256)
     {
-        require(FEI_TRIBE_PAIR.balanceOf(address(this)) > 0, "IDORemover: Insufficient liquidity");
-
         uint256 amountLP = FEI_TRIBE_PAIR.balanceOf(address(this));
+        require(amountLP > 0, "IDORemover: Insufficient liquidity");
 
         // Approve Uniswap router to swap tokens
         FEI_TRIBE_PAIR.approve(address(UNISWAP_ROUTER), amountLP);

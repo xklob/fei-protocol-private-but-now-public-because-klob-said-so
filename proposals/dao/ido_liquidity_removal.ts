@@ -25,7 +25,7 @@ Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
 const fipNumber = 'ido_liquidity_removal';
 
 // Approximate bounds on the FEI to be burned after LP tokens redeemed
-const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(30_000_000);
+const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(35_000_000);
 const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(50_000_000);
 
 // Expected bounds on the TRIBE to be transferred to the Core Treasury after LP tokens redeemed
@@ -107,20 +107,31 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.be.equal(0);
 
   // 3. Validate vesting investor and team timelocks accepted beneficiary
-  // TODO
+  // Investor timelocks
+  expect(await contracts.investorVestingTimelock1.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock2.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock3.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock4.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock5.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock6.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock7.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+  expect(await contracts.investorVestingTimelock8.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
+
+  // Team timelock
+  expect(await contracts.teamVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
 
   // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
 
-  // 4. IDO FEI should have been burned, TRIBE should have been sent to Treasury
+  // 5. IDO FEI should have been burned, TRIBE should have been sent to Treasury
   // Fei-Tribe LP worth ~$85M
   // Constant product AMM, so equal worth of FEI and TRIBE
   // $42.5M FEI, $42.5M TRIBE
   // 1 FEI = $1, 1 TRIBE ~= $0.15
-  // 10M FEI sent to DAO timelock for burning
-  // Expect, ~32.5M FEI, ~280M TRIBE
+  // All FEI (~42.5M) burned
+  // Expect, ~280M TRIBE
   const feiBurned = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
   expect(feiBurned).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
   expect(feiBurned).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
