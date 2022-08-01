@@ -60,7 +60,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
 
     function redeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
 
-    // View how many base tokens a user could get for redeem a particular amount of a ctoken
+    // View how many base tokens a user could get for redeeming a particular amount of a ctoken
     function previewRedeem(
         address user,
         address cToken,
