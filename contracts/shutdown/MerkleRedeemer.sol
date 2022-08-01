@@ -6,7 +6,7 @@ import "../refs/CoreRef.sol";
 abstract contract MultiMerkleRedeemer is CoreRef {
     /** ---------- Storage / Configuration ------ **/
 
-    // The Token we're going to give out when a user redeems.
+    // The token we're going to give out when a user redeems.
     address public baseToken;
 
     // One merkle root per ctoken
