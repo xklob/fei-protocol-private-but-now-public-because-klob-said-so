@@ -1,7 +1,6 @@
 # Merkle Redeemer Spec
 
 ## Governance Flow
-
  - Deploy contract
  - Configure base token
  - Configure cToken exchange rates
