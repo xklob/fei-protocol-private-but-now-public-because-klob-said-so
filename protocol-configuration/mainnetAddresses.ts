@@ -2533,6 +2533,53 @@ export const MainnetContractsConfig = {
     address: '0x4bFa2625D50b68D622D1e71c82ba6Db99BA0d17F',
     category: AddressCategory.Deprecated
   },
+
+  investorVestingTimelock1: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x94d7f83EBe04d9A7b9BBA339bE5029eFE5Bc35FB',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock2: {
+    artifactName: 'TimelockedDelegator',
+    address: '0xA98FF429ad871ABB6eB6105895697A148DE8462A',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock3: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x49b50cB7F305769f60cB9cc4d6acEBd5AB289fCE',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock4: {
+    artifactName: 'TimelockedDelegator',
+    address: '0xc92FAb4De20E5C2A3Ca5BA7DB4dd81480Ad1Ff04',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock5: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x3D33B2cD854bebD212d2A02b18f1d16AEE7E41B4',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock6: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x279c30Af5ac9C541fe7fF0169d051669355b1F5f',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock7: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x08975B9C67C92A4C43fdEAE7dB91A4C93c7573ea',
+    category: AddressCategory.TBD
+  },
+  investorVestingTimelock8: {
+    artifactName: 'TimelockedDelegator',
+    address: '0xF16aA657C9891f0C88FCf3f20b04d8CA2BA0C510',
+    category: AddressCategory.TBD
+  },
+  teamVestingTimelock: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x38afbf8128cc54323e216acde9516d281c4f1e5f',
+    category: AddressCategory.TBD
+  },
+
   pegExchanger: {
     artifactName: 'PegExchanger',
     address: '0xc09BB5ECf865e6f69Fe62A43c27f036A426909f7',
