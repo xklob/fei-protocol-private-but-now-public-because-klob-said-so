@@ -10,8 +10,6 @@ import {Vm} from "../../utils/Vm.sol";
 
 contract IDORemoverIntegrationTest is DSTest {
     IDOLiquidityRemover idoRemover;
-    address feiTo = address(1);
-    address tribeTo = address(2);
     address feiTribeLPHolder = 0x9e1076cC0d19F9B0b8019F384B0a29E48Ee46f7f;
     address uniswapRouter = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
@@ -36,7 +34,7 @@ contract IDORemoverIntegrationTest is DSTest {
 
     /// @notice Validate LP tokens can be redeemed, the underlying FEI burned and the
     ///         underlying TRIBE sent to Core
-    function testRedeemLiquidityOnly() public {
+    function testRedeemLiquidity() public {
         uint256 initialFeiSupply = fei.totalSupply();
         uint256 initialCoreBalance = tribe.balanceOf(MainnetAddresses.CORE);
 

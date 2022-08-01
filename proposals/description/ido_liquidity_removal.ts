@@ -143,7 +143,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
   whilst the redeemed TRIBE is sent to the Treasury.
 
   Specifically, this proposal:
-  1. Claws back the La Tribue FEI and TRIBE timelocks
+  1. Claws back the La Tribu FEI and TRIBE timelocks
   2. Accepts the beneficiary of all FEI and TRIBE vesting timelocks to a sink contract,
      where the vested funds will become inaccessible
   3. Accepts the pending beneficiary of the IDO liquidity timelock 

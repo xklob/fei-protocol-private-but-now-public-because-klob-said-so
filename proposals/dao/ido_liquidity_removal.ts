@@ -24,22 +24,13 @@ Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
 
 const fipNumber = 'ido_liquidity_removal';
 
-// Approximate bounds on the FEI to be transferred to the new timelock after LP tokens redeemed
+// Approximate bounds on the FEI to be burned after LP tokens redeemed
 const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(30_000_000);
 const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(50_000_000);
 
-// FEI liquidity sent to the DAO timelock upon redemption and burned
-const FEI_BURNED = ethers.constants.WeiPerEther.mul(10_000_000);
-
-// Additional TRIBE being sent to new timelock, to compensate for FEI burning
-const TRIBE_PRICE = 15; // TRIBE price in USD. TODO: Get Storm's help to verify this
-const TRIBE_COMPENSATION = FEI_BURNED.mul(TRIBE_PRICE).div(100); // 67M TRIBE, Tribe price = $0.15
-
-// Expected bounds on the TRIBE to be transferred to the new timelock after LP tokens redeemed
-// Bounds calculated from the approximate amount of TRIBE expected to be unlocked + the additional
-// TRIBE that is being allocated to compensate the FEI burn
-const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000).add(TRIBE_COMPENSATION);
-const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000).add(TRIBE_COMPENSATION);
+// Expected bounds on the TRIBE to be transferred to the Core Treasury after LP tokens redeemed
+const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(250_000_000);
+const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(350_000_000);
 
 let initialFeiTotalSupply: BigNumber;
 let initialTribeTreasuryBalance: BigNumber;
@@ -47,11 +38,7 @@ let initialTribeTreasuryBalance: BigNumber;
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  const idoLiquidityTimelock = await ethers.getContractAt('LinearTokenTimelock', addresses.idoLiquidityTimelock);
-  const idoTimelockRemainingDuration = await idoLiquidityTimelock.remainingTime();
-  console.log('Remaining time: ', idoTimelockRemainingDuration.toString());
-
-  // Deploy IDO Liquidity Withdrawal helper contract
+  // Deploy IDO Liquidity Remover helper contract
   const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
   const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(addresses.core);
   await idoLiquidityRemover.deployTransaction.wait();
@@ -120,6 +107,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.be.equal(0);
 
   // 3. Validate vesting investor and team timelocks accepted beneficiary
+  // TODO
 
   // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);

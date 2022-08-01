@@ -23,7 +23,7 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     proposalId: '',
     affectedContractSignoff: [],
     deprecatedContractSignoff: [],
-    category: ProposalCategory.DEBUG_TC
+    category: ProposalCategory.TC
   },
   ido_liquidity_removal: {
     deploy: true, // deploy flag for whether to run deploy action during e2e tests or use mainnet state
@@ -32,6 +32,6 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     proposalId: '',
     affectedContractSignoff: [],
     deprecatedContractSignoff: [],
-    category: ProposalCategory.DEBUG
+    category: ProposalCategory.DAO
   }
 };
