@@ -11,6 +11,7 @@
  - Configure base token
  - Configure cToken exchange rates
  - Configure merkle roots
+ - Send baseToken to contract
 
 ## User Flow
  - Go to website; UI prompts to connect wallet
