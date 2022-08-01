@@ -85,7 +85,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     function _claim(
         address cToken,
         uint256 amount,
-        bytes32[] memory merkleProof
+        bytes32 merkleProof
     ) internal virtual;
 
     // User provides the ctokens & the amounts they should get, and it is verified against the merkle root for that ctoken (for each ctoken provided)
