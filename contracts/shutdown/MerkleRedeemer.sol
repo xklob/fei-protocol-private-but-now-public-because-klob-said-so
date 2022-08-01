@@ -4,6 +4,10 @@ pragma solidity ^0.8.4;
 import "../refs/CoreRef.sol";
 
 abstract contract MultiMerkleRedeemer is CoreRef {
+    /** ---------- Events ----------------------- **/
+
+    // @todo: add events
+
     /** ---------- Storage / Configuration ------ **/
 
     // The token we're going to give out when a user redeems.
