@@ -26,8 +26,72 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
       description: 'Clawback the TRIBE from the La Tribu FEI timelock to the DAO timelock'
     },
 
-    // 2. Accept the beneficiary of the vesting FEI/TRIBE contracts to a sink contract
-    //    ensuring that the TRIBE is inaccessible
+    // 2. Accept the beneficiary of the vesting FEI/TRIBE contracts as the DAO timelock
+    // Investor timelocks
+    {
+      target: 'investorVestingTimelock1',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 1 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock2',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 2 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock3',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 3 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock4',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 4 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock5',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 5 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock6',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 6 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock7',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 7 as the DAO timelock'
+    },
+    {
+      target: 'investorVestingTimelock8',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on investor vesting contract 8 as the DAO timelock'
+    },
+    // Team timelock
+    {
+      target: 'teamVestingTimelock',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary on team vesting contract as the DAO timelock'
+    },
 
     // 3. Prepare for liquidity removal by accepting timelock beneficiary
     {
