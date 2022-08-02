@@ -11,39 +11,24 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     /** ---------- Storage / Configuration ------ **/
 
     // The token we're going to give out when a user redeems.
-    address public baseToken;
+    address public immutable baseToken;
 
     // One merkle root per ctoken
-    mapping(address => bytes32) public merkleRoots;
+    mapping(address => bytes32) public immutable merkleRoots;
+
+    // Exchange rate of the base asset per each ctoken
+    mapping(address => uint256) public immutable cTokenExchangeRates;
 
     // One signature per user
     mapping(address => bytes32) public userSignatures;
-
-    // Exchange rate of the base asset per each ctoken
-    mapping(address => uint256) public cTokenExchangeRates;
 
     // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
     // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
     //    (user addr) => ((ctoken addr) => (ctoken remaining))
     mapping(address => mapping(address => uint256)) public redeemableTokensRemaining;
 
-    // Have the exchange rates been configured yet?
-    bool public exchangeRatesConfigured;
-
-    // Have the merkle roots been configured yet?
-    bool public merkleRootsConfigured;
-
     // The message that the user will sign
     string private constant MESSAGE = "I solemly swear I am up to no good.";
-
-    /** ---------- Permissioned Funcs ----------- **/
-
-    // Governance actions that set the exchange rates & merkle roots & base token
-    function configureExchangeRates(address[] calldata tokens, uint256[] calldata rates) external virtual;
-
-    function configureMerkleRoots(bytes32[] calldata roots) external virtual;
-
-    function configureBaseToken(address baseToken) external virtual;
 
     /** ---------- Public Funcs ----------------- **/
 
@@ -66,7 +51,6 @@ abstract contract MultiMerkleRedeemer is CoreRef {
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
     function previewRedeem(
-        address user,
         address cToken,
         uint256 amount
     ) external virtual returns (uint256 baseTokenAmount);
