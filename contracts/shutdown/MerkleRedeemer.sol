@@ -25,7 +25,8 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
     // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
     //    (user addr) => ((ctoken addr) => (ctoken remaining))
-    mapping(address => mapping(address => uint256)) public redeemableTokensRemaining;
+    mapping(address => mapping(address => uint256)) public claimedAmounts;
+    mapping(address => mapping(address => uint256)) public claimableAmounts;
 
     // The message that the user will sign
     string private constant MESSAGE = "I solemly swear I am up to no good.";
