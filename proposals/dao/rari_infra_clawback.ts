@@ -14,7 +14,7 @@ Tribal Council action to clawback the Rari Infrastructure timelocks
 
 */
 
-const fipNumber = 'rari_infra_clawback'; // Change me!
+const fipNumber = 'Phase 1b: Rari Infrastructure clawback'; // Change me!
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -41,9 +41,12 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // Validate Rari Infra clawed back
+  // 1. Validate Rari Infra timelocks no longer have funds
   expect(await contracts.fei.balanceOf(addresses.newRariInfraFeiTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.newRariInfraTribeTimelock)).to.be.equal(0);
+
+  // 2. Validate TC received the funds
+  // TODO
 };
 
 export { deploy, setup, teardown, validate };
