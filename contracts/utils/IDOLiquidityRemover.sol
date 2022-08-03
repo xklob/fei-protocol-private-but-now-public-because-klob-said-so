@@ -36,6 +36,8 @@ contract IDOLiquidityRemover is CoreRef {
     ///               BENEFICIARY ACCOUNT
     /// @param minAmountFeiOut Minimum amount of FEI to be redeemed
     /// @param minAmountTribeOut Minimum amount of TRIBE to be redeemed
+    /// @return feiLiquidity Redeemed FEI liquidity that is burned
+    /// @return tribeLiquidity Redeemed TRIBE liquidity that is sent to Core
     function redeemLiquidity(uint256 minAmountFeiOut, uint256 minAmountTribeOut)
         external
         onlyTribeRole(TribeRoles.GOVERNOR)
@@ -72,6 +74,9 @@ contract IDOLiquidityRemover is CoreRef {
     }
 
     /// @notice Emergency withdraw function to withdraw funds from the contract
+    /// @param token ERC20 token being withdrawn
+    /// @param to Address to send tokens to
+    /// @param amount Amount of tokens to be withdrawn
     function withdrawERC20(
         address token,
         address to,

@@ -7,8 +7,8 @@ const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(35_000_000);
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
 const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(260_000_000);
 
-const ido_liquidity_removal: TemplatedProposalDescription = {
-  title: 'Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity',
+const phase_1: TemplatedProposalDescription = {
+  title: 'Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity',
   commands: [
     // 1. Clawback the La Tribu timelocks
     {
@@ -135,7 +135,7 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
     }
   ],
   description: `
-  Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
+  Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity
 
   This proposal overall stops the vesting of FEI and TRIBE throughout the ecosystem, including
   La Tribu and the team, and it also removes all FEI/TRIBE liquidity from Uniswap V2.
@@ -154,4 +154,4 @@ const ido_liquidity_removal: TemplatedProposalDescription = {
   `
 };
 
-export default ido_liquidity_removal;
+export default phase_1;

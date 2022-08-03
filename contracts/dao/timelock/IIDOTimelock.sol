@@ -11,22 +11,29 @@ interface IIDOInterface {
     event Deploy(uint256 _amountFei, uint256 _amountTribe);
 
     // ----------- Read only API -------------
+    /// @notice Beneficiary of the linear timelock funds
     function beneficiary() external returns (address);
 
-    // ----------- Beneficiary state changing API  -------------
-    function setPendingBeneficiary(address) external;
-
+    /// @notice Get the pending beneficiary
     function pendingBeneficiary(address) external;
 
+    // ----------- Beneficiary state changing API  -------------
+    /// @notice Set the pending timelock beneficiary for it to later be accepted
+    function setPendingBeneficiary(address) external;
+
+    /// @notice Accept the beneficiary, called by the beneficiary in setPendingBeneficiary
     function acceptBeneficiary() external;
 
     // ----------- Genesis Group only state changing API -----------
 
+    /// @notice Add FEI/TRIBE liquidity to Uniswap at Genesis
     function deploy(Decimal.D256 calldata feiRatio) external;
 
+    /// @notice Swap Genesis group FEI on Uniswap for TRIBE
     function swapFei(uint256 amountFei) external returns (uint256);
 
     // ----------- Governor only state changing API -----------
 
+    /// @notice Unlock all liquidity vesting in the timelock to the beneficiary
     function unlockLiquidity() external;
 }

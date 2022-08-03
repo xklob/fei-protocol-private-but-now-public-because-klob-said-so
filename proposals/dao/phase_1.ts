@@ -13,7 +13,7 @@ import { abi as timelockABI } from '../../artifacts/contracts/timelocks/Timelock
 
 /*
 
-Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
+Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity
 
 1. Clawback La Tribu timelocks
 2. Accept beneficiary of vesting FEI and TRIBE contracts
@@ -22,7 +22,7 @@ Phase 1: Remove vesting FEI and TRIBE, remove Uniswap liquidity
 
 */
 
-const fipNumber = 'ido_liquidity_removal';
+const fipNumber = 'phase_1_clawback_remove_liquidity';
 
 // Approximate bounds on the FEI to be burned after LP tokens redeemed
 const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(35_000_000);

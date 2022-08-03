@@ -2,13 +2,13 @@ import { ProposalCategory, TemplatedProposalsConfigMap } from '@custom-types/typ
 
 import fip_x from '@proposals/description/fip_x';
 
-import ido_liquidity_removal from '@proposals/description/ido_liquidity_removal';
+import phase_1 from '@proposals/description/phase_1';
 
 export const ProposalsConfig: TemplatedProposalsConfigMap = {
-  ido_liquidity_removal: {
+  phase_1: {
     deploy: true, // deploy flag for whether to run deploy action during e2e tests or use mainnet state
     totalValue: 0, // amount of ETH to send to DAO execution
-    proposal: ido_liquidity_removal, // full proposal file, imported from '@proposals/description/fip_xx.ts'
+    proposal: phase_1, // full proposal file, imported from '@proposals/description/fip_xx.ts'
     proposalId: '',
     affectedContractSignoff: [],
     deprecatedContractSignoff: [],
