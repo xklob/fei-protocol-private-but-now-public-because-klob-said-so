@@ -140,6 +140,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const tribeRedeemed = (await contracts.tribe.balanceOf(addresses.core)).sub(initialTribeTreasuryBalance);
   expect(tribeRedeemed).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
+
+  // 6. Validate TRIBE approval revoked from Tribal Council timelock
+  expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);
 };
 
 export { deploy, setup, teardown, validate };

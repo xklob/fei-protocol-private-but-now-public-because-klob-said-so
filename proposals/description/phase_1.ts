@@ -132,6 +132,14 @@ const phase_1: TemplatedProposalDescription = {
       Then as part of this contract call, burn all FEI redeemed and send all redeemed TRIBE
       to Core
       `
+    },
+    // 4. Revoke the TRIBE approval given to the Tribal Council timelock
+    {
+      target: 'tribe',
+      values: '0',
+      method: 'approve(address,uint256)',
+      arguments: (addresses) => [addresses.tribalCouncilTimelock, '0'],
+      description: 'Revoke the TRIBE approval given to the Tribal Council timelock'
     }
   ],
   description: `
