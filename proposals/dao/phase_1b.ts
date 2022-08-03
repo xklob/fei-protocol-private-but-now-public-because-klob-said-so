@@ -7,6 +7,7 @@ import {
   TeardownUpgradeFunc,
   ValidateUpgradeFunc
 } from '@custom-types/types';
+import { BigNumber } from 'ethers';
 
 /*
 
@@ -16,11 +17,16 @@ Tribal Council action to clawback the Rari Infrastructure timelocks
 
 const fipNumber = 'Phase 1b: Rari Infrastructure clawback';
 
+// Existing balance of FEI on the TC to burn
+const TC_FEI_TO_BURN = '42905768215167745773610059';
+
 // Clawed back FEI upper bound
 const CLAWED_BACK_FEI_UPPER_BOUND = '2897332829955035696312531';
 
 // Clawed back TRIBE upper bound
 const CLAWED_BACK_TRIBE_UPPER_BOUND = '3068505367127310595321005';
+
+let initialFeiSupply: BigNumber;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -36,6 +42,8 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   console.log(`No actions to complete in setup for fip${fipNumber}`);
+
+  initialFeiSupply = await contracts.fei.totalSupply();
 };
 
 // Tears down any changes made in setup() that need to be
@@ -52,7 +60,8 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.newRariInfraTribeTimelock)).to.be.equal(0);
 
   // 2. Validate TC burned existing FEI
-  // TODO
+  const feiSupplyDiff = initialFeiSupply.sub(await contracts.fei.totalSupply());
+  expect(feiSupplyDiff).to.be.equal(TC_FEI_TO_BURN);
 
   // 3. Validate FEI and TRIBE approvals given to DAO timelock
   expect(await contracts.fei.allowance(addresses.tribalCouncilTimelock, addresses.feiDAOTimelock)).to.be.equal(
