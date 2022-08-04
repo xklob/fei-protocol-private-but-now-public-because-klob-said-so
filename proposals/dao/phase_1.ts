@@ -57,8 +57,7 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   initialTribeTreasuryBalance = await contracts.tribe.balanceOf(addresses.core);
 
   // 1. Set pending beneficiary of IDO liquidity timelock to the DAO timelock
-  const feiLabsTreasuryMultisig = '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea';
-  const feiLabsTreasurySigner = await getImpersonatedSigner(feiLabsTreasuryMultisig);
+  const feiLabsTreasurySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
   await contracts.idoLiquidityTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 
   // 2. Set pending beneficiary of vesting investor timelocks to the DAO timelock
@@ -83,8 +82,7 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
 
   // 3. Set pending beneficiary of vesting team timelock to the DAO timelock
   // Team vesting contracts
-  const teamTimelockBeneficiary = '0x3a24fea1509e1baeb2d2a7c819a191aa441825ea';
-  const teamBeneficiarySigner = await getImpersonatedSigner(teamTimelockBeneficiary);
+  const teamBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
   const teamTimelock = new ethers.Contract(addresses.teamVestingTimelock, timelockABI, teamBeneficiarySigner);
   await teamTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
 };

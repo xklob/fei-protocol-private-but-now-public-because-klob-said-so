@@ -128,6 +128,11 @@ export const MainnetContractsConfig = {
     address: '0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c',
     category: AddressCategory.Governance
   },
+  feiLabsTreasuryMultisig: {
+    artifactName: 'unknown',
+    address: '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea',
+    category: AddressCategory.Governance
+  },
   optimisticMultisig: {
     artifactName: 'unknown',
     address: '0x35ED000468f397AA943009bD60cc6d2d9a7d32fF',
@@ -885,7 +890,7 @@ export const MainnetContractsConfig = {
   idoLiquidityTimelock: {
     artifactName: 'IIDOInterface',
     address: '0x7D809969f6A04777F0A87FF94B57E56078E5fE0F',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
 
   rariCErc20PluginImpl: {
@@ -2537,47 +2542,47 @@ export const MainnetContractsConfig = {
   investorVestingTimelock1: {
     artifactName: 'TimelockedDelegator',
     address: '0x94d7f83EBe04d9A7b9BBA339bE5029eFE5Bc35FB',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock2: {
     artifactName: 'TimelockedDelegator',
     address: '0xA98FF429ad871ABB6eB6105895697A148DE8462A',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock3: {
     artifactName: 'TimelockedDelegator',
     address: '0x49b50cB7F305769f60cB9cc4d6acEBd5AB289fCE',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock4: {
     artifactName: 'TimelockedDelegator',
     address: '0xc92FAb4De20E5C2A3Ca5BA7DB4dd81480Ad1Ff04',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock5: {
     artifactName: 'TimelockedDelegator',
     address: '0x3D33B2cD854bebD212d2A02b18f1d16AEE7E41B4',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock6: {
     artifactName: 'TimelockedDelegator',
     address: '0x279c30Af5ac9C541fe7fF0169d051669355b1F5f',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock7: {
     artifactName: 'TimelockedDelegator',
     address: '0x08975B9C67C92A4C43fdEAE7dB91A4C93c7573ea',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   investorVestingTimelock8: {
     artifactName: 'TimelockedDelegator',
     address: '0xF16aA657C9891f0C88FCf3f20b04d8CA2BA0C510',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
   teamVestingTimelock: {
     artifactName: 'TimelockedDelegator',
     address: '0x38afbf8128cc54323e216acde9516d281c4f1e5f',
-    category: AddressCategory.TBD
+    category: AddressCategory.Distribution
   },
 
   pegExchanger: {
