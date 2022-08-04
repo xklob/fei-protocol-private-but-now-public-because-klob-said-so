@@ -60,27 +60,7 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   const feiLabsTreasurySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
   await contracts.idoLiquidityTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 
-  // 2. Set pending beneficiary of vesting investor timelocks to the DAO timelock
-  // Investor vesting contracts
-  const investorVestingTimelocks = [
-    addresses.investorVestingTimelock1,
-    addresses.investorVestingTimelock2,
-    addresses.investorVestingTimelock3,
-    addresses.investorVestingTimelock4,
-    addresses.investorVestingTimelock5,
-    addresses.investorVestingTimelock6,
-    addresses.investorVestingTimelock7,
-    addresses.investorVestingTimelock8
-  ];
-
-  const investorTimelockBeneficiary = '0xb8f482539f2d3ae2c9ea6076894df36d1f632775';
-  const investorBeneficiarySigner = await getImpersonatedSigner(investorTimelockBeneficiary);
-  for (let i = 0; i < investorVestingTimelocks.length; i++) {
-    const timelock = new ethers.Contract(investorVestingTimelocks[i], timelockABI, investorBeneficiarySigner);
-    await timelock.setPendingBeneficiary(addresses.feiDAOTimelock);
-  }
-
-  // 3. Set pending beneficiary of vesting team timelock to the DAO timelock
+  // 2. Set pending beneficiary of vesting team timelock to the DAO timelock
   // Team vesting contracts
   const teamBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
   const teamTimelock = new ethers.Contract(addresses.teamVestingTimelock, timelockABI, teamBeneficiarySigner);
@@ -104,18 +84,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.be.equal(0);
 
-  // 3. Validate vesting investor and team timelocks accepted beneficiary
-  // Investor timelocks
-  expect(await contracts.investorVestingTimelock1.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock2.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock3.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock4.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock5.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock6.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock7.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-  expect(await contracts.investorVestingTimelock8.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-
-  // Team timelock
+  // 3. Validate team vesting timelock accepted beneficiary
   expect(await contracts.teamVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
 
   // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
