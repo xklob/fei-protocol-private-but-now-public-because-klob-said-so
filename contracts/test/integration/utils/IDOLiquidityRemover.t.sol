@@ -7,6 +7,7 @@ import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {IDOLiquidityRemover} from "../../../utils/IDOLiquidityRemover.sol";
 import {DSTest} from "../../utils/DSTest.sol";
 import {Vm} from "../../utils/Vm.sol";
+import {Constants} from "../../../Constants.sol";
 
 contract IDORemoverIntegrationTest is DSTest {
     IDOLiquidityRemover idoRemover;
@@ -19,21 +20,52 @@ contract IDORemoverIntegrationTest is DSTest {
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
+    address feiTo = address(0x42);
+    address tribeTo = address(0x43);
+
     function setUp() public {
-        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE);
+        idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE, feiTo, tribeTo);
 
         vm.label(address(idoRemover), "IDO remover");
         vm.label(address(feiTribeLP), "Pair");
         vm.label(address(uniswapRouter), "Router");
+        vm.label(address(fei), "FEI");
+        vm.label(address(tribe), "TRIBE");
+        vm.label(feiTo, "feiTo");
+        vm.label(tribeTo, "tribeTo");
     }
 
     function testInitialState() public {
+        assertEq(idoRemover.feiTo(), feiTo);
+        assertEq(idoRemover.tribeTo(), tribeTo);
         assertEq(address(idoRemover.UNISWAP_ROUTER()), uniswapRouter);
         assertEq(address(idoRemover.FEI_TRIBE_PAIR()), address(feiTribeLP));
     }
 
-    /// @notice Validate LP tokens can be redeemed, the underlying FEI burned and the
-    ///         underlying TRIBE sent to Core
+    /// @notice Validate redeemLiquidity() fails for out of bounds investorLPBps
+    function testRedeemInvestorShareBounds() public {
+        vm.expectRevert(bytes("IDORemover: Invalid investor share bps"));
+        vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
+        idoRemover.redeemLiquidity(Constants.BASIS_POINTS_GRANULARITY + 1, 0, 0);
+    }
+
+    /// @notice Validate redeemLiquidity() fails when no LP tokens are on the contract
+    function testRedeemNoLPTokens() public {
+        vm.expectRevert(bytes("IDORemover: Insufficient liquidity"));
+        vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
+        idoRemover.redeemLiquidity(2000, 0, 0);
+    }
+
+    /// @notice Validate that redeemLiquidity() only calleable by the Governor
+    function testRedeemOnlyGovernor() public {
+        vm.expectRevert(bytes("UNAUTHORIZED"));
+        idoRemover.redeemLiquidity(2000, 0, 0);
+    }
+
+    /// @notice Validate LP tokens can be redeemed and these conditions:
+    ///         - Investor FEI and TRIBE shares sent to destinations
+    ///         - Remaining FEI burned
+    ///         - Remaining TRIBE sent to Core
     function testRedeemLiquidity() public {
         uint256 initialFeiSupply = fei.totalSupply();
         uint256 initialCoreBalance = tribe.balanceOf(MainnetAddresses.CORE);
@@ -43,8 +75,14 @@ contract IDORemoverIntegrationTest is DSTest {
 
         // Set minimum amounts out
         (uint256 minFeiOut, uint256 minTribeOut) = (50, 50);
+        uint256 investorShareBps = 2000; // 20%
+
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
-        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(minFeiOut, minTribeOut);
+        (uint256 feiLiquidity, uint256 tribeLiquidity) = idoRemover.redeemLiquidity(
+            investorShareBps,
+            minFeiOut,
+            minTribeOut
+        );
 
         assertGt(feiLiquidity, minFeiOut);
         assertGt(tribeLiquidity, minTribeOut);
@@ -54,28 +92,36 @@ contract IDORemoverIntegrationTest is DSTest {
         assertEq(fei.balanceOf(address(idoRemover)), 0);
         assertEq(tribe.balanceOf(address(idoRemover)), 0);
 
-        // Validate FEI was burned
+        // Validate feiTo and tribeTo received FEI and TRIBE
+        uint256 expectedFeiTransfer = (feiLiquidity * investorShareBps) / Constants.BASIS_POINTS_GRANULARITY;
+        assertEq(fei.balanceOf(feiTo), expectedFeiTransfer);
+
+        uint256 expectedTribeTransfer = (tribeLiquidity * investorShareBps) / Constants.BASIS_POINTS_GRANULARITY;
+        assertEq(tribe.balanceOf(tribeTo), expectedTribeTransfer);
+
+        // Validate remaining FEI was burned
         uint256 feiBurned = initialFeiSupply - fei.totalSupply();
         assertGt(feiBurned, 0);
-        assertEq(feiBurned, feiLiquidity);
+        assertEq(feiBurned, feiLiquidity - expectedFeiTransfer);
 
-        // Validate TRIBE arrived at Core
+        // Validate remaining TRIBE arrived at Core
         uint256 tribeRedeemed = tribe.balanceOf(MainnetAddresses.CORE) - initialCoreBalance;
         assertGt(tribeRedeemed, 0);
-        assertEq(tribeRedeemed, tribeLiquidity);
+        assertEq(tribeRedeemed, tribeLiquidity - expectedTribeTransfer);
     }
 
     /// @notice Validate that too high slippage fails
-    function testRedeemLiquidityFailsForTooHighSlippage() public {
+    function testRedeemFailsForTooHighSlippage() public {
         vm.prank(feiTribeLPHolder);
         feiTribeLP.transfer(address(idoRemover), 1000);
 
         // Make min amounts out greater than expected redeemed liquidity
         (uint256 minFeiOut, uint256 minTribeOut) = (1000, 1000);
+        uint256 investorShareBps = 2000; // 20%
 
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
         vm.expectRevert(bytes("UniswapV2Router: INSUFFICIENT_A_AMOUNT"));
-        idoRemover.redeemLiquidity(minFeiOut, minTribeOut);
+        idoRemover.redeemLiquidity(investorShareBps, minFeiOut, minTribeOut);
     }
 
     /// @notice Validate that can withdraw ERC20s on the contract in an emergency
@@ -92,11 +138,5 @@ contract IDORemoverIntegrationTest is DSTest {
 
         assertEq(tribe.balanceOf(address(idoRemover)), 0);
         assertEq(tribe.balanceOf(to), 1000);
-    }
-
-    /// @notice Validate that redeemLiquidity() only calleable by the Governor
-    function testRedeemLiquidityOnlyGovernor() public {
-        vm.expectRevert(bytes("UNAUTHORIZED"));
-        idoRemover.redeemLiquidity(0, 0);
     }
 }

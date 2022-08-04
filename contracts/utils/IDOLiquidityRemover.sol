@@ -62,6 +62,11 @@ contract IDOLiquidityRemover is CoreRef {
         uint256 minAmountFeiOut,
         uint256 minAmountTribeOut
     ) external onlyTribeRole(TribeRoles.GOVERNOR) returns (uint256, uint256) {
+        require(
+            investorShareBps >= 0 && investorShareBps <= Constants.BASIS_POINTS_GRANULARITY,
+            "IDORemover: Invalid investor share bps"
+        );
+
         uint256 amountLP = FEI_TRIBE_PAIR.balanceOf(address(this));
         require(amountLP > 0, "IDORemover: Insufficient liquidity");
 
