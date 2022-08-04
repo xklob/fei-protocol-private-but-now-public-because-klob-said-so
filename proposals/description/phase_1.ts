@@ -5,7 +5,7 @@ import { TemplatedProposalDescription } from '@custom-types/types';
 const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(35_000_000);
 
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
-const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(260_000_000);
+const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(200_000_000);
 
 const phase_1: TemplatedProposalDescription = {
   title: 'Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity',
@@ -44,7 +44,7 @@ const phase_1: TemplatedProposalDescription = {
       description: 'Accept beneficiary for Fei Labs IDO Timelock (Uni-LP)'
     },
 
-    // Unlock, remove and split the liquidity
+    // Unlock the LP tokens held by the IDO timelock and transfer to IDO timelock
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -56,7 +56,10 @@ const phase_1: TemplatedProposalDescription = {
       target: 'feiTribePair',
       values: '0',
       method: 'transfer(address,uint256)',
-      arguments: (addresses) => [addresses.idoLiquidityRemover, '170449948038045919878524525'],
+      arguments: (addresses) => [
+        addresses.idoLiquidityRemover,
+        '150982632529460334523068014' // TODO: Update once final claim has been done
+      ],
       description: 'Send all FEI-TRIBE LP tokens to the IDO Liquidity withdrawal helper contract'
     },
 

@@ -17,12 +17,18 @@ interface IIDOInterface {
     /// @notice Get the pending beneficiary
     function pendingBeneficiary(address) external;
 
+    /// @notice Get the amount of tokens unlocked and available for release
+    function availableForRelease() external;
+
     // ----------- Beneficiary state changing API  -------------
     /// @notice Set the pending timelock beneficiary for it to later be accepted
     function setPendingBeneficiary(address) external;
 
     /// @notice Accept the beneficiary, called by the beneficiary in setPendingBeneficiary
     function acceptBeneficiary() external;
+
+    /// @notice Release the maximum amount of unlocked tokens to an address
+    function releaseMax(address) external;
 
     // ----------- Genesis Group only state changing API -----------
 
