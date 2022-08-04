@@ -40,14 +40,7 @@ let initialIDOBeneficiaryBalance: BigNumber;
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  // 1. Deploy IDO Liquidity Remover helper contract
-  const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
-  const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(addresses.core);
-  await idoLiquidityRemover.deployTransaction.wait();
-  console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
-
-  // 2. Deploy new FEI linear token timelock - Fei timelock, no vote delegation
-
+  // 1. Deploy new FEI linear token timelock - Fei timelock, no vote delegation
   // Get the remaining duration on the IDO timelock
   const idoLiquidityTimelock = await ethers.getContractAt('LinearTokenTimelock', addresses.idoLiquidityTimelock);
   const idoTimelockRemainingDuration = await idoLiquidityTimelock.remainingTime();
@@ -66,7 +59,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 
   logging && console.log('New investor FEI IDO timelock deployed to: ', investorIDOFeiTimelock.address);
 
-  // 3. Deploy new TRIBE linear token delegator timelock
+  // 2. Deploy new TRIBE linear token delegator timelock
   // Do not deploy a delegator timelock. Voting power should be locked.
   const LinearTokenTimelockedDelegatorFactory = await ethers.getContractFactory('LinearTokenTimelock');
   const investorIDOTribeTimelock = await LinearTokenTimelockedDelegatorFactory.deploy(
@@ -79,6 +72,16 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   );
   await investorIDOTribeTimelock.deployTransaction.wait();
   logging && console.log('New investor TRIBE timelock deployed to: ', investorIDOTribeTimelock.address);
+
+  // 3. Deploy IDO Liquidity Remover helper contract
+  const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
+  const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(
+    addresses.core,
+    addresses.investorIDOFeiTimelock,
+    addresses.investorIDOTribeTimelock
+  );
+  await idoLiquidityRemover.deployTransaction.wait();
+  console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
 
   return {
     idoLiquidityRemover,
@@ -118,14 +121,14 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // 1. Validate investor IDO Fei timelock
+  // 1. Validate investor IDO Fei timelock configured
   expect(await contracts.investorIDOFeiTimelock.beneficiary()).to.be.equal(addresses.feiLabsTreasuryMultisig);
   expect(await contracts.investorIDOFeiTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
   expect(await contracts.investorIDOFeiTimelock.lockedToken()).to.be.equal(addresses.fei);
   // expect(await contracts.feiIDOTimelock.duration()).to.be.equal();
   expect(await contracts.investorIDOFeiTimelock.cliffSeconds()).to.be.equal(0);
 
-  // 2. Validate TRIBE timelock configured
+  // 2. Validate investor IDO TRIBE timelock configured
   expect(await contracts.investorIDOTribeTimelock.beneficiary()).to.be.equal(addresses.feiLabsTreasuryMultisig);
   expect(await contracts.investorIDOTribeTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
   expect(await contracts.investorIDOTribeTimelock.lockedToken()).to.be.equal(addresses.tribe);
@@ -133,6 +136,8 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.investorIDOTribeTimelock.cliffSeconds()).to.be.equal(0);
 
   // 3. Validate IDO liquidity remover configured
+  expect(await contracts.idoLiquidityRemover.feiTo()).to.be.equal(addresses.investorIDOFeiTimelock);
+  expect(await contracts.idoLiquidityRemover.tribeTo()).to.be.equal(addresses.investorIDOTribeTimelock);
   expect(await contracts.idoLiquidityRemover.UNISWAP_ROUTER()).to.be.equal(addresses.uniswapRouter);
   expect(await contracts.idoLiquidityRemover.FEI_TRIBE_PAIR()).to.be.equal(addresses.feiTribePair);
 
