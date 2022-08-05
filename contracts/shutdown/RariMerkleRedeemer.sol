@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract RariMerkleRedeemer is MultiMerkleRedeemer {
     address public immutable override baseToken;
-    using SafeERC20 for address;
+    using SafeERC20 for IERC20;
 
     constructor(
         address core,
@@ -42,6 +42,27 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     function redeem(address[] calldata cTokens, uint256[] calldata amounts) external override {
+        // check : ctokens.length must equal amounts.length
+        // check : amount isn't zero
+        // check : amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
+
+        for (uint256 i = 0; i < cTokens.length; i++) {
+            require(cTokens[i] != address(0), "Invalid ctoken address");
+            require(amounts[i] != 0, "Invalid amount");
+            require(
+                amounts[i] <= claimableAmounts[msg.sender][cTokens[i]] - claimedAmounts[msg.sender][cTokens[i]],
+                "Amount exceeds available remaining claim."
+            );
+
+            // effect: increment the user's claimedAmount
+            claimedAmounts[msg.sender][cTokens[i]] += amounts[i];
+        }
+
+        // We give the interactions (the safeTransferFroms) their own foor loop, juuuuust to be safe
+        for (uint256 i = 0; i < cTokens.length; i++) {
+            IERC20(cTokens[i]).safeTransferFrom(msg.sender, address(this), amounts[i]);
+        }
+
         revert("Not implemented");
     }
 
