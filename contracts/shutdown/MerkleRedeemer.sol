@@ -11,13 +11,14 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     /** ---------- Storage / Configuration ------ **/
 
     // The token we're going to give out when a user redeems.
-    address public immutable baseToken;
+    // (Immutable in derived contract)
+    address public baseToken;
 
     // One merkle root per ctoken
-    mapping(address => bytes32) public immutable merkleRoots;
+    mapping(address => bytes32) public merkleRoots;
 
     // Exchange rate of the base asset per each ctoken
-    mapping(address => uint256) public immutable cTokenExchangeRates;
+    mapping(address => uint256) public cTokenExchangeRates;
 
     // One signature per user
     mapping(address => bytes32) public userSignatures;
@@ -51,10 +52,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     function redeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
-    function previewRedeem(
-        address cToken,
-        uint256 amount
-    ) external virtual returns (uint256 baseTokenAmount);
+    function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
 
     // Optional function to combine sign, claim, and redeem into one call
     // User must have approved the ctokens to this contract

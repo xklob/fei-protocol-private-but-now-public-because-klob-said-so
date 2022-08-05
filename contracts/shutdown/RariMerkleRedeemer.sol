@@ -2,18 +2,23 @@
 pragma solidity ^0.8.4;
 
 import "../refs/CoreRef.sol";
+import "./MerkleRedeemer.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract RariMerkleRedeemer is MultiMerkleRedeemer {
+    address public immutable override baseToken;
+    using SafeERC20 for address;
 
     constructor(
-        address baseToken,
-        address[] calldata cTokens,
-        uint256[] calldata rates,
-        bytes32[] calldata roots
-    ) {
+        address core,
+        address token,
+        address[] memory cTokens,
+        uint256[] memory rates,
+        bytes32[] memory roots
+    ) CoreRef(core) {
         _configureExchangeRates(cTokens, rates);
         _configureMerkleRoots(cTokens, roots);
-        _configureBaseToken(baseToken);
+        _configureBaseToken(token);
     }
 
     /** ---------- Public Funcs ----------------- **/
@@ -21,24 +26,40 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
     // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
     // User must have approved the ctokens to this contract
-    function redeem(address cToken, uint256 amount) external {
+    function redeem(address cToken, uint256 amount) external override {
         // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
+        require(
+            claimedAmounts[msg.sender][cToken] + amount <= claimableAmounts[msg.sender][cToken],
+            "Amount exceeds available remaining claim."
+        );
+
         // effect: increment the user's claimedAmount
+        claimedAmounts[msg.sender][cToken] += amount;
+
         // interaction: safeTransferFrom the user "amount" of "ctoken" to this contract
 
         revert("Not implemented");
     }
 
-    function redeem(address[] calldata cTokens, uint256[] calldata amounts) external {
+    function redeem(address[] calldata cTokens, uint256[] calldata amounts) external override {
         revert("Not implemented");
     }
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
-    function previewRedeem(
-        address cToken,
-        uint256 amount
-    ) external returns (uint256 baseTokenAmount) {
+    function previewRedeem(address cToken, uint256 amount) external override returns (uint256 baseTokenAmount) {
         return cTokenExchangeRates[cToken] * amount;
+    }
+
+    // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
+    // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
+    // Can only be called once per user. See _sign, _claim, and _multiClaim below.
+    function signAndClaim(
+        bytes calldata signature,
+        address[] calldata cTokens,
+        uint256[] calldata amounts,
+        bytes32[] memory merkleProofs
+    ) external override {
+        revert("Not implemented");
     }
 
     // Optional function to combine sign, claim, and redeem into one call
@@ -48,27 +69,27 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[] memory merkleProofs
-    ) external {
+    ) external override {
         revert("Not implemented");
     }
 
     /** ---------- Internal Funcs --------------- **/
 
-    function _configureExchangeRates(address[] calldata _cTokens, uint256[] calldata _exchangeRates) internal {
+    function _configureExchangeRates(address[] memory _cTokens, uint256[] memory _exchangeRates) internal {
         require(_cTokens.length == 27);
         require(_cTokens.length == _exchangeRates.length, "Exchange rates must be provided for each ctoken");
 
-        for (uint256 i=0; i < _cTokens.length; i++) {
+        for (uint256 i = 0; i < _cTokens.length; i++) {
             require(_exchangeRates[i] > 0, "Exchange rate must be greater than 0");
             cTokenExchangeRates[_cTokens[i]] = _exchangeRates[i];
         }
     }
 
-    function _configureMerkleRoots(address[] calldata _cTokens, bytes32[] calldata _roots) internal {
+    function _configureMerkleRoots(address[] memory _cTokens, bytes32[] memory _roots) internal {
         require(_cTokens.length == 27);
         require(_cTokens.length == _roots.length, "Merkle roots must be provided for each ctoken");
 
-        for (uint256 i=0; i < _cTokens.length; i++) {
+        for (uint256 i = 0; i < _cTokens.length; i++) {
             require(_roots[i] != bytes32(0), "Merkle root must be non-zero");
             merkleRoots[_cTokens[i]] = _roots[i];
         }
@@ -80,7 +101,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata _signature) internal {
+    function _sign(bytes calldata _signature) internal override {
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
         // effect: update user's stored signature
 
@@ -92,7 +113,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address _cToken,
         uint256 _amount,
         bytes32 _merkleProof
-    ) internal {
+    ) internal override {
         // check: verify that claimableAmount is zero, revert if not
         // check: verify ctoken and amount and msg.sender against merkle root
         // effect: update cliaimableAmount for the user
@@ -105,11 +126,11 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[] memory _merkleProofs
-    ) internal {
+    ) internal override {
         require(_cTokens.length == _amounts.length, "Number of ctokens and amounts must match");
-        require(_cTokens.length == merkleProofs.length, "Number of ctokens and merkle proofs must match");
+        require(_cTokens.length == _merkleProofs.length, "Number of ctokens and merkle proofs must match");
 
-        for (uint256 i=0; i < _cTokens.length; i++) {
+        for (uint256 i = 0; i < _cTokens.length; i++) {
             _claim(_cTokens[i], _amounts[i], _merkleProofs[i]);
         }
     }
