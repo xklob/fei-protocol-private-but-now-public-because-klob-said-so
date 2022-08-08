@@ -21,7 +21,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     mapping(address => uint256) public cTokenExchangeRates;
 
     // One signature per user
-    mapping(address => bytes32) public userSignatures;
+    mapping(address => bytes) public userSignatures;
 
     // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
     // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
@@ -30,7 +30,15 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     mapping(address => mapping(address => uint256)) public claimableAmounts;
 
     // The message that the user will sign
-    string private constant MESSAGE = "I solemly swear I am up to no good.";
+    string internal constant MESSAGE = "I solemly swear I am up to no good.";
+    bytes32 internal constant MESSAGE_HASH = keccak256(bytes(MESSAGE));
+
+    // The leaf structure for the merkle tree
+    // This gets hashed into a bytes32 for proving existence in the tree
+    struct Leaf {
+        address user;
+        uint256 amount;
+    }
 
     /** ---------- Public Funcs ----------------- **/
 
@@ -41,7 +49,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
         bytes calldata signature,
         address[] calldata cTokens,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProofs
+        bytes32[][] calldata merkleProofs
     ) external virtual;
 
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
@@ -60,7 +68,7 @@ abstract contract MultiMerkleRedeemer is CoreRef {
         bytes calldata signature,
         address[] calldata cTokens,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProofs
+        bytes32[][] calldata merkleProofs
     ) external virtual;
 
     /** ---------- Internal Funcs --------------- **/
@@ -72,13 +80,13 @@ abstract contract MultiMerkleRedeemer is CoreRef {
     function _claim(
         address cToken,
         uint256 amount,
-        bytes32 merkleProof
+        bytes32[] calldata merkleProof
     ) internal virtual;
 
     // User provides the ctokens & the amounts they should get, and it is verified against the merkle root for that ctoken (for each ctoken provided)
     function _multiClaim(
         address[] calldata cTokens,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProofs
+        bytes32[][] calldata merkleProofs
     ) internal virtual;
 }

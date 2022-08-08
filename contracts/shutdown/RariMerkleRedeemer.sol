@@ -2,11 +2,12 @@
 pragma solidity ^0.8.4;
 
 import "../refs/CoreRef.sol";
-import "./MerkleRedeemer.sol";
+import "./MultiMerkleRedeemer.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract RariMerkleRedeemer is MultiMerkleRedeemer {
-    address public immutable override baseToken;
     using SafeERC20 for IERC20;
 
     constructor(
@@ -77,7 +78,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         bytes calldata signature,
         address[] calldata cTokens,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProofs
+        bytes32[][] calldata merkleProofs
     ) external override {
         revert("Not implemented");
     }
@@ -88,7 +89,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         bytes calldata signature,
         address[] calldata cTokens,
         uint256[] calldata amounts,
-        bytes32[] memory merkleProofs
+        bytes32[][] calldata merkleProofs
     ) external override {
         revert("Not implemented");
     }
@@ -122,30 +123,47 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
 
     // User provides signature, which is checked against their address and the string constant "message"
     function _sign(bytes calldata _signature) internal override {
-        // check: to ensure the signature is a valid signature for the constant message string from msg.sender
-        // effect: update user's stored signature
+        // check: ensure that the user hasn't yet signed
+        // note: you can't directly compare bytes storage ref's to each other, but you can keccak the empty bytes
+        // such as the one from address zero, and compare this with the keccak'd other bytes; msg.sender *cannot* be the zero address
+        require(
+            keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
+            "User has already signed"
+        );
 
-        revert("Not implemented");
+        // check: to ensure the signature is a valid signature for the constant message string from msg.sender
+        // @todo - do we want to use this, which supports ERC1271, or *just* EOA signatures?
+        require(SignatureChecker.isValidSignatureNow(msg.sender, MESSAGE_HASH, _signature), "Signature not valid.");
+
+        // effect: update user's stored signature
+        // @todo - do we need to add in a length checker on the signature?
+        userSignatures[msg.sender] = _signature;
     }
 
     // User provides the the ctoken & the amount they should get, and it is verified against the merkle root for that ctoken
     function _claim(
         address _cToken,
         uint256 _amount,
-        bytes32 _merkleProof
+        bytes32[] calldata _merkleProof
     ) internal override {
         // check: verify that claimableAmount is zero, revert if not
-        // check: verify ctoken and amount and msg.sender against merkle root
-        // effect: update cliaimableAmount for the user
+        require(claimableAmounts[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
 
-        revert("Not implemented");
+        // check: verify ctoken and amount and msg.sender against merkle root
+        // @todo - ensure that we're using the correct encoding for the leaf structure
+        Leaf memory leaf = Leaf(msg.sender, _amount);
+        bytes32 leafHash = keccak256(abi.encode(leaf));
+        require(MerkleProof.verify(_merkleProof, merkleRoots[_cToken], leafHash), "Merkle proof not valid.");
+
+        // effect: update claimableAmount for the user
+        claimableAmounts[msg.sender][_cToken] = _amount;
     }
 
     // User provides the ctokens & the amounts they should get, and it is verified against the merkle root for that ctoken (for each ctoken provided)
     function _multiClaim(
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
-        bytes32[] memory _merkleProofs
+        bytes32[][] calldata _merkleProofs
     ) internal override {
         require(_cTokens.length == _amounts.length, "Number of ctokens and amounts must match");
         require(_cTokens.length == _merkleProofs.length, "Number of ctokens and merkle proofs must match");
