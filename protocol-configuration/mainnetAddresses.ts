@@ -2538,7 +2538,7 @@ export const MainnetContractsConfig = {
     address: '0x4bFa2625D50b68D622D1e71c82ba6Db99BA0d17F',
     category: AddressCategory.Deprecated
   },
-  teamVestingTimelock: {
+  feiLabsVestingTimelock: {
     artifactName: 'TimelockedDelegator',
     address: '0x38afbf8128cc54323e216acde9516d281c4f1e5f',
     category: AddressCategory.Distribution

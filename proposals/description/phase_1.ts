@@ -8,34 +8,18 @@ const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(35_000_000);
 const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(200_000_000);
 
 const phase_1: TemplatedProposalDescription = {
-  title: 'Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity',
+  title: 'Phase 1: End Fei Labs vesting and remove Uniswap liquidity',
   commands: [
-    // 1. Clawback the La Tribu timelocks
+    // 1. Accept the beneficiary of Fei Labs vesting TRIBE timelock contract as the DAO timelock
     {
-      target: 'laTribuFeiTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback the FEI from the La Tribu FEI timelock to the DAO timelock'
-    },
-    {
-      target: 'laTribuTribeTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback the TRIBE from the La Tribu FEI timelock to the DAO timelock'
-    },
-
-    // 2. Accept the beneficiary of the team vesting TRIBE timelock contracts as the DAO timelock
-    {
-      target: 'teamVestingTimelock',
+      target: 'feiLabsVestingTimelock',
       values: '0',
       method: 'acceptBeneficiary()',
       arguments: (addresses) => [],
-      description: 'Accept beneficiary on team vesting contract as the DAO timelock'
+      description: 'Accept beneficiary on Fei Labs vesting contract as the DAO timelock'
     },
 
-    // 3. Prepare for liquidity removal by accepting timelock beneficiary
+    // 2. Prepare for liquidity removal by accepting timelock beneficiary
     {
       target: 'idoLiquidityTimelock',
       values: '0',
@@ -72,13 +56,12 @@ const phase_1: TemplatedProposalDescription = {
       description: `
       WARNING: ASSUMES TIMELOCK.RELEASE_MAX() HAS ALREADY BEEN CALLED TO FUND BENEFICIARY
 
-      Remove liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
+      Remove Fei Labs liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
       
-      Then as part of this contract call, burn all FEI redeemed and send all redeemed TRIBE
-      to Core
+      As part of the contract call, burn all FEI redeemed and send all redeemed TRIBE to Core.
       `
     },
-    // 4. Revoke the TRIBE approval given to the Tribal Council timelock
+    // 3. Revoke the TRIBE approval given to the Tribal Council timelock
     {
       target: 'tribe',
       values: '0',
@@ -88,22 +71,19 @@ const phase_1: TemplatedProposalDescription = {
     }
   ],
   description: `
-  Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity
+  Phase 1: End Fei Labs vesting and remove Uniswap liquidity
 
-  This proposal overall stops the vesting of FEI and TRIBE throughout the ecosystem, including
-  La Tribu and the team, and it also removes all FEI/TRIBE liquidity from Uniswap V2.
-  The redeemed FEI is burned whilst the redeemed TRIBE is sent to the Treasury.
+  This proposal ends the vesting of Fei Labs and removes their LP tokes from Uniswap V2. 
+  It then burns all redeemed FEI and sends the redeemed TRIBE to the Core Treasury.
 
   Specifically, this proposal:
-  1. Claws back the La Tribu FEI and TRIBE timelocks
-  2. Accepts the beneficiary of all FEI and TRIBE vesting timelocks as the DAO timelock
-  3. Accepts the pending beneficiary of the IDO liquidity timelock 
-     as the Tribe DAO timelock
-  4. Unlocks all liquidity - Fei-Tribe LP tokens - held by the timelock.
-  5. Transfers the Fei-Tribe LP tokens to a helper contract. This helper contract
-     redeems the LP tokens for the underlying FEI and TRIBE tokens in the Uniswap pool.
-
-     It then burns all redeemed FEI and sends all redeemed TRIBE to the Treasury.
+  1. Ends the vesting of Fei Labs, by setting the beneficiary of the vesting contract to the DAO timelock
+  2. Accepts the pending beneficiary of the IDO liquidity timelock as the Tribe DAO timelock
+  3. Unlocks all Fei-Tribe LP token liquidity held by the IDO timelock, to the DAO timelock
+  4. Transfers 75% of the Fei-Tribe LP tokens to a helper Uniswap liquidity removal contract.
+     This 75% is the share of the LP tokens that are being vested by Fei-Labs. 
+       - The removal contract is then called to remove the corresponding liquidity 
+         from Uniswap, burn all redeemed FEI and send all redeemed TRIBE to the Core Treasury.
   `
 };
 

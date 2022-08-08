@@ -14,12 +14,12 @@ import { abi as timelockABI } from '../../artifacts/contracts/timelocks/Timelock
 const toBN = ethers.BigNumber.from;
 /*
 
-Phase 1: Clawback vesting TRIBE and FEI and remove Uniswap liquidity
+Phase 1: End Fei Labs vesting and remove Uniswap liquidity
 
-1. Clawback La Tribu timelocks
-2. Accept beneficiary of vesting FEI and TRIBE contracts
-3. Transfer ownership of the IDO liquidity
-4. Early unlock the IDO liquidity, burn the FEI and send the TRIBE to the Treasury
+1. Accept the beneficiary of the Fei Labs vesting timelock to the DAO timelock
+   effectively clawing it back
+2. Unlock the Fei Labs IDO liquidity, burn the FEI and send the TRIBE to the Treasury
+3. Re-lock investors vesting LP tokens
 
 */
 
@@ -40,53 +40,34 @@ let initialIDOBeneficiaryBalance: BigNumber;
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  // 1. Deploy new FEI linear token timelock - Fei timelock, no vote delegation
+  // 1. Deploy new linear token timelock to hold the remaining investor LP tokens
   // Get the remaining duration on the IDO timelock
   const idoLiquidityTimelock = await ethers.getContractAt('LinearTokenTimelock', addresses.idoLiquidityTimelock);
   const idoTimelockRemainingDuration = await idoLiquidityTimelock.remainingTime();
   console.log('Remaining time: ', idoTimelockRemainingDuration.toString());
 
   const LinearTokenTimelockedFactory = await ethers.getContractFactory('LinearTokenTimelock');
-  const investorIDOFeiTimelock = await LinearTokenTimelockedFactory.deploy(
+  const investorIDOFundsTimelock = await LinearTokenTimelockedFactory.deploy(
     addresses.feiLabsTreasuryMultisig, // beneficiary
     idoTimelockRemainingDuration, // duration
-    addresses.fei, // token
+    addresses.feiTribePair, // token - FEI/TRIBE LP tokens
     0, // secondsUntilCliff - have already passed the cliff
-    ethers.constants.AddressZero, // clawbackAdmin - NO CLAWBACK ADMIN
+    ethers.constants.AddressZero, // clawbackAdmin - NO CLAWBACK ADMIN, TODO: Should Fei Labs be able to claw?
     0 // startTime
   );
-  await investorIDOFeiTimelock.deployTransaction.wait();
+  await investorIDOFundsTimelock.deployTransaction.wait();
 
-  logging && console.log('New investor FEI IDO timelock deployed to: ', investorIDOFeiTimelock.address);
+  logging && console.log('New investor FEI IDO timelock deployed to: ', investorIDOFundsTimelock.address);
 
-  // 2. Deploy new TRIBE linear token delegator timelock
-  // Do not deploy a delegator timelock. Voting power should be locked.
-  const LinearTokenTimelockedDelegatorFactory = await ethers.getContractFactory('LinearTokenTimelock');
-  const investorIDOTribeTimelock = await LinearTokenTimelockedDelegatorFactory.deploy(
-    addresses.feiLabsTreasuryMultisig, // beneficiary
-    idoTimelockRemainingDuration, // duration
-    addresses.tribe, // token
-    0, // secondsUntilCliff - have already passed the cliff
-    ethers.constants.AddressZero, // clawbackAdmin - NO CLAWBACK ADMIN
-    0 // startTime
-  );
-  await investorIDOTribeTimelock.deployTransaction.wait();
-  logging && console.log('New investor TRIBE timelock deployed to: ', investorIDOTribeTimelock.address);
-
-  // 3. Deploy IDO Liquidity Remover helper contract
+  // 2. Deploy IDO Liquidity Remover helper contract
   const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
-  const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(
-    addresses.core,
-    addresses.investorIDOFeiTimelock,
-    addresses.investorIDOTribeTimelock
-  );
+  const idoLiquidityRemover = await IDOLiquidityRemovalFactory.deploy(addresses.core);
   await idoLiquidityRemover.deployTransaction.wait();
   console.log('IDO liquidity remover deployed to: ', idoLiquidityRemover.address);
 
   return {
     idoLiquidityRemover,
-    investorIDOFeiTimelock,
-    investorIDOTribeTimelock
+    investorIDOFundsTimelock
   };
 };
 
@@ -108,7 +89,7 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   // 3. Set pending beneficiary of vesting team timelock to the DAO timelock
   // Team vesting contracts
   const teamBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
-  const teamTimelock = new ethers.Contract(addresses.teamVestingTimelock, timelockABI, teamBeneficiarySigner);
+  const teamTimelock = new ethers.Contract(addresses.feiLabsVestingTimelock, timelockABI, teamBeneficiarySigner);
   await teamTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
 };
 
@@ -121,46 +102,33 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // 1. Validate investor IDO Fei timelock configured
-  expect(await contracts.investorIDOFeiTimelock.beneficiary()).to.be.equal(addresses.feiLabsTreasuryMultisig);
-  expect(await contracts.investorIDOFeiTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
-  expect(await contracts.investorIDOFeiTimelock.lockedToken()).to.be.equal(addresses.fei);
-  // expect(await contracts.feiIDOTimelock.duration()).to.be.equal();
-  expect(await contracts.investorIDOFeiTimelock.cliffSeconds()).to.be.equal(0);
+  // 1. Validate investor IDO funds timelock configured
+  expect(await contracts.investorIDOFundsTimelock.beneficiary()).to.be.equal(addresses.feiLabsTreasuryMultisig);
+  expect(await contracts.investorIDOFundsTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
+  expect(await contracts.investorIDOFundsTimelock.lockedToken()).to.be.equal(addresses.feiTribePair);
+  // expect(await contracts.investorIDOFundsTimelock.duration()).to.be.equal();
+  expect(await contracts.investorIDOFundsTimelock.cliffSeconds()).to.be.equal(0);
 
-  // 2. Validate investor IDO TRIBE timelock configured
-  expect(await contracts.investorIDOTribeTimelock.beneficiary()).to.be.equal(addresses.feiLabsTreasuryMultisig);
-  expect(await contracts.investorIDOTribeTimelock.clawbackAdmin()).to.be.equal(ethers.constants.AddressZero);
-  expect(await contracts.investorIDOTribeTimelock.lockedToken()).to.be.equal(addresses.tribe);
-  // expect(await contracts.tribeDOTimelock.duration()).to.be.equal();
-  expect(await contracts.investorIDOTribeTimelock.cliffSeconds()).to.be.equal(0);
-
-  // 3. Validate IDO liquidity remover configured
-  expect(await contracts.idoLiquidityRemover.feiTo()).to.be.equal(addresses.investorIDOFeiTimelock);
-  expect(await contracts.idoLiquidityRemover.tribeTo()).to.be.equal(addresses.investorIDOTribeTimelock);
+  // 2. Validate IDO liquidity remover configured
   expect(await contracts.idoLiquidityRemover.UNISWAP_ROUTER()).to.be.equal(addresses.uniswapRouter);
   expect(await contracts.idoLiquidityRemover.FEI_TRIBE_PAIR()).to.be.equal(addresses.feiTribePair);
 
-  // 4. Validate La Tribu clawed back
-  expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.be.equal(0);
-  expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.be.equal(0);
+  // 3. Validate team vesting timelock accepted beneficiary
+  expect(await contracts.feiLabsVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
 
-  // 5. Validate team vesting timelock accepted beneficiary
-  expect(await contracts.teamVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
-
-  // 6. Validate beneficiary received all vested/claimable funds from IDO timelock
+  // 4. Validate beneficiary received all vested/claimable funds from IDO timelock
   const IDOBeneficiaryBalanceDiff = (await contracts.feiTribePair.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
     initialIDOBeneficiaryBalance
   );
   expect(IDOBeneficiaryBalanceDiff).to.be.bignumber.greaterThan(toBN(0)); // should have claimed funds
   console.log('Vested funds: ', IDOBeneficiaryBalanceDiff.toString());
 
-  // 7. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
+  // 5. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
 
-  // 8. IDO FEI should have been burned, TRIBE should have been sent to Treasury
+  // 6. IDO FEI should have been burned, TRIBE should have been sent to Treasury
   // Fei-Tribe LP worth ~$85M
   // Constant product AMM, so equal worth of FEI and TRIBE
   // $42.5M FEI, $42.5M TRIBE
@@ -178,7 +146,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
   console.log('TRIBE redeemed: ', tribeRedeemed.toString());
 
-  // 9. Validate TRIBE approval revoked from Tribal Council timelock
+  // 7. Validate TRIBE approval revoked from Tribal Council timelock
   expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);
 };
 
