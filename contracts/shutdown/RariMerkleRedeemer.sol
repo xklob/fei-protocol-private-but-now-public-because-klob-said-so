@@ -22,6 +22,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         _configureBaseToken(token);
     }
 
+    // @todo - natspec
+    // @todo - verify that having zero as a default value doesn't mess up any signatures or proofs
+
     /** ---------- Public Funcs ----------------- **/
 
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
