@@ -38,11 +38,11 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         claimedAmounts[msg.sender][cToken] += amount;
 
         // interaction: safeTransferFrom the user "amount" of "ctoken" to this contract
-
-        revert("Not implemented");
+        IERC20(cToken).safeTransferFrom(msg.sender, address(this), amount);
+        IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cToken, amount));
     }
 
-    function redeem(address[] calldata cTokens, uint256[] calldata amounts) external override {
+    function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override {
         // check : ctokens.length must equal amounts.length
         // check : amount isn't zero
         // check : amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
@@ -62,12 +62,12 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         // We give the interactions (the safeTransferFroms) their own foor loop, juuuuust to be safe
         for (uint256 i = 0; i < cTokens.length; i++) {
             IERC20(cTokens[i]).safeTransferFrom(msg.sender, address(this), amounts[i]);
-            IERC20(baseToken).safeTransfer(msg.sender, this.previewRedeem(cTokens[i], amounts[i]));
+            IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cTokens[i], amounts[i]));
         }
     }
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
-    function previewRedeem(address cToken, uint256 amount) external override returns (uint256 baseTokenAmount) {
+    function previewRedeem(address cToken, uint256 amount) public view override returns (uint256 baseTokenAmount) {
         return cTokenExchangeRates[cToken] * amount;
     }
 
@@ -79,8 +79,10 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) external override {
-        revert("Not implemented");
+    ) public override {
+        // both sign and claim/multiclaim will revert on invalid signatures/proofs
+        _sign(signature);
+        _multiClaim(cTokens, amounts, merkleProofs);
     }
 
     // Optional function to combine sign, claim, and redeem into one call
@@ -91,7 +93,8 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
     ) external override {
-        revert("Not implemented");
+        signAndClaim(signature, cTokens, amounts, merkleProofs);
+        redeem(cTokens, amounts);
     }
 
     /** ---------- Internal Funcs --------------- **/
