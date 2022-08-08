@@ -11,10 +11,8 @@ import {CoreRef} from "../refs/CoreRef.sol";
 import {Constants} from "../Constants.sol";
 
 /// @title IDO liquidity remover
-/// @notice Removes the IDO liquidity from Uniswap V2 and then:
-///         - Sends the investor share of FEI and TRIBE to new destinations (timelocks)
-///         - Burns remaining redeemed FEI
-///         - Transfers remaining redeemed TRIBE to Core treasury
+/// @notice Redeems Uniswap FEI-TRIBE LP tokens held on this contract for the underlying FEI and TRIBE.
+///         Then burns the remaining redeemed FEI and transfers the redeemed TRIBE to Core treasury
 ///         Expected that this contract holds all LP tokens prior to redemption
 contract IDOLiquidityRemover is CoreRef {
     using SafeERC20 for IERC20;
@@ -46,13 +44,6 @@ contract IDOLiquidityRemover is CoreRef {
     {
         uint256 amountLP = FEI_TRIBE_PAIR.balanceOf(address(this));
         require(amountLP > 0, "IDORemover: Insufficient liquidity");
-
-        // Basically - only want to pull a fraction of the LP tokens out
-        // Steps:
-        // 1. Don't want to have the IDO contract around - requires onlyGovernor to unlock all
-        // 2. Could maybe call releaseMax(). Probs better to just deploy a standard vesting timelock
-        // 3. Unlock all LP tokens. Send 75% to the IDO liquidity remover and remove that liquidity
-        // 4. Deploy the remaining 25% investor LP tokens in a new timelock
 
         // Approve Uniswap router to swap tokens
         FEI_TRIBE_PAIR.approve(address(UNISWAP_ROUTER), amountLP);

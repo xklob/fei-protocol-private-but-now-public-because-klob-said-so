@@ -59,7 +59,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   );
   await investorIDOFundsTimelock.deployTransaction.wait();
 
-  logging && console.log('New investor FEI IDO timelock deployed to: ', investorIDOFundsTimelock.address);
+  logging && console.log('New investor IDO timelock deployed to: ', investorIDOFundsTimelock.address);
 
   // 2. Deploy IDO Liquidity Remover helper contract
   const IDOLiquidityRemovalFactory = await ethers.getContractFactory('IDOLiquidityRemover');
@@ -138,7 +138,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 1 FEI = $1, 1 TRIBE ~= $0.16
   // => 30M FEI burned and ~190M TRIBE sent to Core
   const feiBurned = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
-  console.log('FEI redeemed: ', feiBurned.toString());
+  console.log('FEI redeemed and burned: ', feiBurned.toString());
   expect(feiBurned).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
   expect(feiBurned).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
 
@@ -150,8 +150,12 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // 6. Validate investor LP tokens
   const investorIDOTimelockFunds = await contracts.feiTribePair.balanceOf(addresses.investorIDOFundsTimelock);
+  console.log('Investor LP tokens: ', investorIDOTimelockFunds);
   expect(investorIDOTimelockFunds).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
   expect(investorIDOTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
+
+  const remainingLPTokensInTimelock = await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock);
+  console.log('Remaining LP tokens in timelock: ', remainingLPTokensInTimelock.toString());
 
   // 7. Validate TRIBE approval revoked from Tribal Council timelock
   expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);
