@@ -11,7 +11,6 @@ import { getImpersonatedSigner } from '@test/helpers';
 import { BigNumber } from 'ethers';
 import { abi as timelockABI } from '../../artifacts/contracts/timelocks/TimelockedDelegator.sol/TimelockedDelegator.json';
 
-const toBN = ethers.BigNumber.from;
 /*
 
 Phase 1: End Fei Labs vesting and remove Uniswap liquidity
@@ -26,16 +25,19 @@ Phase 1: End Fei Labs vesting and remove Uniswap liquidity
 const fipNumber = 'phase_1_clawback_remove_liquidity';
 
 // Approximate bounds on the FEI to be burned after LP tokens redeemed
-const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(35_000_000);
-const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(45_000_000);
+const LOWER_BOUND_FEI = ethers.constants.WeiPerEther.mul(25_000_000);
+const UPPER_BOUND_FEI = ethers.constants.WeiPerEther.mul(35_000_000);
 
 // Expected bounds on the TRIBE to be transferred to the Core Treasury after LP tokens redeemed
-const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(200_000_000);
-const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(300_000_000);
+const LOWER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(140_000_000);
+const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(240_000_000);
+
+// Expected bounds on the number of FEI-TRIBE LP tokens to be relocked for Investors in a timelock
+const LOWER_BOUND_LP_TOKENS = ethers.constants.WeiPerEther.mul(30_000_000);
+const UPPER_BOUND_LP_TOKENS = ethers.constants.WeiPerEther.mul(50_000_000);
 
 let initialFeiTotalSupply: BigNumber;
 let initialTribeTreasuryBalance: BigNumber;
-let initialIDOBeneficiaryBalance: BigNumber;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -77,7 +79,6 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   initialFeiTotalSupply = await contracts.fei.totalSupply();
   initialTribeTreasuryBalance = await contracts.tribe.balanceOf(addresses.core);
-  initialIDOBeneficiaryBalance = await contracts.feiTribePair.balanceOf(addresses.feiLabsTreasuryMultisig);
 
   // 1. Call releaseMax on the IDO Liquidity Timelock to release all vested liquidity
   const feiLabsTreasurySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
@@ -116,25 +117,26 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 3. Validate team vesting timelock accepted beneficiary
   expect(await contracts.feiLabsVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
 
-  // 4. Validate beneficiary received all vested/claimable funds from IDO timelock
-  const IDOBeneficiaryBalanceDiff = (await contracts.feiTribePair.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
-    initialIDOBeneficiaryBalance
-  );
-  expect(IDOBeneficiaryBalanceDiff).to.be.bignumber.greaterThan(toBN(0)); // should have claimed funds
-  console.log('Vested funds: ', IDOBeneficiaryBalanceDiff.toString());
-
-  // 5. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
+  // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
 
-  // 6. IDO FEI should have been burned, TRIBE should have been sent to Treasury
-  // Fei-Tribe LP worth ~$85M
-  // Constant product AMM, so equal worth of FEI and TRIBE
-  // $42.5M FEI, $42.5M TRIBE
-  // 1 FEI = $1, 1 TRIBE ~= $0.15
-  // All FEI (~42.5M) burned
-  // Expect, ~280M TRIBE
+  // 5. IDO FEI should have been burned, TRIBE should have been sent to Treasury
+  // There are ~170M Fei-Tribe LP tokens, worth ~$92M.
+  // 20M have been vested and are expected to be claimed
+  // That leaves ~150M Fei-Tribe LP tokens (worth ~$82M) that are still vesting
+  // to Fei Labs and Investors
+
+  // Investors have ~25% of the LP tokens vesting, Fei Labs the remaining 75%
+  // So ~112M Fei-Tribe Fei Labs LP tokens are being redeemed and liquidity removed
+  // and ~38M are being relocked for investors in a linear timelock on the same terms
+
+  // Calculation for expected amount of FEI and TRIBE burned
+  // 112M LP tokens removed, worth ~$61M
+  // Constant product AMM => ~$30M FEI, $30M TRIBE
+  // 1 FEI = $1, 1 TRIBE ~= $0.16
+  // => 30M FEI burned and ~190M TRIBE sent to Core
   const feiBurned = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
   console.log('FEI redeemed: ', feiBurned.toString());
   expect(feiBurned).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
@@ -145,6 +147,11 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(tribeRedeemed).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
   console.log('TRIBE redeemed: ', tribeRedeemed.toString());
+
+  // 6. Validate investor LP tokens
+  const investorIDOTimelockFunds = await contracts.feiTribePair.balanceOf(addresses.investorIDOFundsTimelock);
+  expect(investorIDOTimelockFunds).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
+  expect(investorIDOTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 
   // 7. Validate TRIBE approval revoked from Tribal Council timelock
   expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);

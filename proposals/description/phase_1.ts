@@ -2,10 +2,10 @@ import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
 // Minimum amount of FEI to be redeemed from Uniswap when liquidity removed
-const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(35_000_000);
+const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(25_000_000);
 
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
-const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(200_000_000);
+const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(140_000_000);
 
 const phase_1: TemplatedProposalDescription = {
   title: 'Phase 1: End Fei Labs vesting and remove Uniswap liquidity',
@@ -42,23 +42,37 @@ const phase_1: TemplatedProposalDescription = {
       method: 'transfer(address,uint256)',
       arguments: (addresses) => [
         addresses.idoLiquidityRemover,
-        '150982632529460334523068014' // TODO: Update once final claim has been done
+        '112766544549135747351497513' // TODO: Update once final claim has been done
       ],
-      description: 'Send all FEI-TRIBE LP tokens to the IDO Liquidity withdrawal helper contract'
-    },
+      description: `
+      Send Fei Labs yet to be vested LP tokens to the Uniswap liquidity removal contract,
+      to allow the liquidity to be removed from Uniswap. 
 
-    // WARNING: ASSUMES TIMELOCK.RELEASE_MAX() HAS ALREADY BEEN CALLED TO FUND BENEFICIARY
+      There are ~150M LP tokens yet to be vested, 75% of which belong to Fei Labs. 
+      Hence ~112M LP tokens are being redeemed from Uniswap.
+      `
+    },
     {
       target: 'idoLiquidityRemover',
       values: '0',
       method: 'redeemLiquidity(uint256,uint256)',
       arguments: (addresses) => [MIN_FEI_OUT, MIN_TRIBE_OUT],
       description: `
-      WARNING: ASSUMES TIMELOCK.RELEASE_MAX() HAS ALREADY BEEN CALLED TO FUND BENEFICIARY
-
       Remove Fei Labs liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
       
-      As part of the contract call, burn all FEI redeemed and send all redeemed TRIBE to Core.
+      As part of the contract call, all redeemed FEI is burned and all redeemed TRIBE is sent to Core.
+      `
+    },
+    {
+      target: 'feiTribePair',
+      values: '0',
+      method: 'transfer(address,uint256)',
+      arguments: (addresses) => [addresses.investorIDOFundsTimelock, '37588848183045249117165837'],
+      description: `
+      Transfer unlocked investor FEI-TRIBE LP tokens to a new linear vesting timelock.
+      There were ~150M LP tokens unlocked. ~25% of these belong to investors.
+
+      Hence ~38M LP tokens are relocked in the new timelock, on the same terms as the IDO vesting.
       `
     },
     // 3. Revoke the TRIBE approval given to the Tribal Council timelock
