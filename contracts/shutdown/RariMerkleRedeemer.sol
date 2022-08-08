@@ -44,12 +44,16 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
 
     function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override {
         // check : ctokens.length must equal amounts.length
-        // check : amount isn't zero
-        // check : amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
+        require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
 
         for (uint256 i = 0; i < cTokens.length; i++) {
+            // check: cToken cannot be the zero address
             require(cTokens[i] != address(0), "Invalid ctoken address");
+
+            // check: amount must be greater than 0
             require(amounts[i] != 0, "Invalid amount");
+
+            // check: amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
             require(
                 amounts[i] <= claimableAmounts[msg.sender][cTokens[i]] - claimedAmounts[msg.sender][cTokens[i]],
                 "Amount exceeds available remaining claim."
