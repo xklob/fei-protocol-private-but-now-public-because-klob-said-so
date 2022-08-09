@@ -95,9 +95,12 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
 
   // 3. Set pending beneficiary of vesting team timelock to the DAO timelock
   // Team vesting contracts
-  const teamBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
-  const teamTimelock = new ethers.Contract(addresses.feiLabsVestingTimelock, timelockABI, teamBeneficiarySigner);
-  await teamTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
+  const feiLabsBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
+  const feiLabsTimelock = new ethers.Contract(addresses.feiLabsVestingTimelock, timelockABI, feiLabsBeneficiarySigner);
+  await feiLabsTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
+
+  // 4. Call releaseMax() on Fei Labs timelock
+  await feiLabsTimelock.releaseMax(addresses.feiLabsTreasuryMultisig);
 };
 
 // Tears down any changes made in setup() that need to be
