@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.4;
+
+import {LinearTokenTimelock} from "./LinearTokenTimelock.sol";
+import {CoreRef} from "../refs/CoreRef.sol";
+
+contract LinearEarlyUnlockTimelock is LinearTokenTimelock, CoreRef {
+    constructor(
+        address _core,
+        address _beneficiary,
+        uint256 _duration,
+        address _lockedToken,
+        uint256 _cliffDuration,
+        address _clawbackAdmin,
+        uint256 _startTime
+    )
+        LinearTokenTimelock(_beneficiary, _duration, _lockedToken, _cliffDuration, _clawbackAdmin, _startTime)
+        CoreRef(_core)
+    {}
+
+    /// @notice Early unlock the liquidity held by the timelock. Only Governor
+    function unlockLiquidity() external onlyGovernor {
+        _release(beneficiary, totalToken());
+    }
+}
