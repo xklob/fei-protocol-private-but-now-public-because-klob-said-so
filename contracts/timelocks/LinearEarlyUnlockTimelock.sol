@@ -18,7 +18,8 @@ contract LinearEarlyUnlockTimelock is LinearTokenTimelock, CoreRef {
         CoreRef(_core)
     {}
 
-    /// @notice Early unlock the liquidity held by the timelock. Only Governor
+    /// @notice Early unlock the liquidity held by the timelock. 
+    /// @dev Restricted to onlyGovernor
     function unlockLiquidity() external onlyGovernor {
         _release(beneficiary, totalToken());
     }
