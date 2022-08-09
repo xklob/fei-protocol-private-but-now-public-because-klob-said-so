@@ -10,6 +10,9 @@ import {
 import { getImpersonatedSigner } from '@test/helpers';
 import { BigNumber } from 'ethers';
 import { abi as timelockABI } from '../../artifacts/contracts/timelocks/TimelockedDelegator.sol/TimelockedDelegator.json';
+import { ERC20, LinearEarlyUnlockTimelock } from '@custom-types/contracts';
+
+const toBN = ethers.BigNumber.from;
 
 /*
 
@@ -48,13 +51,16 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   const idoTimelockRemainingDuration = await idoLiquidityTimelock.remainingTime();
   console.log('Remaining time: ', idoTimelockRemainingDuration.toString());
 
-  const LinearTokenTimelockedFactory = await ethers.getContractFactory('LinearTokenTimelock');
+  const LinearTokenTimelockedFactory = await ethers.getContractFactory('LinearEarlyUnlockTimelock');
   const investorIDOFundsTimelock = await LinearTokenTimelockedFactory.deploy(
+    addresses.core,
     addresses.feiLabsTreasuryMultisig, // beneficiary
     idoTimelockRemainingDuration, // duration
     addresses.feiTribePair, // token - FEI/TRIBE LP tokens
     0, // secondsUntilCliff - have already passed the cliff
-    ethers.constants.AddressZero, // clawbackAdmin - NO CLAWBACK ADMIN, TODO: Should Fei Labs be able to claw?
+
+    // clawbackAdmin - NO CLAWBACK ADMIN. Make use of unlockLiquidity() onlyGovernor instead
+    ethers.constants.AddressZero,
     0 // startTime
   );
   await investorIDOFundsTimelock.deployTransaction.wait();
@@ -155,10 +161,31 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(investorIDOTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 
   const remainingLPTokensInTimelock = await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock);
-  console.log('Remaining LP tokens in timelock: ', remainingLPTokensInTimelock.toString());
+  expect(remainingLPTokensInTimelock).to.be.equal(0);
 
   // 7. Validate TRIBE approval revoked from Tribal Council timelock
   expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);
+
+  // 8. Validate that beneficiary can claim from configured timelock
+  await validateBeneficiaryCanClaim(
+    contracts.investorIDOFundsTimelock as LinearEarlyUnlockTimelock,
+    contracts.feiTribePair as ERC20,
+    addresses.feiLabsTreasuryMultisig
+  );
+};
+
+const validateBeneficiaryCanClaim = async (
+  tokenTimelock: LinearEarlyUnlockTimelock,
+  feiTribePair: ERC20,
+  beneficiary: string
+) => {
+  const beneficiaryBalanceBefore = await feiTribePair.balanceOf(beneficiary);
+
+  const feiLabsTreasurySigner = await getImpersonatedSigner(beneficiary);
+  await tokenTimelock.connect(feiLabsTreasurySigner).releaseMax(beneficiary);
+
+  const balanceDiff = (await feiTribePair.balanceOf(beneficiary)).sub(beneficiaryBalanceBefore);
+  expect(balanceDiff).to.be.bignumber.greaterThan(toBN(0));
 };
 
 export { deploy, setup, teardown, validate };

@@ -34,8 +34,7 @@ contract LinearEarlyUnlockTimelockTest is DSTest {
             address(token),
             cliffDuration,
             clawbackAdmin,
-            startTime // set as 0, so will set start time to be the current block timestamp
-                      // For Foundry unit tests, that will be 1
+            startTime // startTime = 0, which will actually set start time to block.timestamp (1 for Foundry)
         );
 
         // Mint tokens to timelock
