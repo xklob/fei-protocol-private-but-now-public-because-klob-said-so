@@ -20,9 +20,6 @@ contract IDORemoverIntegrationTest is DSTest {
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
-    address feiTo = address(0x42);
-    address tribeTo = address(0x43);
-
     function setUp() public {
         idoRemover = new IDOLiquidityRemover(MainnetAddresses.CORE);
 
@@ -51,10 +48,8 @@ contract IDORemoverIntegrationTest is DSTest {
         idoRemover.redeemLiquidity(0, 0);
     }
 
-    /// @notice Validate LP tokens can be redeemed and these conditions:
-    ///         - Investor FEI and TRIBE shares sent to destinations
-    ///         - Remaining FEI burned
-    ///         - Remaining TRIBE sent to Core
+    /// @notice Validate LP tokens can be redeemed and remaining FEI burned
+    ///         with remaining TRIBE sent to Core
     function testRedeemLiquidity() public {
         uint256 initialFeiSupply = fei.totalSupply();
         uint256 initialCoreBalance = tribe.balanceOf(MainnetAddresses.CORE);
