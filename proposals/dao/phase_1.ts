@@ -20,7 +20,7 @@ Phase 1: End Fei Labs vesting and remove Uniswap liquidity
 
 1. Accept the beneficiary of the Fei Labs vesting timelock to the DAO timelock
    effectively clawing it back
-2. Unlock the Fei Labs IDO liquidity, burn the FEI and send the TRIBE to the Treasury
+2. Unlock the Fei Labs IDO liquidity, burn the FEI and send the TRIBE to the Core Treasury
 3. Re-lock investors vesting LP tokens
 
 */
@@ -39,8 +39,19 @@ const UPPER_BOUND_TRIBE = ethers.constants.WeiPerEther.mul(240_000_000);
 const LOWER_BOUND_LP_TOKENS = ethers.constants.WeiPerEther.mul(30_000_000);
 const UPPER_BOUND_LP_TOKENS = ethers.constants.WeiPerEther.mul(50_000_000);
 
+// Fei Labs LP tokens to release
+const LABS_LP_TOKENS_VESTED = ethers.constants.WeiPerEther.mul(20_000_000);
+
+// Fei Labs TRIBE tokens to release
+const LABS_TRIBE_TOKENS_VESTED = ethers.constants.WeiPerEther.mul(43_170_000);
+
+// DAO timelock TRIBE sent to Core
+const DAO_TIMELOCK_TRIBE = toBN('16928757542558284368284929');
+
 let initialFeiTotalSupply: BigNumber;
 let initialTribeTreasuryBalance: BigNumber;
+let initialLabsLPTokens: BigNumber;
+let initialLabsTribeTokens: BigNumber;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -85,22 +96,39 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   initialFeiTotalSupply = await contracts.fei.totalSupply();
   initialTribeTreasuryBalance = await contracts.tribe.balanceOf(addresses.core);
+  initialLabsLPTokens = await contracts.feiTribePair.balanceOf(addresses.feiLabsTreasuryMultisig);
+  initialLabsTribeTokens = await contracts.tribe.balanceOf(addresses.feiLabsTreasuryMultisig);
 
-  // 1. Call releaseMax on the IDO Liquidity Timelock to release all vested liquidity
+  // 1. Call release(to, amount) on the IDO Liquidity Timelock to release specific amount of vested liquidity
+  //    This is Fei Labs claiming it's vested LP tokens
   const feiLabsTreasurySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
-  await contracts.idoLiquidityTimelock.connect(feiLabsTreasurySigner).releaseMax(addresses.feiLabsTreasuryMultisig);
+  await contracts.idoLiquidityTimelock
+    .connect(feiLabsTreasurySigner)
+    .release(addresses.feiLabsTreasuryMultisig, LABS_LP_TOKENS_VESTED);
 
   // 2. Set pending beneficiary of IDO liquidity timelock to the DAO timelock
   await contracts.idoLiquidityTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 
-  // 3. Set pending beneficiary of vesting team timelock to the DAO timelock
-  // Team vesting contracts
-  const feiLabsBeneficiarySigner = await getImpersonatedSigner(addresses.feiLabsTreasuryMultisig);
-  const feiLabsTimelock = new ethers.Contract(addresses.feiLabsVestingTimelock, timelockABI, feiLabsBeneficiarySigner);
-  await feiLabsTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
+  // 3. Call release(to,amount) on Fei Labs timelock, claim Fei Labs vested TRIBE
+  const feiLabsTribeTimelock = new ethers.Contract(
+    addresses.feiLabsVestingTimelock,
+    timelockABI,
+    feiLabsTreasurySigner
+  );
 
-  // 4. Call releaseMax() on Fei Labs timelock
-  await feiLabsTimelock.releaseMax(addresses.feiLabsTreasuryMultisig);
+  // Undelegate enough funds to be able to claim vested TRIBE
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate1);
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate2);
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate3);
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate4);
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate5);
+  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate6);
+
+  // Claim the Fei Labs vested TRIBE funds
+  await feiLabsTribeTimelock.release(addresses.feiLabsTreasuryMultisig, LABS_TRIBE_TOKENS_VESTED);
+
+  // 4. Set pending beneficiary of vesting team TRIBE timelock to the DAO timelock
+  await feiLabsTribeTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -123,7 +151,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.idoLiquidityRemover.UNISWAP_ROUTER()).to.be.equal(addresses.uniswapRouter);
   expect(await contracts.idoLiquidityRemover.FEI_TRIBE_PAIR()).to.be.equal(addresses.feiTribePair);
 
-  // 3. Validate team vesting timelock accepted beneficiary
+  // 3. Validate Fei Labs vesting timelock accepted beneficiary
   expect(await contracts.feiLabsVestingTimelock.beneficiary()).to.be.equal(addresses.feiDAOTimelock);
 
   // 4. IDO LP liquidity timelock should have no LP tokens or FEI or TRIBE
@@ -146,30 +174,48 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // Constant product AMM => ~$30M FEI, $30M TRIBE
   // 1 FEI = $1, 1 TRIBE ~= $0.16
   // => 30M FEI burned and ~190M TRIBE sent to Core
+
+  // In addition, ~17M TRIBE is being sent to Core from the DAO timelock
   const feiBurned = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
-  console.log('FEI redeemed and burned: ', feiBurned.toString());
+  console.log('FEI redeemed and burned from IDO liquidity: ', feiBurned.toString());
   expect(feiBurned).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
   expect(feiBurned).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
 
   // Validate TRIBE sent to Treasury
-  const tribeRedeemed = (await contracts.tribe.balanceOf(addresses.core)).sub(initialTribeTreasuryBalance);
+  const tribeRedeemed = (await contracts.tribe.balanceOf(addresses.core))
+    .sub(initialTribeTreasuryBalance)
+    .sub(DAO_TIMELOCK_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
-  console.log('TRIBE redeemed: ', tribeRedeemed.toString());
+  console.log('TRIBE redeemed from IDO liquidity: ', tribeRedeemed.toString());
 
   // 6. Validate investor LP tokens
   const investorIDOTimelockFunds = await contracts.feiTribePair.balanceOf(addresses.investorIDOFundsTimelock);
-  console.log('Investor LP tokens: ', investorIDOTimelockFunds);
+  console.log('Investor LP tokens locked in new timelock: ', investorIDOTimelockFunds);
   expect(investorIDOTimelockFunds).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
   expect(investorIDOTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 
-  const remainingLPTokensInTimelock = await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock);
-  expect(remainingLPTokensInTimelock).to.be.equal(0);
+  const remainingLPTokensInIDOTimelock = await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock);
+  expect(remainingLPTokensInIDOTimelock).to.be.equal(0);
 
   // 7. Validate TRIBE approval revoked from Tribal Council timelock
   expect(await contracts.tribe.allowance(addresses.feiDAOTimelock, addresses.tribalCouncilTimelock)).to.equal(0);
 
-  // 8. Validate that beneficiary can claim from configured timelock
+  // 8. Validate DAO Timelock has no more TRIBE
+  expect(await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).to.be.equal(0);
+
+  // 9. Validate Fei Labs vested funds
+  const feiLabsClaimedLPTokens = (await contracts.tribe.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
+    initialLabsLPTokens
+  );
+  expect(feiLabsClaimedLPTokens).to.be.equal(LABS_LP_TOKENS_VESTED);
+
+  const feiLabsClaimedTribe = (await contracts.tribe.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
+    initialLabsTribeTokens
+  );
+  expect(feiLabsClaimedTribe).to.be.equal(LABS_TRIBE_TOKENS_VESTED);
+
+  // 9. Validate that beneficiary can claim from configured timelock
   await validateBeneficiaryCanClaim(
     contracts.investorIDOFundsTimelock as LinearEarlyUnlockTimelock,
     contracts.feiTribePair as ERC20,

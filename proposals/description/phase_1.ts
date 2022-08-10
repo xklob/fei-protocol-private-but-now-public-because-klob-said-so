@@ -82,12 +82,20 @@ const phase_1: TemplatedProposalDescription = {
       method: 'approve(address,uint256)',
       arguments: (addresses) => [addresses.tribalCouncilTimelock, '0'],
       description: 'Revoke the TRIBE approval given to the Tribal Council timelock'
+    },
+    // 4. Send DAO Timelock TRIBE to Core
+    {
+      target: 'tribe',
+      values: '0',
+      method: 'transfer(address,uint256)',
+      arguments: (addresses) => [addresses.core, '16928757542558284368284929'],
+      description: 'Send the DAO timelock ~17M TRIBE to the Core Treasury'
     }
   ],
   description: `
   Phase 1: End Fei Labs vesting and remove Uniswap liquidity
 
-  This proposal ends the vesting of Fei Labs and removes their LP tokes from Uniswap V2. 
+  This proposal ends the vesting of Fei Labs and removes their LP tokens from Uniswap V2. 
   It then burns all redeemed FEI and sends the redeemed TRIBE to the Core Treasury.
 
   Specifically, this proposal:

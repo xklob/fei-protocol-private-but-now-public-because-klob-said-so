@@ -1883,6 +1883,36 @@ export const MainnetContractsConfig = {
     address: '0x5346b4ff3e924508d33d93f352d11e392a7a9d3b',
     category: AddressCategory.External
   },
+  tribeFeiLabsDelegate1: {
+    artifactName: 'unknown',
+    address: '0x107d1c9ef7a2ddb6a4aecfdcd6658355c7435a43',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDelegate2: {
+    artifactName: 'unknown',
+    address: '0xe0ac4559739bd36f0913fb0a3f5bfc19bcbacd52',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDelegate3: {
+    artifactName: 'unknown',
+    address: '0x486c33760ad3f6d9cf4a63493773e2b69635d602',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDelegate4: {
+    artifactName: 'unknown',
+    address: '0x70b6ab736be7672c917a1ab11e67b5bc9fddeca9',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDelegate5: {
+    artifactName: 'unknown',
+    address: '0xc8eefb8b3d50ca87da7f99a661720148acf97efa',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDelegate6: {
+    artifactName: 'unknown',
+    address: '0x66b9d411e14fbc86424367b67933945fd7e40b11',
+    category: AddressCategory.External
+  },
   feiTribeLBPSwapper: {
     artifactName: 'BalancerLBPSwapper',
     address: '0x16ef9601076d45e8cc564cDD91E5dF3Ae83dD3B3',
