@@ -1,6 +1,7 @@
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
 import { MerkleTree } from 'merkletreejs';
 import { balances } from '../../proposals/data/hack_repayment_data';
+import fs from 'fs';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
 const ctokens = Object.keys(balances);
@@ -14,6 +15,7 @@ for (const ctoken of ctokens) {
 
   const leaves = cTokenBalancesArray.map((x) => solidityKeccak256(['address', 'uint256'], x));
   const tree = new MerkleTree(leaves, hashFn, { sort: true });
+
   trees.push(tree);
 
   console.log(`Tree generated. ${tree.getLeaves().length} leaves.`);
@@ -26,6 +28,9 @@ for (const ctoken of ctokens) {
     const verified = tree.verify(proof, leaf, root);
     if (!verified) throw new Error(`Proof for ${leaf} failed`);
   }
+
+  // write to file
+  //fs.writeFileSync(`./rariTrees/${ctoken}.json`, tree.getHexLeaves().toString());
 }
 
 console.log(`All leaf proofs in all ${trees.length} trees successfully verified.`);
