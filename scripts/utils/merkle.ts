@@ -1,4 +1,4 @@
-import { defaultAbiCoder, keccak256, solidityKeccak256 } from 'ethers/lib/utils';
+import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
 import { MerkleTree } from 'merkletreejs';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
