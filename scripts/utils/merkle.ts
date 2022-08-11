@@ -1,22 +1,31 @@
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
 import { MerkleTree } from 'merkletreejs';
+import { balances } from '../../proposals/data/hack_repayment_data';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
+const ctokens = Object.keys(balances);
 
-const leaf1 = ['0x11e52c75998fe2E7928B191bfc5B25937Ca16741', '1000000000000000000'];
-const leaf2 = ['0x96fa6ACfc5F683Db191234c74D315e5D732b07c0', '1000000000000000000'];
+const trees: MerkleTree[] = [];
+const roots: Buffer[] = [];
 
-const leaves = [leaf1, leaf2].map((x) => solidityKeccak256(['address', 'uint256'], x));
+for (const ctoken of ctokens) {
+  const cTokenBalancesObject = balances[ctoken as keyof typeof balances];
+  const cTokenBalancesArray = Object.entries(cTokenBalancesObject);
 
-const tree = new MerkleTree(leaves, hashFn, { sort: true });
+  const leaves = cTokenBalancesArray.map((x) => solidityKeccak256(['address', 'uint256'], x));
+  const tree = new MerkleTree(leaves, hashFn, { sort: true });
+  trees.push(tree);
 
-const root = tree.getRoot();
+  console.log(`Tree generated. ${tree.getLeaves().length} leaves.`);
 
-const proof1 = tree.getHexProof(leaves[0]);
-const proof2 = tree.getHexProof(leaves[1]);
+  const root = tree.getRoot();
+  roots.push(root);
 
-const verified1 = tree.verify(proof1, leaves[0], root);
-const verified2 = tree.verify(proof2, leaves[1], root);
+  for (const leaf of leaves) {
+    const proof = tree.getHexProof(leaf);
+    const verified = tree.verify(proof, leaf, root);
+    if (!verified) throw new Error(`Proof for ${leaf} failed`);
+  }
+}
 
-console.log(`Leaf 1 Verified: ${verified1}`);
-console.log(`Leaf 2 Verified: ${verified2}`);
+console.log(`All leaf proofs in all ${trees.length} trees successfully verified.`);
