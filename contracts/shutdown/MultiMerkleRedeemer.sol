@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../refs/CoreRef.sol";
 
-abstract contract MultiMerkleRedeemer is CoreRef {
+abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
 
     // @todo: add events
