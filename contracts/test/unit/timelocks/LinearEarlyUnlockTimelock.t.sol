@@ -8,7 +8,6 @@ import {MockERC20} from "../../../mock/MockERC20.sol";
 import {Core} from "../../../core/Core.sol";
 import {LinearEarlyUnlockTimelock} from "../../../timelocks/LinearEarlyUnlockTimelock.sol";
 
-// TODO: Checkout functioning of availableForRelease() - always seems to underflo
 contract LinearEarlyUnlockTimelockTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     FeiTestAddresses public addresses = getAddresses();

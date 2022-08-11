@@ -63,6 +63,7 @@ const phase_1: TemplatedProposalDescription = {
       As part of the contract call, all redeemed FEI is burned and all redeemed TRIBE is sent to Core.
       `
     },
+    // TODO: Calculate the exact investor share to send
     {
       target: 'feiTribePair',
       values: '0',
@@ -70,7 +71,7 @@ const phase_1: TemplatedProposalDescription = {
       arguments: (addresses) => [addresses.investorIDOFundsTimelock, '37588848183045249117165837'],
       description: `
       Transfer unlocked investor FEI-TRIBE LP tokens to a new linear vesting timelock.
-      There were ~150M LP tokens unlocked. ~25% of these belong to investors.
+      There were ~150M LP tokens unlocked. ~25.3% of these belong to investors.
 
       Hence ~38M LP tokens are relocked in the new timelock, on the same terms as the IDO vesting.
       `

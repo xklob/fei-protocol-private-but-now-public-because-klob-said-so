@@ -30,6 +30,9 @@ interface IIDOInterface {
     /// @notice Release the maximum amount of unlocked tokens to an address
     function releaseMax(address) external;
 
+    /// @notice Release a specific amount of unlocked tokens to an address
+    function release(address, uint256) external;
+
     // ----------- Genesis Group only state changing API -----------
 
     /// @notice Add FEI/TRIBE liquidity to Uniswap at Genesis

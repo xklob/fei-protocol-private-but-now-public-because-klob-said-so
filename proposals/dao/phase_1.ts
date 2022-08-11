@@ -117,18 +117,20 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   );
 
   // Undelegate enough funds to be able to claim vested TRIBE
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate1);
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate2);
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate3);
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate4);
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate5);
-  await contracts.feiLabsVestingTimelock.undelegate(addresses.tribeFeiLabsDelegate6);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate1);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate2);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate3);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate4);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate5);
+  await contracts.feiLabsVestingTimelock.connect(feiLabsTreasurySigner).undelegate(addresses.tribeFeiLabsDelegate6);
 
   // Claim the Fei Labs vested TRIBE funds
-  await feiLabsTribeTimelock.release(addresses.feiLabsTreasuryMultisig, LABS_TRIBE_TOKENS_VESTED);
+  await feiLabsTribeTimelock
+    .connect(feiLabsTreasurySigner)
+    .release(addresses.feiLabsTreasuryMultisig, LABS_TRIBE_TOKENS_VESTED);
 
   // 4. Set pending beneficiary of vesting team TRIBE timelock to the DAO timelock
-  await feiLabsTribeTimelock.setPendingBeneficiary(addresses.feiDAOTimelock);
+  await feiLabsTribeTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -158,7 +160,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.feiTribePair.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.fei.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
+  expect(await contracts.feiTribeLBP.balanceOf(addresses.feiDAOTimelock)).to.be.equal(0);
 
+  // TODO: Update investor numbers
   // 5. IDO FEI should have been burned, TRIBE should have been sent to Treasury
   // There are ~170M Fei-Tribe LP tokens, worth ~$92M.
   // 20M have been vested and are expected to be claimed
@@ -205,7 +209,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).to.be.equal(0);
 
   // 9. Validate Fei Labs vested funds
-  const feiLabsClaimedLPTokens = (await contracts.tribe.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
+  const feiLabsClaimedLPTokens = (await contracts.feiTribePair.balanceOf(addresses.feiLabsTreasuryMultisig)).sub(
     initialLabsLPTokens
   );
   expect(feiLabsClaimedLPTokens).to.be.equal(LABS_LP_TOKENS_VESTED);
