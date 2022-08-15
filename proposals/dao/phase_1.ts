@@ -166,7 +166,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.idoLiquidityTimelock)).to.be.equal(0);
   expect(await contracts.feiTribeLBP.balanceOf(addresses.feiDAOTimelock)).to.be.equal(0);
 
-  // TODO: Update investor numbers
   // 5. IDO FEI should have been burned, TRIBE should have been sent to Treasury
   // There are ~170M Fei-Tribe LP tokens, worth ~$92M.
   // 20M have been vested and are expected to be claimed

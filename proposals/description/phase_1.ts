@@ -41,10 +41,7 @@ const phase_1: TemplatedProposalDescription = {
       target: 'feiTribePair',
       values: '0',
       method: 'transfer(address,uint256)',
-      arguments: (addresses) => [
-        addresses.investorIDOFundsTimelock,
-        '38121343348265784000000000' // TODO: Triple check again
-      ],
+      arguments: (addresses) => [addresses.investorIDOFundsTimelock, '38121343348265784000000000'],
       description: `
       Transfer unlocked investor FEI-TRIBE LP tokens to the new linear vesting timelock.
       Investors own ~25.3% of the LP tokens that were remaining after Fei Labs claimed from the IDO
@@ -60,10 +57,7 @@ const phase_1: TemplatedProposalDescription = {
       target: 'feiTribePair',
       values: '0',
       method: 'transfer(address,uint256)',
-      arguments: (addresses) => [
-        addresses.idoLiquidityRemover,
-        '112328604689780135878524525' // TODO: Triple check again
-      ],
+      arguments: (addresses) => [addresses.idoLiquidityRemover, '112328604689780135878524525'],
       description: `
       Send Fei Labs yet-to-be-vested LP tokens to the Uniswap liquidity removal contract,
       to allow the liquidity to be removed from Uniswap. 
