@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import {
   DeployUpgradeFunc,
   NamedAddresses,
+  PcvStats,
   SetupUpgradeFunc,
   TeardownUpgradeFunc,
   ValidateUpgradeFunc
@@ -52,6 +53,7 @@ let initialFeiTotalSupply: BigNumber;
 let initialTribeTreasuryBalance: BigNumber;
 let initialLabsLPTokens: BigNumber;
 let initialLabsTribeTokens: BigNumber;
+let pcvStatsBefore: PcvStats;
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -131,6 +133,8 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
 
   // 4. Set pending beneficiary of vesting team TRIBE timelock to the DAO timelock
   await feiLabsTribeTimelock.connect(feiLabsTreasurySigner).setPendingBeneficiary(addresses.feiDAOTimelock);
+
+  pcvStatsBefore = await contracts.collateralizationOracle.pcvStats();
 };
 
 // Tears down any changes made in setup() that need to be
@@ -181,7 +185,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // In addition, ~17M TRIBE is being sent to Core from the DAO timelock
   const feiBurned = initialFeiTotalSupply.sub(await contracts.fei.totalSupply());
-  console.log('FEI redeemed and burned from IDO liquidity: ', feiBurned.toString());
+  console.log('FEI redeemed and burned from IDO liquidity [M]e18: ', Number(feiBurned) / 1e24);
   expect(feiBurned).to.be.bignumber.greaterThan(LOWER_BOUND_FEI);
   expect(feiBurned).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
 
@@ -191,11 +195,11 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
     .sub(DAO_TIMELOCK_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
-  console.log('TRIBE redeemed from IDO liquidity: ', tribeRedeemed.toString());
+  console.log('TRIBE redeemed from IDO liquidity [M]e18: ', Number(tribeRedeemed) / 1e24);
 
   // 6. Validate investor LP tokens
   const investorIDOTimelockFunds = await contracts.feiTribePair.balanceOf(addresses.investorIDOFundsTimelock);
-  console.log('Investor LP tokens locked in new timelock: ', investorIDOTimelockFunds);
+  console.log('Investor LP tokens locked in new timelock [M]e18: ', Number(investorIDOTimelockFunds) / 1e24);
   expect(investorIDOTimelockFunds).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
   expect(investorIDOTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 
@@ -219,12 +223,31 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   );
   expect(feiLabsClaimedTribe).to.be.equal(LABS_TRIBE_TOKENS_VESTED);
 
-  // 9. Validate that beneficiary can claim from configured timelock
+  // 9. Validate that investor early unlock beneficiary can claim from linear vesting timelock
   await validateBeneficiaryCanClaim(
     contracts.investorIDOFundsTimelock as LinearEarlyUnlockTimelock,
     contracts.feiTribePair as ERC20,
     addresses.feiLabsTreasuryMultisig
   );
+
+  // 11. Sanity check PCV stats:
+  console.log('----------------------------------------------------');
+  console.log(' pcvStatsBefore.protocolControlledValue [M]e18 ', Number(pcvStatsBefore.protocolControlledValue) / 1e24);
+  console.log(' pcvStatsBefore.userCirculatingFei      [M]e18 ', Number(pcvStatsBefore.userCirculatingFei) / 1e24);
+  console.log(' pcvStatsBefore.protocolEquity          [M]e18 ', Number(pcvStatsBefore.protocolEquity) / 1e24);
+  const pcvStatsAfter: PcvStats = await contracts.collateralizationOracle.pcvStats();
+  console.log('----------------------------------------------------');
+  console.log(' pcvStatsAfter.protocolControlledValue  [M]e18 ', Number(pcvStatsAfter.protocolControlledValue) / 1e24);
+  console.log(' pcvStatsAfter.userCirculatingFei       [M]e18 ', Number(pcvStatsAfter.userCirculatingFei) / 1e24);
+  console.log(' pcvStatsAfter.protocolEquity           [M]e18 ', Number(pcvStatsAfter.protocolEquity) / 1e24);
+  console.log('----------------------------------------------------');
+  const pcvDiff = pcvStatsAfter.protocolControlledValue.sub(pcvStatsBefore.protocolControlledValue);
+  const cFeiDiff = pcvStatsAfter.userCirculatingFei.sub(pcvStatsBefore.userCirculatingFei);
+  const eqDiff = pcvStatsAfter.protocolEquity.sub(pcvStatsBefore.protocolEquity);
+  console.log(' PCV diff                               [M]e18 ', Number(pcvDiff) / 1e24);
+  console.log(' Circ FEI diff                          [M]e18 ', Number(cFeiDiff) / 1e24);
+  console.log(' Equity diff                            [M]e18 ', Number(eqDiff) / 1e24);
+  console.log('----------------------------------------------------');
 };
 
 const validateBeneficiaryCanClaim = async (
