@@ -2,10 +2,10 @@ import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
 // Minimum amount of FEI to be redeemed from Uniswap when liquidity removed
-const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(25_000_000);
+const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(18_000_000);
 
 // Minimum amount of TRIBE to be redeemed from Uniswap when liquidity removed
-const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(140_000_000);
+const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(120_000_000);
 
 const phase_1: TemplatedProposalDescription = {
   title: 'Phase 1: End Fei Labs vesting and remove Uniswap liquidity',
