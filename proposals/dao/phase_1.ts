@@ -12,6 +12,7 @@ import { getImpersonatedSigner } from '@test/helpers';
 import { BigNumber } from 'ethers';
 import { abi as timelockABI } from '../../artifacts/contracts/timelocks/TimelockedDelegator.sol/TimelockedDelegator.json';
 import { ERC20, LinearEarlyUnlockTimelock } from '@custom-types/contracts';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 const toBN = ethers.BigNumber.from;
 
@@ -229,6 +230,15 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
     addresses.feiLabsTreasuryMultisig
   );
 
+  // 10. Validate that DAO can early unlock investor timelock
+  const daoSigner = await getImpersonatedSigner(addresses.feiDAOTimelock);
+  await validateTimelockEarlyUnlock(
+    contracts.investorIDOFundsTimelock as LinearEarlyUnlockTimelock,
+    daoSigner,
+    contracts.feiTribePair as ERC20,
+    addresses.feiLabsTreasuryMultisig
+  );
+
   // 11. Sanity check PCV stats:
   console.log('----------------------------------------------------');
   console.log(' pcvStatsBefore.protocolControlledValue [M]e18 ', Number(pcvStatsBefore.protocolControlledValue) / 1e24);
@@ -261,6 +271,20 @@ const validateBeneficiaryCanClaim = async (
 
   const balanceDiff = (await feiTribePair.balanceOf(beneficiary)).sub(beneficiaryBalanceBefore);
   expect(balanceDiff).to.be.bignumber.greaterThan(toBN(0));
+};
+
+const validateTimelockEarlyUnlock = async (
+  tokenTimelock: LinearEarlyUnlockTimelock,
+  daoSigner: SignerWithAddress,
+  feiTribePair: ERC20,
+  beneficiary: string
+) => {
+  const beneficiaryBalanceBefore = await feiTribePair.balanceOf(beneficiary);
+  await tokenTimelock.connect(daoSigner).unlockLiquidity();
+
+  const balanceDiff = (await feiTribePair.balanceOf(beneficiary)).sub(beneficiaryBalanceBefore);
+  expect(balanceDiff).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
+  expect(balanceDiff).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 };
 
 export { deploy, setup, teardown, validate };
