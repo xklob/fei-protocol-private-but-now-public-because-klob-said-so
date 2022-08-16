@@ -128,7 +128,7 @@ export const MainnetContractsConfig = {
     address: '0xd51dbA7a94e1adEa403553A8235C302cEbF41a3c',
     category: AddressCategory.Governance
   },
-  feiLabsTreasuryMultisig: {
+  feiLabs: {
     artifactName: 'unknown',
     address: '0x3A24fea1509e1BaeB2D2A7C819A191AA441825ea',
     category: AddressCategory.Governance
@@ -887,8 +887,8 @@ export const MainnetContractsConfig = {
     address: '0xaa189e7f4aac757216b62849f78f1236749ba814',
     category: AddressCategory.FeiRari
   },
-  idoLiquidityTimelock: {
-    artifactName: 'IIDOInterface',
+  uniswapFeiTribeLiquidityTimelock: {
+    artifactName: 'FeiTribeLiquidityTimelockInterface',
     address: '0x7D809969f6A04777F0A87FF94B57E56078E5fE0F',
     category: AddressCategory.Distribution
   },
@@ -1883,32 +1883,32 @@ export const MainnetContractsConfig = {
     address: '0x5346b4ff3e924508d33d93f352d11e392a7a9d3b',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate1: {
+  tribeFeiLabsDel1: {
     artifactName: 'unknown',
     address: '0x107d1c9ef7a2ddb6a4aecfdcd6658355c7435a43',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate2: {
+  tribeFeiLabsDel2: {
     artifactName: 'unknown',
     address: '0xe0ac4559739bd36f0913fb0a3f5bfc19bcbacd52',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate3: {
+  tribeFeiLabsDel3: {
     artifactName: 'unknown',
     address: '0x486c33760ad3f6d9cf4a63493773e2b69635d602',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate4: {
+  tribeFeiLabsDel4: {
     artifactName: 'unknown',
     address: '0x70b6ab736be7672c917a1ab11e67b5bc9fddeca9',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate5: {
+  tribeFeiLabsDel5: {
     artifactName: 'unknown',
     address: '0xc8eefb8b3d50ca87da7f99a661720148acf97efa',
     category: AddressCategory.External
   },
-  tribeFeiLabsDelegate6: {
+  tribeFeiLabsDel6: {
     artifactName: 'unknown',
     address: '0x66b9d411e14fbc86424367b67933945fd7e40b11',
     category: AddressCategory.External

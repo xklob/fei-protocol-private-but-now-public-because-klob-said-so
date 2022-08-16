@@ -3,9 +3,9 @@ pragma solidity ^0.8.4;
 
 import {Decimal} from "../../external/Decimal.sol";
 
-/// @title IDO interface
+/// @title Uniswap FEI TRIBE liquidity timelock interface
 /// @author Fei Protocol
-interface IIDOInterface {
+interface FeiTribeLiquidityTimelockInterface {
     // ----------- Events -----------
 
     event Deploy(uint256 _amountFei, uint256 _amountTribe);

@@ -6,13 +6,13 @@ import {DSTest} from "../../utils/DSTest.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
 import {MockERC20} from "../../../mock/MockERC20.sol";
 import {Core} from "../../../core/Core.sol";
-import {LinearEarlyUnlockTimelock} from "../../../timelocks/LinearEarlyUnlockTimelock.sol";
+import {LinearUnlockTimelock} from "../../../timelocks/LinearUnlockTimelock.sol";
 
-contract LinearEarlyUnlockTimelockTest is DSTest {
+contract LinearUnlockTimelockTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
     FeiTestAddresses public addresses = getAddresses();
 
-    LinearEarlyUnlockTimelock timelock;
+    LinearUnlockTimelock timelock;
     MockERC20 token;
 
     address beneficiary = address(0x42);
@@ -26,7 +26,7 @@ contract LinearEarlyUnlockTimelockTest is DSTest {
         Core core = getCore();
         token = new MockERC20();
 
-        timelock = new LinearEarlyUnlockTimelock(
+        timelock = new LinearUnlockTimelock(
             address(core),
             beneficiary,
             duration,

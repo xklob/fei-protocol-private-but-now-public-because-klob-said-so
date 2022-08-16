@@ -10,11 +10,11 @@ import {TribeRoles} from "../core/TribeRoles.sol";
 import {CoreRef} from "../refs/CoreRef.sol";
 import {Constants} from "../Constants.sol";
 
-/// @title IDO liquidity remover
+/// @title Uniswap pool liquidity remover
 /// @notice Redeems Uniswap FEI-TRIBE LP tokens held on this contract for the underlying FEI and TRIBE.
 ///         Then burns the remaining redeemed FEI and transfers the redeemed TRIBE to Core treasury
 ///         Expected that this contract holds all LP tokens prior to redemption
-contract IDOLiquidityRemover is CoreRef {
+contract UniswapLiquidityRemover is CoreRef {
     using SafeERC20 for IERC20;
 
     event RemoveLiquidity(uint256 amountFei, uint256 amountTribe);
@@ -43,7 +43,7 @@ contract IDOLiquidityRemover is CoreRef {
         returns (uint256, uint256)
     {
         uint256 amountLP = FEI_TRIBE_PAIR.balanceOf(address(this));
-        require(amountLP > 0, "IDORemover: Insufficient liquidity");
+        require(amountLP > 0, "LiquidityRemover: Insufficient liquidity");
 
         // Approve Uniswap router to swap tokens
         FEI_TRIBE_PAIR.approve(address(UNISWAP_ROUTER), amountLP);

@@ -8,7 +8,7 @@ const MIN_FEI_OUT = ethers.constants.WeiPerEther.mul(18_000_000);
 const MIN_TRIBE_OUT = ethers.constants.WeiPerEther.mul(120_000_000);
 
 const phase_1: TemplatedProposalDescription = {
-  title: 'Phase 1: End Fei Labs vesting and remove Uniswap liquidity',
+  title: 'TIP_120: Return Unvested Tokens',
   commands: [
     // 1. Accept the beneficiary of Fei Labs vesting TRIBE timelock contract as the DAO timelock
     {
@@ -21,16 +21,16 @@ const phase_1: TemplatedProposalDescription = {
 
     // 2. Prepare for liquidity removal by accepting timelock beneficiary
     {
-      target: 'idoLiquidityTimelock',
+      target: 'uniswapFeiTribeLiquidityTimelock',
       values: '0',
       method: 'acceptBeneficiary()',
       arguments: (addresses) => [],
-      description: 'Accept beneficiary for Fei Labs IDO Timelock (Uni-LP)'
+      description: 'Accept beneficiary for Fei Labs Uniswap Fei-Tribe Timelock (Uni-LP)'
     },
 
-    // Unlock the LP tokens held by the IDO timelock and transfer to IDO timelock
+    // Unlock the LP tokens held by the Uniswap Fei Tribe timelock and transfer to DAO timelock
     {
-      target: 'idoLiquidityTimelock',
+      target: 'uniswapFeiTribeLiquidityTimelock',
       values: '0',
       method: 'unlockLiquidity()',
       arguments: (addresses) => [],
@@ -41,15 +41,9 @@ const phase_1: TemplatedProposalDescription = {
       target: 'feiTribePair',
       values: '0',
       method: 'transfer(address,uint256)',
-      arguments: (addresses) => [addresses.investorIDOFundsTimelock, '38121343348265784000000000'],
+      arguments: (addresses) => [addresses.investorUniswapFeiTribeTimelock, '38121343348265784000000000'],
       description: `
       Transfer unlocked investor FEI-TRIBE LP tokens to the new linear vesting timelock.
-      Investors own ~25.3% of the LP tokens that were remaining after Fei Labs claimed from the IDO
-      liquidity timelock. 
-      
-      There was a total of ~170M, a vested 20M was claimed, leaving ~150M. Investors own ~25.3%
-      so, ~38M LP tokens are relocked in the new timelock. The new timelock has the same 
-      terms as the original IDO vesting.
       `
     },
     // Transfer remaining not-yet-vested LP tokens (not including the newly relocked investor tokens)
@@ -57,22 +51,19 @@ const phase_1: TemplatedProposalDescription = {
       target: 'feiTribePair',
       values: '0',
       method: 'transfer(address,uint256)',
-      arguments: (addresses) => [addresses.idoLiquidityRemover, '112328604689780135878524525'],
+      arguments: (addresses) => [addresses.uniswapLiquidityRemover, '112328604689780135878524525'],
       description: `
-      Send Fei Labs yet-to-be-vested LP tokens to the Uniswap liquidity removal contract,
-      to allow the liquidity to be removed from Uniswap. 
-
-      There are ~150M LP tokens yet to be vested. ~38M belonged to investors are and relocked in a 
-      new timelock. Hence ~112M LP tokens are being redeemed from Uniswap here.
+      Send Fei Labs yet-to-be-vested LP tokens to the Uniswap liquidity removal contract.
+      This is to allow the liquidity to be removed from Uniswap and returned to the DAO.
       `
     },
     {
-      target: 'idoLiquidityRemover',
+      target: 'uniswapLiquidityRemover',
       values: '0',
       method: 'redeemLiquidity(uint256,uint256)',
       arguments: (addresses) => [MIN_FEI_OUT, MIN_TRIBE_OUT],
       description: `
-      Remove Fei Labs liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
+      Remove liquidity from the Uniswap V2 pool by redeeming the LP tokens for FEI and TRIBE.
       
       As part of the contract call, all redeemed FEI is burned and all redeemed TRIBE is sent to Core.
       `
@@ -95,19 +86,19 @@ const phase_1: TemplatedProposalDescription = {
     }
   ],
   description: `
-  Phase 1: End Fei Labs vesting and remove Uniswap liquidity
+  TIP_120: Return Unvested Tokens
 
-  This proposal ends the vesting of Fei Labs and removes their LP tokens from Uniswap V2. 
-  It then burns all redeemed FEI and sends the redeemed TRIBE to the Core Treasury.
+  Fei Labs will stop participating in the Tribe DAO upon completion of the proposal here <LINK to above text proposal>. 
+  
+  This DAO vote will transmit any tokens that were to vest with Fei Labs to the DAO.
 
-  Specifically, this proposal:
-  1. Ends the vesting of Fei Labs, by setting the beneficiary of the vesting contract to the DAO timelock
-  2. Accepts the pending beneficiary of the IDO liquidity timelock as the Tribe DAO timelock
-  3. Unlocks all Fei-Tribe LP token liquidity held by the IDO timelock, to the DAO timelock
-  4. Transfers 75% of the Fei-Tribe LP tokens to a helper Uniswap liquidity removal contract.
-     This 75% is the share of the LP tokens that are being vested by Fei-Labs. 
-       - The removal contract is then called to remove the corresponding liquidity 
-         from Uniswap, burn all redeemed FEI and send all redeemed TRIBE to the Core Treasury.
+  There are two timelocks of such unvested tokens of note, the TRIBE timelock which has X unvested TRIBE and the FEI-TRIBE LP Timelock which has Y unvested LP tokens. 
+  Note the LP Timelock includes a portion Z LP tokens which are locked for Fei Labs investors, and these will be transferred to a new timelock and remain as liquidity, 
+  after returning the team’s unvested LP tokens to the DAO.
+
+  The FEI-TRIBE LP Tokens which return to the DAO would be broken up into FEI, which would be burned, and TRIBE, which would be sent to the treasury. The benefit of 
+  breaking up these LP tokens is having certainty on the number of TRIBE in the treasury and FEI removed from circulation for accounting purposes.
+
   `
 };
 

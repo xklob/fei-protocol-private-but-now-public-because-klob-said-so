@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import {LinearTokenTimelock} from "./LinearTokenTimelock.sol";
 import {CoreRef} from "../refs/CoreRef.sol";
 
-contract LinearEarlyUnlockTimelock is LinearTokenTimelock, CoreRef {
+contract LinearUnlockTimelock is LinearTokenTimelock, CoreRef {
     constructor(
         address _core,
         address _beneficiary,
@@ -18,7 +18,7 @@ contract LinearEarlyUnlockTimelock is LinearTokenTimelock, CoreRef {
         CoreRef(_core)
     {}
 
-    /// @notice Early unlock the liquidity held by the timelock
+    /// @notice Unlock the liquidity held by the timelock
     /// @dev Restricted to onlyGovernor
     function unlockLiquidity() external onlyGovernor {
         _release(beneficiary, totalToken());
