@@ -1,5 +1,4 @@
-import hre, { ethers, artifacts } from 'hardhat';
-import { expect } from 'chai';
+import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
 import {
   DeployUpgradeFunc,
   NamedAddresses,
@@ -7,13 +6,11 @@ import {
   TeardownUpgradeFunc,
   ValidateUpgradeFunc
 } from '@custom-types/types';
-import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
-import { MainnetContractsConfig } from '@protocol/mainnetAddresses';
-import { RariMerkleRedeemer } from '@custom-types/contracts/RariMerkleRedeemer';
-import { RariMerkleRedeemerTest } from '@custom-types/contracts/RariMerkleRedeemerTest';
-import { roots } from '@proposals/data/hack_repayment/roots';
 import { cTokens } from '@proposals/data/hack_repayment/cTokens';
 import { rates } from '@proposals/data/hack_repayment/rates';
+import { roots } from '@proposals/data/hack_repayment/roots';
+import { MainnetContractsConfig } from '@protocol/mainnetAddresses';
+import { ethers } from 'hardhat';
 
 /*
 
