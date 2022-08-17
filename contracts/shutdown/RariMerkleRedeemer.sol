@@ -65,7 +65,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
             claimedAmounts[msg.sender][cTokens[i]] += amounts[i];
         }
 
-        // We give the interactions (the safeTransferFroms) their own foor loop, juuuuust to be safe
+        // We give the interactions (the safeTransferFroms) their own for loop, juuuuust to be safe
         for (uint256 i = 0; i < cTokens.length; i++) {
             IERC20(cTokens[i]).safeTransferFrom(msg.sender, address(this), amounts[i]);
             IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cTokens[i], amounts[i]));
