@@ -5,7 +5,8 @@ import { ethers } from 'ethers';
 import fs from 'fs';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
-const ctokens = Object.keys(balances).map((token) => ethers.utils.getAddress(token));
+//const ctokens = Object.keys(balances).map((token) => ethers.utils.getAddress(token));
+const ctokens = Object.entries(balances);
 
 console.log(`cToken Addresses: ${ctokens.length} tokens`);
 console.log(JSON.stringify(ctokens, null, 2));
@@ -14,7 +15,7 @@ const trees: MerkleTree[] = [];
 const roots: Buffer[] = [];
 
 for (const ctoken of ctokens) {
-  const cTokenBalancesObject = balances[ctoken as keyof typeof balances];
+  const cTokenBalancesObject = balances[ctoken[0] as keyof typeof balances];
   const cTokenBalancesArray = Object.entries(cTokenBalancesObject);
 
   const leaves = cTokenBalancesArray.map((x) => solidityKeccak256(['address', 'uint256'], x));
@@ -38,3 +39,9 @@ for (const ctoken of ctokens) {
 }
 
 console.log(`All leaf proofs in all ${trees.length} trees successfully verified.`);
+
+console.log(`Roots:`);
+
+for (const root of roots) {
+  console.log(`0x${root.toString('hex')}`);
+}

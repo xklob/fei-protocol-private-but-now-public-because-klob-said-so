@@ -5,9 +5,15 @@ import {
   NamedAddresses,
   SetupUpgradeFunc,
   TeardownUpgradeFunc,
-  ValidateUpgradeFunc,
-  RariMerkleRedeemer__Factory
+  ValidateUpgradeFunc
 } from '@custom-types/types';
+import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
+import { MainnetContractsConfig } from '@protocol/mainnetAddresses';
+import { RariMerkleRedeemer } from '@custom-types/contracts/RariMerkleRedeemer';
+import { RariMerkleRedeemerTest } from '@custom-types/contracts/RariMerkleRedeemerTest';
+import { roots } from '@proposals/data/hack_repayment/roots';
+import { cTokens } from '@proposals/data/hack_repayment/cTokens';
+import { rates } from '@proposals/data/hack_repayment/rates';
 
 /*
 
@@ -27,10 +33,16 @@ const fipNumber = 'part2';
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
   // @todo deploy RariMerkleRedeemer
-  const rariMerkleRedeemerFactory = new RariMerkleRedeemer__Factory();
+  const rariMerkleRedeemerFactory = new RariMerkleRedeemer__factory((await ethers.getSigners())[0]);
+  const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(
+    MainnetContractsConfig.fei.address, // token: fei
+    cTokens, // ctokens (address[])
+    rates, // rates (uint256[])
+    roots // roots (bytes32[])
+  );
 
   return {
-    // @todo return RariMerkleRedeemer
+    rariMerkleRedeemer
   };
 };
 
