@@ -92,9 +92,10 @@ const phase_1: TemplatedProposalDescription = {
   
   This DAO vote will transmit any tokens that were to vest with Fei Labs to the DAO.
 
-  There are two timelocks of such unvested tokens of note, the TRIBE timelock which has X unvested TRIBE and the FEI-TRIBE LP Timelock which has Y unvested LP tokens. 
-  Note the LP Timelock includes a portion Z LP tokens which are locked for Fei Labs investors, and these will be transferred to a new timelock and remain as liquidity, 
-  after returning the team’s unvested LP tokens to the DAO.
+  There are two timelocks of such unvested tokens of note, the TRIBE timelock which has 86215000000000000000000000 (~86M) 
+  unvested TRIBE and the FEI-TRIBE LP Timelock which has 112328604689780135878524525 (~112M) unvested LP tokens. 
+  Note the LP Timelock includes a portion 38121343348265784000000000 (~38M) LP tokens which are locked for Fei Labs investors, 
+  and these will be transferred to a new timelock and remain as liquidity, after returning the team’s unvested LP tokens to the DAO.
 
   The FEI-TRIBE LP Tokens which return to the DAO would be broken up into FEI, which would be burned, and TRIBE, which would be sent to the treasury. The benefit of 
   breaking up these LP tokens is having certainty on the number of TRIBE in the treasury and FEI removed from circulation for accounting purposes.
