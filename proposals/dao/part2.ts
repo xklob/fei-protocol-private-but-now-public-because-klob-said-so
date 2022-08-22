@@ -19,7 +19,6 @@ DAO Proposal Part 2
 Description: Enable and mint FEI into the RariMerkleRedeeemr contract, allowing those that are specified 
 in the snapshot [insert link] and previous announcement to redeem an amount of cTokens for FEI.
 
-
 Steps:
   1 - Mint FEI to the RariMerkleRedeemer contract
 */
