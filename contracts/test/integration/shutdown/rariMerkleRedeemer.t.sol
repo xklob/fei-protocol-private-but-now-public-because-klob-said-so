@@ -3,12 +3,31 @@ pragma solidity ^0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
-import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
+import {RariMerkleRedeemerMock} from "../../../shutdown/RariMerkleRedeemerMock.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {Constants} from "../../../Constants.sol";
 import {Test} from "../../libs/forge-standard/src/Test.sol";
 
 library RariMerkleRedeemerLib {
+    struct UserData {
+        address user;
+        uint256 balance;
+        bytes32 proof;
+    }
+
+    function getUsers() public pure returns (UserData[] memory users) {
+        // users for cToken: 0xd8553552f8868c1ef160eedf031cf0bcf9686945
+        // '0xb2d5cb72a621493fe83c6885e4a776279be595bc': '1' wei cToken
+        // '0x37349d9cc523d28e6abfc03fc5f44879bc8bffd9': '11152021915736699992171534' wei cToken
+
+        users = new UserData[](2);
+
+        users[0] = UserData(address(0xb2d5CB72A621493fe83C6885E4A776279be595bC), 1);
+        users[1] = UserData(address(0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9), 11152021915736699992171534);
+
+        return users;
+    }
+
     // note: this is just for testing, do not actually use/import
     function getCTokens() public pure returns (address[] memory cTokens) {
         cTokens = new address[](27);
@@ -99,20 +118,37 @@ library RariMerkleRedeemerLib {
 }
 
 contract RariMerkleRedeemerIntegrationTest is Test {
-    RariMerkleRedeemer redeemer;
+    RariMerkleRedeemerMock public redeemer;
 
     function setUp() public {
         // deploy the contract first
-        redeemer = new RariMerkleRedeemer(
+        redeemer = new RariMerkleRedeemerMock(
             MainnetAddresses.FEI,
             RariMerkleRedeemerLib.getCTokens(),
             RariMerkleRedeemerLib.getExampleRates(),
             RariMerkleRedeemerLib.getExampleRoots()
         );
+
+        // give the contract a bunch of fei
+        deal(MainnetAddresses.FEI, address(redeemer), 100_000e18);
     }
 
     function testHappyPath() public {
-        require(true, "The universe has broken");
+        RariMerkleRedeemerLib.UserData[] memory users = RariMerkleRedeemerLib.getUsers();
+
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = address(0xd8553552f8868c1ef160eedf031cf0bcf9686945);
+
+        uint256[] memory amounts0 = new uint256[](1);
+        amounts0[0] = users[0].balance;
+        uint256[] memory amounts1 = new uint256[](1);
+        amounts1[0] = users[1].balance;
+
+        vm.prank(users[0].user);
+        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, merkleProofs);
+
+        vm.prank(users[1].user);
+        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, merkleProofs);
     }
 
     // @todo: test reverting on an invalid base token

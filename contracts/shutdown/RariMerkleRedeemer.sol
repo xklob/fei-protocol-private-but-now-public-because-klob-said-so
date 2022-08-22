@@ -131,7 +131,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata _signature) internal override {
+    function _sign(bytes calldata _signature) internal virtual override {
         // check: ensure that the user hasn't yet signed
         // note: you can't directly compare bytes storage ref's to each other, but you can keccak the empty bytes
         // such as the one from address zero, and compare this with the keccak'd other bytes; msg.sender *cannot* be the zero address
