@@ -23,7 +23,7 @@ Steps:
   1 - Mint FEI to the RariMerkleRedeemer contract
 */
 
-const fipNumber = 'part2';
+const fipNumber = 'phase2';
 
 // Do any deployments
 // This should exclusively include new contract deployments

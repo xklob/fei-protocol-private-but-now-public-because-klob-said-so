@@ -1,6 +1,6 @@
 import { ProposalCategory, TemplatedProposalsConfigMap } from '@custom-types/types';
 
-import phase2 from '@proposals/description/part2';
+import phase2 from '@proposals/description/phase2';
 
 export const ProposalsConfig: TemplatedProposalsConfigMap = {
   tip_119: {
