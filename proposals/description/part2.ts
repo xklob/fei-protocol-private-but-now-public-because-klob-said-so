@@ -1,6 +1,6 @@
 import { TemplatedProposalDescription } from '@custom-types/types';
 
-const fip_x: TemplatedProposalDescription = {
+const phase2: TemplatedProposalDescription = {
   title: 'Part 2: RariFuse Hack Repayment',
   commands: [
     {
@@ -17,4 +17,4 @@ const fip_x: TemplatedProposalDescription = {
   ` // @todo - add description
 };
 
-export default fip_x;
+export default phase2;
