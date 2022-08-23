@@ -161,8 +161,8 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         // check: verify ctoken and amount and msg.sender against merkle root
         // @todo - ensure that we're using the correct encoding for the leaf structure
         Leaf memory leaf = Leaf(msg.sender, _amount);
-        bytes32 leafHash = keccak256(abi.encode(leaf));
-        require(MerkleProof.verify(_merkleProof, merkleRoots[_cToken], leafHash), "Merkle proof not valid.");
+        bytes32 leafHash = keccak256(abi.encodePacked(leaf.user, leaf.amount));
+        require(MerkleProof.verifyCalldata(_merkleProof, merkleRoots[_cToken], leafHash), "Merkle proof not valid.");
 
         // effect: update claimableAmount for the user
         claimableAmounts[msg.sender][_cToken] = _amount;
