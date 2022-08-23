@@ -10,12 +10,21 @@ import {Constants} from "../../../Constants.sol";
 import {Test} from "../../libs/forge-standard/src/Test.sol";
 import {console2} from "../../libs/forge-standard/src/console2.sol";
 
-library RariMerkleRedeemerLib {
+/**
+ * Library to assist with testing.
+ * Some of the arrays here contain data that is very close to the real data,
+ * but please not that IT IS NOT THE REAL DATA. DO NOT USE AS A PRODUCTION DATA SOURCE.
+ */
+library RariMerkleRedeemerTestingLib {
+    // The format of the data contained within each leaf of the Merkle Tree
     struct UserData {
         address user;
         uint256 balance;
     }
 
+    /**
+     * Returns some sample users, handily pre-encapsulated in a UserData[] memory array
+     */
     function getUsers() public pure returns (UserData[] memory users) {
         // users for cToken: 0xd8553552f8868c1ef160eedf031cf0bcf9686945
         // '0xb2d5cb72a621493fe83c6885e4a776279be595bc': '1' wei cToken
@@ -29,7 +38,9 @@ library RariMerkleRedeemerLib {
         return users;
     }
 
-    // note: this is just for testing, do not actually use/import
+    /**
+     * Returns the actual list of cTokens in address[] memory format
+     */
     function getCTokens() public pure returns (address[] memory cTokens) {
         cTokens = new address[](27);
 
@@ -66,7 +77,9 @@ library RariMerkleRedeemerLib {
         return cTokens;
     }
 
-    // note: this is just for testing, do not actually use/import
+    /**
+     * Returns a list of 27 exchange rates. Not the actual ones; just for testing.
+     */
     function getExampleRates() public pure returns (uint256[] memory rates) {
         rates = new uint256[](27);
 
@@ -82,7 +95,10 @@ library RariMerkleRedeemerLib {
         return rates;
     }
 
-    // note: this is just for testing, do not actually use/import
+    /**
+     * Returns a list of 27 roots corresponding to the 27 ctokens from above.
+     * These are the actual roots for the sample data in proposals/data/hack_repayment_data_real_sample.ts
+     */
     function getExampleRoots() public pure returns (bytes32[] memory roots) {
         roots = new bytes32[](27);
 
@@ -117,7 +133,11 @@ library RariMerkleRedeemerLib {
         return roots;
     }
 
-    function getExampleRootsMocked() public pure returns (bytes32[] memory roots) {
+    /**
+     * Returns a list of 27 roots corresponding to the 27 ctokens from above.
+     * These are the actual roots for the sample data in proposals/data/hack_repayment_data_generated_accounts.ts
+     */
+    function getExampleRootsWithGeneratedAccounts() public pure returns (bytes32[] memory roots) {
         roots = new bytes32[](27);
 
         roots[0] = bytes32(0x4c064ca571cdd7ac3c256337ca21ba9fbfc95c24aa67e0514b841ac87e4e13a7);
@@ -151,6 +171,10 @@ library RariMerkleRedeemerLib {
         return roots;
     }
 
+    /**
+     * Returns two proofs; these are valid for jsut these two users, for the data contained in
+     * proposals/data/hack_repayment_data_real_sample.ts
+     */
     function getExampleProofs() public pure returns (bytes32[][] memory proofs) {
         proofs = new bytes32[][](2);
 
@@ -184,19 +208,21 @@ library RariMerkleRedeemerLib {
         return proofs;
     }
 
-    function getExampleProofsMocked() public pure returns (bytes32[][] memory proofs) {
+    /**
+     * Returns two proofs; these are valid for jsut these two users, for the data contained in
+     * proposals/data/hack_repayment_data_generated_accounts.ts
+     */
+    function getExampleProofsWithGeneratedAccounts() public pure returns (bytes32[][] memory proofs) {
         proofs = new bytes32[][](2);
 
         // proof for '0xb2d5CB72A621493fe83C6885E4A776279be595bC', '1' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
 
         bytes32[] memory proofZero = new bytes32[](1);
-
         proofZero[0] = 0xa95c863d14ce5e1aced105eb6a32bb3c4b4911c5ba17c9e94ce275218da467f4;
 
         // proof for '0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9', '11152021915736699992171534' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
 
         bytes32[] memory proofOne = new bytes32[](1);
-
         proofOne[0] = 0xba546b15530def2d01c86027160142721344c9e7576a6d083128ffe88d9af67c;
 
         proofs[0] = proofZero;
@@ -207,30 +233,35 @@ library RariMerkleRedeemerLib {
 }
 
 contract RariMerkleRedeemerIntegrationTest is Test {
-    RariMerkleRedeemerMock public redeemer;
-    RariMerkleRedeemer public realRedeemer;
+    // redeemerNoSigs is a simple subclass of redeemer that doesn't actually verify signatures
+    // we use this to test against the real sample data
+    RariMerkleRedeemerMock public redeemerNoSigs;
+
+    // redeemer is the actual full redeemer contract
+    // we generated fake data from accounts we know the privkeys to so that we can fully test
+    // the sign-claim-redeem path, with real signatures (but with fake/sample data)
+    RariMerkleRedeemer public redeemer;
 
     function setUp() public {
-        // deploy the contract first
-        redeemer = new RariMerkleRedeemerMock(
+        redeemerNoSigs = new RariMerkleRedeemerMock(
             MainnetAddresses.FEI,
-            RariMerkleRedeemerLib.getCTokens(),
-            RariMerkleRedeemerLib.getExampleRates(),
-            RariMerkleRedeemerLib.getExampleRoots()
+            RariMerkleRedeemerTestingLib.getCTokens(),
+            RariMerkleRedeemerTestingLib.getExampleRates(),
+            RariMerkleRedeemerTestingLib.getExampleRoots()
         );
 
-        realRedeemer = new RariMerkleRedeemer(
+        redeemer = new RariMerkleRedeemer(
             MainnetAddresses.FEI,
-            RariMerkleRedeemerLib.getCTokens(),
-            RariMerkleRedeemerLib.getExampleRates(),
-            RariMerkleRedeemerLib.getExampleRootsMocked()
+            RariMerkleRedeemerTestingLib.getCTokens(),
+            RariMerkleRedeemerTestingLib.getExampleRates(),
+            RariMerkleRedeemerTestingLib.getExampleRootsWithGeneratedAccounts()
         );
 
-        // give the contract a bunch of fei
+        // give the redeemer contracts a bunch of fei
+        deal(MainnetAddresses.FEI, address(redeemerNoSigs), 100_000_000_000e18);
         deal(MainnetAddresses.FEI, address(redeemer), 100_000_000_000e18);
-        deal(MainnetAddresses.FEI, address(realRedeemer), 100_000_000_000e18);
 
-        // give users one and two ctokens
+        // give users one and two (from the real sample data) ctokens
         deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0xb2d5CB72A621493fe83C6885E4A776279be595bC, 100_000_000e18);
         deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, 100_000_000e18);
 
@@ -240,8 +271,25 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.label(0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, "User1");
     }
 
+    /**
+     * Helper function to get 100 test user accounts
+     * Can use the privkeys with vm.sign and can impersonate with pranks
+     */
+    function getTestAccounts() internal returns (address[] memory addresses, uint256[] memory keys) {
+        addresses = new address[](100);
+        keys = new uint256[](100);
+
+        for (uint256 i = 0; i < 100; i++) {
+            (addresses[i], keys[i]) = makeAddrAndKey(vm.toString(i));
+        }
+    }
+
+    /**
+     * Test the main sign-claim-redeem flow with the sample data; uses the subclassed redeemer
+     * contract which does not actually check signatures (since we dont have their private keys)
+     */
     function testHappyPathNoSigChecks() public {
-        RariMerkleRedeemerLib.UserData[] memory users = RariMerkleRedeemerLib.getUsers();
+        RariMerkleRedeemerTestingLib.UserData[] memory users = RariMerkleRedeemerTestingLib.getUsers();
 
         address[] memory cTokensToTransfer = new address[](1);
         cTokensToTransfer[0] = address(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945);
@@ -252,7 +300,10 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         uint256[] memory amounts1 = new uint256[](1);
         amounts1[0] = users[1].balance;
 
-        bytes32[][] memory proofs = RariMerkleRedeemerLib.getExampleProofs();
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+
+        // when calling signAndClaimAndRedeem we take in an array of ctokens, amounts and proofs
+        // thus we need to encapsulate everything into an array
 
         bytes32[][] memory proofZero = new bytes32[][](1);
         bytes32[][] memory proofOne = new bytes32[][](1);
@@ -261,31 +312,20 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         proofOne[0] = proofs[1];
 
         vm.startPrank(users[0].user);
-        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
-        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
         vm.stopPrank();
 
         vm.startPrank(users[1].user);
-        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
-        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
         vm.stopPrank();
     }
 
-    // @todo: test reverting on an invalid base token
-    // @todo: test happy path
-    // @todo: test approvals
-    // @todo: test redeeming literally everything
-    // @todo: test withdrawing leftover tokens
-
-    function getTestAccounts() internal returns (address[] memory addresses, uint256[] memory keys) {
-        addresses = new address[](100);
-        keys = new uint256[](100);
-
-        for (uint256 i = 0; i < 100; i++) {
-            (addresses[i], keys[i]) = makeAddrAndKey(vm.toString(i));
-        }
-    }
-
+    /**
+     * Test the main sign-claim-redeem flow with fake/generated data; uses the real redeemer
+     * contract (but with the fake merkle data) since we *do* have their private keys
+     */
     function testWithGeneratedAccounts() public {
         address[] memory addresses;
         uint256[] memory keys;
@@ -298,7 +338,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         uint256[] memory amounts0 = new uint256[](1);
         amounts0[0] = 1;
 
-        bytes32[][] memory proofs = RariMerkleRedeemerLib.getExampleProofsMocked();
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts();
         bytes32[][] memory proofZero = new bytes32[][](1);
 
         proofZero[0] = proofs[0];
@@ -306,12 +346,18 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, addresses[0], 100_000_000e18);
 
         vm.startPrank(addresses[0]);
-        IERC20(cTokensToTransfer[0]).approve(address(realRedeemer), 100_000_000e18);
-        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], realRedeemer.MESSAGE_HASH());
+        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
 
         bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
 
-        realRedeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, proofZero);
+        redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, proofZero);
         vm.stopPrank();
     }
+
+    // @todo: test reverting on an invalid base token
+    // @todo: test happy path
+    // @todo: test approvals
+    // @todo: test redeeming literally everything
+    // @todo: test withdrawing leftover tokens
 }
