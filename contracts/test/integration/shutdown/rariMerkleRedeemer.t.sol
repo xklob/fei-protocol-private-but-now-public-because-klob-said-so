@@ -355,6 +355,35 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
+    /*
+    function testNonAtomicRedemption() public {
+
+    }
+
+    function testStepByStepSignClaimRedeem() public {
+
+    }
+
+    function testInsufficientUsercTokensFails() public {
+
+    }
+
+    function testInvalidMerkleProofFails() public {
+
+    }
+
+    function testMultipleMerkleProofs() public {
+
+    }
+
+    function testSomeInvalidMerkleProofsFails() public {
+
+    }
+
+    function testInsufficientApprovalsFails() public {
+
+    }*/
+
     // @todo: test reverting on an invalid base token
     // @todo: test approvals
     // @todo: test redeeming literally everything
