@@ -1,3 +1,4 @@
+import { ethers } from 'hardhat';
 import {
   DeployUpgradeFunc,
   NamedAddresses,
@@ -17,7 +18,14 @@ let pcvStatsBefore: PcvStats;
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  return {};
+  const simpleFeiDaiPSMFactory = await ethers.getContractFactory('SimpleFeiDaiPSM');
+  const simpleFeiDaiPSM = await simpleFeiDaiPSMFactory.deploy();
+  await simpleFeiDaiPSM.deployed();
+  logging && console.log(`simpleFeiDaiPSM: ${simpleFeiDaiPSM.address}`);
+
+  return {
+    simpleFeiDaiPSM
+  };
 };
 
 // Do any setup necessary for running the test.
@@ -54,6 +62,22 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   console.log(' Circ FEI diff                          [M]e18 ', Number(cFeiDiff) / 1e24);
   console.log(' Equity diff                            [M]e18 ', Number(eqDiff) / 1e24);
   console.log('----------------------------------------------------');
+
+  // check pcv movements
+  console.log(
+    'daiFixedPricePSM resistant balance',
+    (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[0] / 1e18
+  );
+  console.log(
+    'daiFixedPricePSM resistant fei    ',
+    (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[1] / 1e18
+  );
+  console.log(
+    'simpleFeiDaiPSM DAI balance',
+    (await contracts.dai.balanceOf(addresses.simpleFeiDaiPSM)) / 1e24,
+    '(millions)'
+  );
+  console.log('simpleFeiDaiPSM FEI balance', (await contracts.fei.balanceOf(addresses.simpleFeiDaiPSM)) / 1e18);
 };
 
 export { deploy, setup, teardown, validate };
