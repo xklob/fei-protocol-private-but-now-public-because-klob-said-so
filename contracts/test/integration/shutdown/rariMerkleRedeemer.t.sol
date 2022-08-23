@@ -68,9 +68,9 @@ library RariMerkleRedeemerLib {
     function getExampleRates() public pure returns (uint256[] memory rates) {
         rates = new uint256[](27);
 
-        rates[0] = 100 ether;
-        rates[1] = 0.5 ether;
-        rates[2] = 0.1 ether;
+        rates[0] = 1;
+        rates[1] = 2;
+        rates[2] = 5;
 
         // unsure if this is needed
         for (uint256 i = 3; i < 27; i++) {
@@ -162,10 +162,19 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         );
 
         // give the contract a bunch of fei
-        deal(MainnetAddresses.FEI, address(redeemer), 100_000e18);
+        deal(MainnetAddresses.FEI, address(redeemer), 1_000_000_000e18);
+
+        // give users one and two ctokens
+        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0xb2d5CB72A621493fe83C6885E4A776279be595bC, 100_000_000e18);
+        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, 100_000_000e18);
+
+        // label some stuff to make testing more understandable
+        vm.label(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, "cToken0");
+        vm.label(0xb2d5CB72A621493fe83C6885E4A776279be595bC, "User0");
+        vm.label(0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, "User1");
     }
 
-    function testHappyPath() public {
+    function testHappyPathNoSigChecks() public {
         RariMerkleRedeemerLib.UserData[] memory users = RariMerkleRedeemerLib.getUsers();
 
         address[] memory cTokensToTransfer = new address[](1);
@@ -173,6 +182,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         uint256[] memory amounts0 = new uint256[](1);
         amounts0[0] = users[0].balance;
+
         uint256[] memory amounts1 = new uint256[](1);
         amounts1[0] = users[1].balance;
 
@@ -184,11 +194,15 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         proofZero[0] = proofs[0];
         proofOne[0] = proofs[1];
 
-        vm.prank(users[0].user);
+        vm.startPrank(users[0].user);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
         redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
+        vm.stopPrank();
 
-        vm.prank(users[1].user);
+        vm.startPrank(users[1].user);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
         redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
+        vm.stopPrank();
     }
 
     // @todo: test reverting on an invalid base token
