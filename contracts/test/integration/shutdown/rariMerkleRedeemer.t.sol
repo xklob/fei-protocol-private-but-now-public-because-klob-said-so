@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
-import {RariMerkleRedeemerMock} from "../../../shutdown/RariMerkleRedeemerMock.sol";
+import {RariMerkleRedeemerNoSigs} from "../../../shutdown/RariMerkleRedeemerNoSigs.sol";
 import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {Constants} from "../../../Constants.sol";
@@ -235,7 +235,7 @@ library RariMerkleRedeemerTestingLib {
 contract RariMerkleRedeemerIntegrationTest is Test {
     // redeemerNoSigs is a simple subclass of redeemer that doesn't actually verify signatures
     // we use this to test against the real sample data
-    RariMerkleRedeemerMock public redeemerNoSigs;
+    RariMerkleRedeemerNoSigs public redeemerNoSigs;
 
     // redeemer is the actual full redeemer contract
     // we generated fake data from accounts we know the privkeys to so that we can fully test
@@ -243,7 +243,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     RariMerkleRedeemer public redeemer;
 
     function setUp() public {
-        redeemerNoSigs = new RariMerkleRedeemerMock(
+        redeemerNoSigs = new RariMerkleRedeemerNoSigs(
             MainnetAddresses.FEI,
             RariMerkleRedeemerTestingLib.getCTokens(),
             RariMerkleRedeemerTestingLib.getExampleRates(),

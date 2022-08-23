@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./RariMerkleRedeemer.sol";
 
-contract RariMerkleRedeemerMock is RariMerkleRedeemer {
+contract RariMerkleRedeemerNoSigs is RariMerkleRedeemer {
     constructor(
         address token,
         address[] memory cTokens,
