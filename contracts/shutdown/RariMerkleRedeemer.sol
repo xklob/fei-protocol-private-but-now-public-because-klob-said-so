@@ -106,7 +106,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     /** ---------- Internal Funcs --------------- **/
 
     function _configureExchangeRates(address[] memory _cTokens, uint256[] memory _exchangeRates) internal {
-        require(_cTokens.length == 35, "Must provide exactly 35 exchange rates.");
+        require(_cTokens.length == 27, "Must provide exactly 27 exchange rates.");
         require(_cTokens.length == _exchangeRates.length, "Exchange rates must be provided for each ctoken");
 
         for (uint256 i = 0; i < _cTokens.length; i++) {
@@ -116,7 +116,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     function _configureMerkleRoots(address[] memory _cTokens, bytes32[] memory _roots) internal {
-        require(_cTokens.length == 35, "Must provide exactly 35 merkle roots");
+        require(_cTokens.length == 27, "Must provide exactly 27 merkle roots");
         require(_cTokens.length == _roots.length, "Merkle roots must be provided for each ctoken");
 
         for (uint256 i = 0; i < _cTokens.length; i++) {

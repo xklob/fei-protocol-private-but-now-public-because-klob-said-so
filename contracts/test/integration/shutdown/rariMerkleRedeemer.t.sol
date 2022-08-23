@@ -12,7 +12,6 @@ library RariMerkleRedeemerLib {
     struct UserData {
         address user;
         uint256 balance;
-        bytes32 proof;
     }
 
     function getUsers() public pure returns (UserData[] memory users) {
@@ -115,6 +114,39 @@ library RariMerkleRedeemerLib {
 
         return roots;
     }
+
+    function getExampleProofs() public pure returns (bytes32[][] memory proofs) {
+        proofs = new bytes32[][](2);
+
+        // proof for '0xb2d5CB72A621493fe83C6885E4A776279be595bC', '1' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
+
+        bytes32[] memory proofZero = new bytes32[](7);
+
+        proofZero[0] = 0xc355980b7ddbe0f22f3305faadce5d785947fbc6bbe24b5eddf981532ae35633;
+        proofZero[1] = 0x354069cb812e5279adbb788b78d7bcdc5cb95c779c34e5be9e14ace378beafc5;
+        proofZero[2] = 0x4186179750d003c678f3c3a36b8581548db060057cb4e65fdffbc1ec2d6dad45;
+        proofZero[3] = 0x0dca7d6114da50263ce4389134e3d61504bcdd1161ce8205bbc4d91550998445;
+        proofZero[4] = 0xf50493874d6d3a80a4cf7fbd616b60b76f9e9684dcaff55df170b69b5073d5ed;
+        proofZero[5] = 0x20b63b764e3128313cb59b8351cab8753e5a9a00e01701e6314cb927242bdec5;
+        proofZero[6] = 0x5f013546dd5a228f64a78651e1426898381d7c5bedb0a83358fc79dc5436af8f;
+
+        // proof for '0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9', '11152021915736699992171534' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
+
+        bytes32[] memory proofOne = new bytes32[](7);
+
+        proofOne[0] = 0x6e69489751c0d2cf8bb897e58a12fa0cbfdc405f4aec83c97a0e97f950800d24;
+        proofOne[1] = 0x7f7913cd65155427697493e02bcfe79418156989dd0c44da3eae1fa221251deb;
+        proofOne[2] = 0x52fb3bc5cb7363a98c56ceec6fd16f37e6665233f4003bbf716be17e1b7ec810;
+        proofOne[3] = 0xf7e5b7b544a6e060e215c3808ae4dd49ea950596db05d1b37127646500868037;
+        proofOne[4] = 0x0c2dbfb21d799811ebc28a45543830840ac37b16aff95f5df231cf4b322f1ea0;
+        proofOne[5] = 0x8f6e1401206c2969f4a2c923485ed4830a6c3081c51c899d7ec92c37ecbc76b9;
+        proofOne[6] = 0x4e040b0a8945a716cefd1b511d9a02fa100ae18e738f40626e2afd4a112d0f82;
+
+        proofs[0] = proofZero;
+        proofs[1] = proofOne;
+
+        return proofs;
+    }
 }
 
 contract RariMerkleRedeemerIntegrationTest is Test {
@@ -137,18 +169,26 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         RariMerkleRedeemerLib.UserData[] memory users = RariMerkleRedeemerLib.getUsers();
 
         address[] memory cTokensToTransfer = new address[](1);
-        cTokensToTransfer[0] = address(0xd8553552f8868c1ef160eedf031cf0bcf9686945);
+        cTokensToTransfer[0] = address(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945);
 
         uint256[] memory amounts0 = new uint256[](1);
         amounts0[0] = users[0].balance;
         uint256[] memory amounts1 = new uint256[](1);
         amounts1[0] = users[1].balance;
 
+        bytes32[][] memory proofs = RariMerkleRedeemerLib.getExampleProofs();
+
+        bytes32[][] memory proofZero = new bytes32[][](1);
+        bytes32[][] memory proofOne = new bytes32[][](1);
+
+        proofZero[0] = proofs[0];
+        proofOne[0] = proofs[1];
+
         vm.prank(users[0].user);
-        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, merkleProofs);
+        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
 
         vm.prank(users[1].user);
-        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, merkleProofs);
+        redeemer.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
     }
 
     // @todo: test reverting on an invalid base token
