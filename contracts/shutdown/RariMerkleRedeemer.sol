@@ -141,7 +141,6 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         );
 
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
-        // @todo - do we want to use this, which supports ERC1271, or *just* EOA signatures?
         require(ECDSA.recover(MESSAGE_HASH, _signature) == msg.sender, "Signature not valid");
 
         // effect: update user's stored signature
