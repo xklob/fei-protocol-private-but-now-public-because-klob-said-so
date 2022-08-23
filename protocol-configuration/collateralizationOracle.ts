@@ -12,7 +12,7 @@ export const CollateralizationOracleConfig = {
     'tribalCouncilTimelockFeiLens'
   ],
   lusd: ['lusdHoldingPCVDeposit'],
-  dai: ['compoundDaiPCVDepositWrapper', 'daiFixedPricePSM', 'ethToDaiLensDai', 'daiHoldingPCVDeposit'],
+  dai: ['compoundDaiPCVDepositWrapper', 'simpleFeiDaiPSM', 'ethToDaiLensDai', 'daiHoldingPCVDeposit'],
   bal: ['balancerDepositBalWeth', 'balancerLensVeBalBal', 'balancerGaugeStaker'],
   weth: ['ethLidoPCVDeposit', 'balancerLensVeBalWeth', 'ethToDaiLensEth', 'wethHoldingPCVDeposit']
 };
