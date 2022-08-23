@@ -10,28 +10,23 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 /// in this contract, and could revoke the MINTER role from this contract,
 /// preventing it to create new FEI.
 /// This contract acts as a FEI sink and can burn the FEI it holds.
+/// Burning the MINTER_ROLE from the Tribe DAO will make this PSM act
+/// like a permanent feeless FEI-DAI wrapper.
 contract SimpleFeiDaiPSM {
     using SafeERC20 for Fei;
     using SafeERC20 for IERC20;
+
+    IERC20 private constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    Fei private constant FEI = Fei(0x956F47F50A910163D8BF957Cf5846D573E7f87CA);
+
+    // ----------------------------------------------------------------------------
+    // Peg Stability Module functionalities
+    // ----------------------------------------------------------------------------
 
     /// @notice event emitted upon a redemption
     event Redeem(address to, uint256 amountFeiIn, uint256 amountAssetOut);
     /// @notice event emitted when fei gets minted
     event Mint(address to, uint256 amountIn, uint256 amountFeiOut);
-
-    IERC20 private constant DAI = IERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
-    Fei private constant FEI = Fei(0x956F47F50A910163D8BF957Cf5846D573E7f87CA);
-
-    uint256 public constant mintFeeBasisPoints = 0;
-    uint256 public constant redeemFeeBasisPoints = 0;
-    address public constant balanceReportedIn = address(DAI);
-    address public constant underlyingToken = address(DAI);
-    uint256 public constant getMaxMintAmountOut = type(uint256).max;
-    bool public constant paused = false;
-    bool public constant redeemPaused = false;
-    bool public constant mintPaused = false;
-
-    // ----------- Public State Changing API -----------
 
     /// @notice mint `amountFeiOut` FEI to address `to` for `amountIn` underlying tokens
     /// @dev see getMintAmountOut() to pre-calculate amount out
@@ -72,6 +67,13 @@ contract SimpleFeiDaiPSM {
         return amountIn;
     }
 
+    // ----------------------------------------------------------------------------
+    // Functions to make this contract compatible with the PCVDeposit interface
+    // and accounted for in the Fei Protocol's Collateralization Oracle
+    // ----------------------------------------------------------------------------
+
+    address public constant balanceReportedIn = address(DAI);
+
     /// @notice gets the effective balance of "balanceReportedIn" token if the deposit were fully withdrawn
     function balance() external view returns (uint256) {
         return DAI.balanceOf(address(this));
@@ -81,6 +83,23 @@ contract SimpleFeiDaiPSM {
     function resistantBalanceAndFei() external view returns (uint256, uint256) {
         return (DAI.balanceOf(address(this)), FEI.balanceOf(address(this)));
     }
+
+    // ----------------------------------------------------------------------------
+    // These view functions are meant to make this contract's interface
+    // as similar as possible to the FixedPricePSM as possible.
+    // ----------------------------------------------------------------------------
+
+    uint256 public constant mintFeeBasisPoints = 0;
+    uint256 public constant redeemFeeBasisPoints = 0;
+    address public constant underlyingToken = address(DAI);
+    uint256 public constant getMaxMintAmountOut = type(uint256).max;
+    bool public constant paused = false;
+    bool public constant redeemPaused = false;
+    bool public constant mintPaused = false;
+
+    // ----------------------------------------------------------------------------
+    // This contract should act as a FEI sink if needed
+    // ----------------------------------------------------------------------------
 
     /// @notice Burns all FEI on this contract.
     function burnFeiHeld() external {
