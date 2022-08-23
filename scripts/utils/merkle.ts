@@ -1,6 +1,6 @@
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
 import { MerkleTree } from 'merkletreejs';
-import { balances } from '../../proposals/data/hack_repayment_data';
+import { balances } from '../../proposals/data/hack_repayment_data_real_sample';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
 //const ctokens = Object.keys(balances).map((token) => ethers.utils.getAddress(token));
