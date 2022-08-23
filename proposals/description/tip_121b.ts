@@ -67,7 +67,7 @@ const tip_121: TemplatedProposalDescription = {
       description: 'Burn FEI held on the new DAI PSM'
     },
 
-    // 2. Burn MINTER role
+    // 2a. Revoke deprecated MINTER_ROLE roles
     {
       target: 'core',
       values: '0',
@@ -75,6 +75,15 @@ const tip_121: TemplatedProposalDescription = {
       arguments: (addresses) => [addresses.feiDAOTimelock],
       description: 'Revoke MINTER_ROLE from the DAO Timelock.'
     },
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeMinter(address)',
+      arguments: (addresses) => [addresses.pcvEquityMinter],
+      description: `Revoke MINTER role from the buybacks contract`
+    },
+
+    // 2b. Burn MINTER_ROLE role
     {
       target: 'core',
       values: '0',
