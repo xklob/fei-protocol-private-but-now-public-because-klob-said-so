@@ -4,9 +4,11 @@ pragma solidity ^0.8.4;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
 import {RariMerkleRedeemerMock} from "../../../shutdown/RariMerkleRedeemerMock.sol";
+import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {Constants} from "../../../Constants.sol";
 import {Test} from "../../libs/forge-standard/src/Test.sol";
+import {console2} from "../../libs/forge-standard/src/console2.sol";
 
 library RariMerkleRedeemerLib {
     struct UserData {
@@ -115,6 +117,40 @@ library RariMerkleRedeemerLib {
         return roots;
     }
 
+    function getExampleRootsMocked() public pure returns (bytes32[] memory roots) {
+        roots = new bytes32[](27);
+
+        roots[0] = bytes32(0x4c064ca571cdd7ac3c256337ca21ba9fbfc95c24aa67e0514b841ac87e4e13a7);
+        roots[1] = bytes32(0x23c789bd2ebfb9d58f67e63921d243d335f12f9558db5c39bfca17270803dc15);
+        roots[2] = bytes32(0x6df1521806401ce5b6ae85aa19c746edcc6483ae3b59b7c8d2a3a6b6539d5e62);
+        roots[3] = bytes32(0xaadc33d33372c571646ab17878956ef55edabd08ee4e6ddf4b7e4ad58c00b546);
+        roots[4] = bytes32(0x27fc646affe6a72626f06f0446c39f091705e86d5f52ab5d76b209181e054871);
+        roots[5] = bytes32(0x23ad67da46aec636f01b27fcb0e61cb47bb334ef099233ecee435bde5fa451bc);
+        roots[6] = bytes32(0x90cd4f7218e605d9f0dd02e908b0c3543eba15d38a31742237f52d8415a87c45);
+        roots[7] = bytes32(0xbccb0430b5fed669c18f22c8e0e0676157944a88922f8f6c290f09cf17054372);
+        roots[8] = bytes32(0xc8f5831956da3ce4f890980d6dd2f572f1bf0ad5984e1144a0eedda07587e35c);
+        roots[9] = bytes32(0x9ddbb9b528c6c63db19fe55f18953dbe43c15dcf2effe51afee9d8e3e7aeee0d);
+        roots[10] = bytes32(0x530f8754b64345c11706eca2851ac5bc94738eb26852c87b0cda34cec0909ca0);
+        roots[11] = bytes32(0x9c0710c7d697b3103c6b07c942f25aac9e5e4718dd225dd5949671efdcdf6a4e);
+        roots[12] = bytes32(0xc0aa5492ee3523d6992f301bf994ca27641d03da13a7fc015fb97930018b28bf);
+        roots[13] = bytes32(0x609d03bca361f9bf980883d81226e7e61e80c4dc800cab987b937da5847bf38c);
+        roots[14] = bytes32(0xc30d4a90accfc79eb40cf8ec2291b482d0ccf5b251fb400bc813f357fbef606d);
+        roots[15] = bytes32(0x9204ac4a8fe70ab56350132fed5dc58ba2c73036e336c961f4210862ca1cb44b);
+        roots[16] = bytes32(0xbb0f61dd54ffe4f7539c6effe9d78d1addadc392bd91b44d3ab1cbaf3250cf6e);
+        roots[17] = bytes32(0xf6a7f1cf777a5c181af69d4768503e7485fcbd243e72acb6a6dbcb9b25de88f9);
+        roots[18] = bytes32(0x6afdb1fb0c0dd74fff2941b4f56267b0cc2025a8957bfbe857530590897548c0);
+        roots[19] = bytes32(0xb28f94199c48945569aa44c968fbe5d68f3de4063eb59317fc1f1f0e4f5c839c);
+        roots[20] = bytes32(0xa3c816a95f29aaf8038ea65314aac1d15834c991868fcdadce7e2e1ec9b906a5);
+        roots[21] = bytes32(0xe836dd7180037caaef1cd6f2d14de92c138cff774bb7ae1e2bdac3b02c45ee1f);
+        roots[22] = bytes32(0x8fec95f1b1434720a13eaac79f215d1811b9d27ec6231cc264f6fd29384404c6);
+        roots[23] = bytes32(0xf4ff1d720dffdb58f82974781cab4e560e4923b0086b1da6fe5c73b34c7db9bf);
+        roots[24] = bytes32(0xe1cac43bd377fdcae629e455bef0c06782fc24311e696400905b91b34bbc1f43);
+        roots[25] = bytes32(0xf51f65a3034ff7262870c91f3272308c62ae43ca86671b66a73228eefb48aa63);
+        roots[26] = bytes32(0x8e51b7180ccad02f846cd6339825b5a7554e122c4914378a5877a124c5fbbfbb);
+
+        return roots;
+    }
+
     function getExampleProofs() public pure returns (bytes32[][] memory proofs) {
         proofs = new bytes32[][](2);
 
@@ -147,10 +183,32 @@ library RariMerkleRedeemerLib {
 
         return proofs;
     }
+
+    function getExampleProofsMocked() public pure returns (bytes32[][] memory proofs) {
+        proofs = new bytes32[][](2);
+
+        // proof for '0xb2d5CB72A621493fe83C6885E4A776279be595bC', '1' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
+
+        bytes32[] memory proofZero = new bytes32[](1);
+
+        proofZero[0] = 0xa95c863d14ce5e1aced105eb6a32bb3c4b4911c5ba17c9e94ce275218da467f4;
+
+        // proof for '0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9', '11152021915736699992171534' on ctoken 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945
+
+        bytes32[] memory proofOne = new bytes32[](1);
+
+        proofOne[0] = 0xba546b15530def2d01c86027160142721344c9e7576a6d083128ffe88d9af67c;
+
+        proofs[0] = proofZero;
+        proofs[1] = proofOne;
+
+        return proofs;
+    }
 }
 
 contract RariMerkleRedeemerIntegrationTest is Test {
     RariMerkleRedeemerMock public redeemer;
+    RariMerkleRedeemer public realRedeemer;
 
     function setUp() public {
         // deploy the contract first
@@ -161,8 +219,16 @@ contract RariMerkleRedeemerIntegrationTest is Test {
             RariMerkleRedeemerLib.getExampleRoots()
         );
 
+        realRedeemer = new RariMerkleRedeemer(
+            MainnetAddresses.FEI,
+            RariMerkleRedeemerLib.getCTokens(),
+            RariMerkleRedeemerLib.getExampleRates(),
+            RariMerkleRedeemerLib.getExampleRootsMocked()
+        );
+
         // give the contract a bunch of fei
-        deal(MainnetAddresses.FEI, address(redeemer), 1_000_000_000e18);
+        deal(MainnetAddresses.FEI, address(redeemer), 100_000_000_000e18);
+        deal(MainnetAddresses.FEI, address(realRedeemer), 100_000_000_000e18);
 
         // give users one and two ctokens
         deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0xb2d5CB72A621493fe83C6885E4A776279be595bC, 100_000_000e18);
@@ -210,4 +276,42 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     // @todo: test approvals
     // @todo: test redeeming literally everything
     // @todo: test withdrawing leftover tokens
+
+    function getTestAccounts() internal returns (address[] memory addresses, uint256[] memory keys) {
+        addresses = new address[](100);
+        keys = new uint256[](100);
+
+        for (uint256 i = 0; i < 100; i++) {
+            (addresses[i], keys[i]) = makeAddrAndKey(vm.toString(i));
+        }
+    }
+
+    function testWithGeneratedAccounts() public {
+        address[] memory addresses;
+        uint256[] memory keys;
+
+        (addresses, keys) = getTestAccounts();
+
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = address(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945);
+
+        uint256[] memory amounts0 = new uint256[](1);
+        amounts0[0] = 1;
+
+        bytes32[][] memory proofs = RariMerkleRedeemerLib.getExampleProofsMocked();
+        bytes32[][] memory proofZero = new bytes32[][](1);
+
+        proofZero[0] = proofs[0];
+
+        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, addresses[0], 100_000_000e18);
+
+        vm.startPrank(addresses[0]);
+        IERC20(cTokensToTransfer[0]).approve(address(realRedeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], realRedeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        realRedeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, proofZero);
+        vm.stopPrank();
+    }
 }

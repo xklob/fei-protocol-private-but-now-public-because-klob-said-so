@@ -142,7 +142,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
 
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
         // @todo - do we want to use this, which supports ERC1271, or *just* EOA signatures?
-        require(SignatureChecker.isValidSignatureNow(msg.sender, MESSAGE_HASH, _signature), "Signature not valid.");
+        require(ECDSA.recover(MESSAGE_HASH, _signature) == msg.sender, "Signature not valid");
 
         // effect: update user's stored signature
         // @todo - do we need to add in a length checker on the signature?

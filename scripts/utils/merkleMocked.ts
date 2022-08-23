@@ -1,6 +1,6 @@
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
 import { MerkleTree } from 'merkletreejs';
-import { balances } from '../../proposals/data/hack_repayment_data';
+import { balances } from '../../proposals/data/hack_repayment_data_mocked';
 
 const hashFn = (data: string) => keccak256(data).slice(2);
 //const ctokens = Object.keys(balances).map((token) => ethers.utils.getAddress(token));
@@ -44,20 +44,20 @@ for (const root of roots) {
   console.log(`0x${root.toString('hex')}`);
 }
 
-const leafZero = solidityKeccak256(['address', 'uint256'], ['0xb2d5CB72A621493fe83C6885E4A776279be595bC', '1']);
+const leafZero = solidityKeccak256(['address', 'uint256'], ['0x82a978b3f5962a5b0957d9ee9eef472ee55b42f1', '1']);
 
 const leafOne = solidityKeccak256(
   ['address', 'uint256'],
-  ['0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9', '11152021915736699992171534']
+  ['0x7d577a597b2742b498cb5cf0c26cdcd726d39e6e', '11152021915736699992171534']
 );
 
 const proofZero = trees[0].getHexProof(leafZero);
 const proofOne = trees[0].getHexProof(leafOne);
 
 console.log(`For testing, here are the two proofs for cToken 0xd8553552f8868c1ef160eedf031cf0bcf9686945:`);
-console.log(`User 0xb2d5CB72A621493fe83C6885E4A776279be595bC (1 wei): ${JSON.stringify(proofZero, null, 2)}`);
+console.log(`User 0x82a978b3f5962a5b0957d9ee9eef472ee55b42f1 (1 wei): ${JSON.stringify(proofZero, null, 2)}`);
 console.log(
-  `User 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9 (11152021915736699992171534 wei): ${JSON.stringify(
+  `User 0x7d577a597b2742b498cb5cf0c26cdcd726d39e6e (11152021915736699992171534 wei): ${JSON.stringify(
     proofOne,
     null,
     2

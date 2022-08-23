@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "../refs/CoreRef.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
@@ -30,8 +31,8 @@ abstract contract MultiMerkleRedeemer {
     mapping(address => mapping(address => uint256)) public claimableAmounts;
 
     // The message that the user will sign
-    string internal constant MESSAGE = "I solemly swear I am up to no good.";
-    bytes32 internal constant MESSAGE_HASH = keccak256(bytes(MESSAGE));
+    string public constant MESSAGE = "I solemly swear I am up to no good.";
+    bytes32 public MESSAGE_HASH = ECDSA.toEthSignedMessageHash(bytes(MESSAGE));
 
     // The leaf structure for the merkle tree
     // This gets hashed into a bytes32 for proving existence in the tree
