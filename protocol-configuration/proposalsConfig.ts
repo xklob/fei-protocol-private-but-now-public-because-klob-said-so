@@ -11,6 +11,6 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     proposalId: '',
     affectedContractSignoff: [],
     deprecatedContractSignoff: [],
-    category: ProposalCategory.DAO
+    category: ProposalCategory.DEBUG
   }
 };

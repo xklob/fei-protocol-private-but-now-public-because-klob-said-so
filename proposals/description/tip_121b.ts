@@ -68,7 +68,64 @@ const tip_121: TemplatedProposalDescription = {
     },
 
     // 2. Burn MINTER role
-    // TODO
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeMinter(address)',
+      arguments: (addresses) => [addresses.feiDAOTimelock],
+      description: 'Revoke MINTER_ROLE from the DAO Timelock.'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'createRole(bytes32,bytes32)',
+      arguments: (addresses) => [
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE'), // role
+        ethers.utils.id('GOVERN_ROLE') // adminRole
+      ],
+      description: 'Create temporary role to burn the MINTER_ROLE'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'grantRole(bytes32,address)',
+      arguments: (addresses) => [
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE'), // role
+        addresses.feiDAOTimelock
+      ],
+      description: 'Give temporary role to feiDAOTimelock'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'createRole(bytes32,bytes32)', // can also be used to update admin of existing role
+      arguments: (addresses) => [
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE'), // role
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE') // adminRole
+      ],
+      description: 'Set BURN_MINTER_ROLE_TEMPORARY_ROLE as the admin of itself.'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'createRole(bytes32,bytes32)', // can also be used to update admin of existing role
+      arguments: (addresses) => [
+        ethers.utils.id('MINTER_ROLE'), // role
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE') // adminRole
+      ],
+      description: 'Set BURN_MINTER_ROLE_TEMPORARY_ROLE as the admin of MINTER_ROLE.'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'renounceRole(bytes32,address)',
+      arguments: (addresses) => [
+        ethers.utils.id('BURN_MINTER_ROLE_TEMPORARY_ROLE'), // role
+        addresses.feiDAOTimelock // adminRole
+      ],
+      description:
+        "The BURN_MINTER_ROLE_TEMPORARY_ROLE can't be granted anymore, so nobody will ever be able to grant the MINTER_ROLE either."
+    },
 
     // 3. Final handling of veBAL : tokenize it (for redemptions) and deprecate all related contracts
     // Grant METAGOVERNANCE_TOKEN_STAKING + PCV_CONTROLLER_ROLE role to an immutable contract (that is an ERC20 of
@@ -85,16 +142,9 @@ const tip_121: TemplatedProposalDescription = {
     {
       target: 'collateralizationOracle',
       values: '0',
-      method: 'addDeposits(address[])',
-      arguments: (addresses) => [[addresses.simpleFeiDaiPSM]],
-      description: `Add new PCVDeposits to CR Oracle`
-    },
-    {
-      target: 'collateralizationOracle',
-      values: '0',
-      method: 'replaceDeposit(address,address)',
+      method: 'swapDeposit(address,address)',
       arguments: (addresses) => [addresses.daiFixedPricePSM, addresses.simpleFeiDaiPSM],
-      description: `Remove deprecated PCVDeposits from CR Oracle`
+      description: 'Swap old for new DAI PSM in CR Oracle'
     },
     {
       target: 'pcvGuardian',
