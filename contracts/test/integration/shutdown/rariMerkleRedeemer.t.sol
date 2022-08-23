@@ -356,8 +356,8 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     }
 
     // @todo: test reverting on an invalid base token
-    // @todo: test happy path
     // @todo: test approvals
     // @todo: test redeeming literally everything
     // @todo: test withdrawing leftover tokens
+    // @todo: test other edge cases
 }
