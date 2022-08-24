@@ -361,7 +361,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    function testNonAtomicRedemptionWithGeneratedAccounts() public {
+    function testNonAtomicRedemption() public {
         vm.startPrank(addresses[0]);
 
         IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
@@ -468,20 +468,91 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    /*
+    function testCannotRedeemWithoutApproval() public {
+        vm.startPrank(addresses[1]);
 
-    function testInsufficientUsercTokensFails() public {}
+        //IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
 
-    function testMultipleMerkleProofs() public {}
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
 
-    function testSomeInvalidMerkleProofsFails() public {}
+        uint256 amount = 11152021915736699992171534;
 
-    function testInsufficientApprovalsFails() public {}
-    */
+        deal(cToken0, addresses[1], 100_000_000e18);
 
-    // @todo: test reverting on an invalid base token
-    // @todo: test approvals
-    // @todo: test redeeming literally everything
-    // @todo: test withdrawing leftover tokens
+        redeemer.sign(signature);
+        redeemer.claim(cToken0, amount, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[1]);
+
+        vm.expectRevert("SafeERC20: ERC20 operation did not succeed");
+        redeemer.redeem(cToken0, amount);
+
+        vm.stopPrank();
+    }
+
+    function testCannotRedeemWithoutcTokens() public {
+        vm.startPrank(addresses[1]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        uint256 amount = 11152021915736699992171534;
+
+        //deal(cToken0, addresses[1], 100_000_000e18);
+
+        redeemer.sign(signature);
+        redeemer.claim(cToken0, amount, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[1]);
+
+        vm.expectRevert("SafeERC20: ERC20 operation did not succeed");
+        redeemer.redeem(cToken0, amount);
+
+        vm.stopPrank();
+    }
+
+    function testCannotRedeemTooMuch() public {
+        vm.startPrank(addresses[1]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        uint256 amount = 11152021915736699992171534;
+
+        deal(cToken0, addresses[1], 100_000_000e18);
+
+        redeemer.sign(signature);
+        redeemer.claim(cToken0, amount, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[1]);
+        redeemer.redeem(cToken0, amount - 1);
+        redeemer.redeem(cToken0, 1);
+
+        vm.expectRevert("Amount exceeds available remaining claim.");
+        redeemer.redeem(cToken0, 1);
+
+        vm.stopPrank();
+    }
+
+    function testRedeemInParts() public {
+        vm.startPrank(addresses[1]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        uint256 amount = 11152021915736699992171534;
+
+        deal(cToken0, addresses[1], 100_000_000e18);
+
+        redeemer.sign(signature);
+        redeemer.claim(cToken0, amount, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[1]);
+        redeemer.redeem(cToken0, amount - 1);
+        redeemer.redeem(cToken0, 1);
+
+        vm.stopPrank();
+    }
+
+    // @todo: test multiple proofs call
     // @todo: test other edge cases
 }

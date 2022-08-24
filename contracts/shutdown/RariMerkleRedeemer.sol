@@ -55,7 +55,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) public {
+    ) public hasSigned {
         _claim(_cToken, _amount, _merkleProof);
     }
 
@@ -64,14 +64,14 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) public {
+    ) public hasSigned {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
     // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
     // User must have approved the ctokens to this contract
-    function redeem(address cToken, uint256 amount) external override {
+    function redeem(address cToken, uint256 amount) external override hasSigned {
         // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
         require(
             claimedAmounts[msg.sender][cToken] + amount <= claimableAmounts[msg.sender][cToken],
@@ -87,7 +87,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // Overloaded version of redeem that supports multiple cTokens
-    function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override {
+    function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
 
