@@ -553,6 +553,84 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    // @todo: test multiple proofs call
-    // @todo: test other edge cases
+    function testMultipleProofs() public {
+        // user 0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab has 2 cTokens that he can claim in the real sample dataset:
+        // ctoken 0xd8553552f8868c1ef160eedf031cf0bcf9686945, balance 993589106605953983
+        // ctoken 0xbb025d470162cc5ea24daf7d4566064ee7f5f111, balance 690998780903
+
+        bytes32[][] memory proofs = new bytes32[][](2);
+
+        /* proof of 0xd855... ctoken:
+            [
+                "0x62dca27c719923b0b4153289b81c241bc8ef47f5cad5ec58ade92445aeb39425",
+                "0x71cccc05bcc088efcb703861a77652785d97b902f142e54a88aa086e1a0b4b9d",
+                "0x7ea144047c7d80af5adede075b1413985ae8c6414b3852bbf1eed5306cfe64da",
+                "0x7f2f9d975d83fff6601d9a42c2d455427fc1905d1852e4f140b34ce94829ff6e",
+                "0x9593e7925a7f31febb5129f974e732afcfdec22b7eb3c9c89d4e06d830d5cabd",
+                "0x8f6e1401206c2969f4a2c923485ed4830a6c3081c51c899d7ec92c37ecbc76b9",
+                "0x4e040b0a8945a716cefd1b511d9a02fa100ae18e738f40626e2afd4a112d0f82"
+            ]
+        */
+
+        bytes32[] memory proofZero = new bytes32[](7);
+
+        proofZero[0] = bytes32(0x62dca27c719923b0b4153289b81c241bc8ef47f5cad5ec58ade92445aeb39425);
+        proofZero[1] = bytes32(0x71cccc05bcc088efcb703861a77652785d97b902f142e54a88aa086e1a0b4b9d);
+        proofZero[2] = bytes32(0x7ea144047c7d80af5adede075b1413985ae8c6414b3852bbf1eed5306cfe64da);
+        proofZero[3] = bytes32(0x7f2f9d975d83fff6601d9a42c2d455427fc1905d1852e4f140b34ce94829ff6e);
+        proofZero[4] = bytes32(0x9593e7925a7f31febb5129f974e732afcfdec22b7eb3c9c89d4e06d830d5cabd);
+        proofZero[5] = bytes32(0x8f6e1401206c2969f4a2c923485ed4830a6c3081c51c899d7ec92c37ecbc76b9);
+        proofZero[6] = bytes32(0x4e040b0a8945a716cefd1b511d9a02fa100ae18e738f40626e2afd4a112d0f82);
+
+        /* proof of 0xbb02... ctoken:
+            [
+                "0x559b86b696ea2560904747957cb4b6c622938a2253a7c564224010453dec5910",
+                "0x00df7f59ac7c7df48999c1e7879a35d4b05650a4c1407f65a150fc362f78746d",
+                "0xa5a7e6945e1ceba6d94998701ae8afd0ab99d85d9203f44b360d5b011b41af4e",
+                "0x34af766f69be5f7fb507f8e41b8cb6d1d1fa40d90814072945d764536d46b59b",
+                "0x4437c9684809f08315750d4062f27c2fb831a6d921bd36d1775770d36a7b9008",
+                "0x327803747b0f1dd3d0103cc4ef0aba2b1155f78532eb926691a170428e2e2932",
+                "0x227e55550409b39e95170a8f5ddb3fc56e5fad27cfdd658a8e587ea344ba674e"
+            ]
+        */
+
+        bytes32[] memory proofOne = new bytes32[](7);
+
+        proofOne[0] = bytes32(0x559b86b696ea2560904747957cb4b6c622938a2253a7c564224010453dec5910);
+        proofOne[1] = bytes32(0x00df7f59ac7c7df48999c1e7879a35d4b05650a4c1407f65a150fc362f78746d);
+        proofOne[2] = bytes32(0xa5a7e6945e1ceba6d94998701ae8afd0ab99d85d9203f44b360d5b011b41af4e);
+        proofOne[3] = bytes32(0x34af766f69be5f7fb507f8e41b8cb6d1d1fa40d90814072945d764536d46b59b);
+        proofOne[4] = bytes32(0x4437c9684809f08315750d4062f27c2fb831a6d921bd36d1775770d36a7b9008);
+        proofOne[5] = bytes32(0x327803747b0f1dd3d0103cc4ef0aba2b1155f78532eb926691a170428e2e2932);
+        proofOne[6] = bytes32(0x227e55550409b39e95170a8f5ddb3fc56e5fad27cfdd658a8e587ea344ba674e);
+
+        proofs[0] = proofZero;
+        proofs[1] = proofOne;
+
+        vm.startPrank(0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB);
+
+        IERC20(cToken0).approve(address(redeemerNoSigs), 100_000_000e18);
+
+        uint256 amount0 = 993589106605953983;
+        uint256 amount1 = 690998780903;
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = amount0;
+        amounts[1] = amount1;
+
+        address _cToken0 = 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945;
+        address _cToken1 = 0xbB025D470162CC5eA24daF7d4566064EE7f5F111;
+
+        address[] memory cTokens = new address[](2);
+        cTokens[0] = _cToken0;
+        cTokens[1] = _cToken1;
+
+        deal(_cToken0, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
+        deal(_cToken1, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
+
+        redeemerNoSigs.sign("0xFFFF");
+        redeemerNoSigs.claim(cTokens, amounts, proofs);
+
+        vm.stopPrank();
+    }
 }

@@ -20,7 +20,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     modifier hasNotSigned() {
         require(
             keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
-            "User has already signed."
+            "User has already signed"
         );
         _;
     }
@@ -44,7 +44,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     // A pass-through to the internal _sign function.
     // Can only be called once; reverts if already successfully executed
     // or if signature is invalid
-    function sign(bytes calldata signature) public {
+    function sign(bytes calldata signature) public hasNotSigned {
         _sign(signature);
     }
 
@@ -192,15 +192,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata _signature) internal virtual override {
-        // check: ensure that the user hasn't yet signed
-        // note: you can't directly compare bytes storage ref's to each other, but you can keccak the empty bytes
-        // such as the one from address zero, and compare this with the keccak'd other bytes; msg.sender *cannot* be the zero address
-        require(
-            keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
-            "User has already signed"
-        );
-
+    function _sign(bytes calldata _signature) internal virtual override hasNotSigned {
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
         require(ECDSA.recover(MESSAGE_HASH, _signature) == msg.sender, "Signature not valid");
 

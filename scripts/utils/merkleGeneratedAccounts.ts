@@ -44,6 +44,7 @@ for (const root of roots) {
   console.log(`0x${root.toString('hex')}`);
 }
 
+/*
 const leafZero = solidityKeccak256(['address', 'uint256'], ['0x82a978b3f5962a5b0957d9ee9eef472ee55b42f1', '1']);
 
 const leafOne = solidityKeccak256(
@@ -63,3 +64,4 @@ console.log(
     2
   )}`
 );
+*/
