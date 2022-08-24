@@ -122,6 +122,10 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
 
     // ---------- Public Helpers ---------- //
     // Below here are helpers that combine the above public functions in useful ways.
+    // Which ones are called should be decided by a frontend; the optimal route is signAndClaimAndRedeem,
+    // but this obviously requires the user to have enough cTokens (+ approvals on them) for all cTokens he or she is entitled to.
+    // If these requirements are not fully met, we can still use signAndClaim, and then the single or multi-redeem call above to
+    // redeem exactly as much as the user would like to of each cToken.
 
     // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
     // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
