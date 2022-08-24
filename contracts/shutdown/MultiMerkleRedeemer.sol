@@ -31,7 +31,7 @@ abstract contract MultiMerkleRedeemer {
     mapping(address => mapping(address => uint256)) public claimableAmounts;
 
     // The message that the user will sign
-    string public constant MESSAGE = "I solemly swear I am up to no good.";
+    string public constant MESSAGE = "Sample message, please update.";
     bytes32 public MESSAGE_HASH = ECDSA.toEthSignedMessageHash(bytes(MESSAGE));
 
     // The leaf structure for the merkle tree
