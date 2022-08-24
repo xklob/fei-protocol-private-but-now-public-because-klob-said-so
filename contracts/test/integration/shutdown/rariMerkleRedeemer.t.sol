@@ -455,7 +455,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    function cannotClaimWithoutSigning() public {
+    function testCannotClaimWithoutSigning() public {
         vm.startPrank(addresses[0]);
 
         IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
