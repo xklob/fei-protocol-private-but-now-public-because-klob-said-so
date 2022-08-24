@@ -10,6 +10,21 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract RariMerkleRedeemer is MultiMerkleRedeemer {
     using SafeERC20 for IERC20;
 
+    // Helpful modifiers
+
+    modifier hasSigned() {
+        require(keccak256(userSignatures[msg.sender]) != keccak256(userSignatures[address(0)]), "User has not signed.");
+        _;
+    }
+
+    modifier hasNotSigned() {
+        require(
+            keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
+            "User has already signed."
+        );
+        _;
+    }
+
     constructor(
         address token,
         address[] memory cTokens,
@@ -25,6 +40,33 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     // @todo - verify that having zero as a default value doesn't mess up any signatures or proofs
 
     /** ---------- Public Funcs ----------------- **/
+
+    // A pass-through to the internal _sign function.
+    // Can only be called once; reverts if already successfully executed
+    // or if signature is invalid
+    function sign(bytes calldata signature) public {
+        _sign(signature);
+    }
+
+    // A pass-through to the internal _claim function
+    // If user has already claimed for this cToken, this will revert
+    // _amount must be the full amount supported by the merkle proof, else this will revert
+    function claim(
+        address _cToken,
+        uint256 _amount,
+        bytes32[] calldata _merkleProof
+    ) public {
+        _claim(_cToken, _amount, _merkleProof);
+    }
+
+    // An overloaded version of claim that supports multiple tokekns
+    function claim(
+        address[] calldata _cTokens,
+        uint256[] calldata _amounts,
+        bytes32[][] calldata _merkleProofs
+    ) public {
+        _multiClaim(_cTokens, _amounts, _merkleProofs);
+    }
 
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
     // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
@@ -44,6 +86,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cToken, amount));
     }
 
+    // Overloaded version of redeem that supports multiple cTokens
     function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
@@ -77,6 +120,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         return cTokenExchangeRates[cToken] * amount;
     }
 
+    // ---------- Public Helpers ---------- //
+    // Below here are helpers that combine the above public functions in useful ways.
+
     // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
     // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
     // Can only be called once per user. See _sign, _claim, and _multiClaim below.
@@ -89,6 +135,17 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         // both sign and claim/multiclaim will revert on invalid signatures/proofs
         _sign(signature);
         _multiClaim(cTokens, amounts, merkleProofs);
+    }
+
+    // Combines claiming & redeeming into one function
+    // Requires that the user has already successfully signed
+    function claimAndRedeem(
+        address[] calldata cTokens,
+        uint256[] calldata amounts,
+        bytes32[][] calldata merkleProofs
+    ) public hasSigned {
+        _multiClaim(cTokens, amounts, merkleProofs);
+        redeem(cTokens, amounts);
     }
 
     // Optional function to combine sign, claim, and redeem into one call
