@@ -242,7 +242,17 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     // the sign-claim-redeem path, with real signatures (but with fake/sample data)
     RariMerkleRedeemer public redeemer;
 
+    // test addresses & privkeys
+    address[] internal addresses;
+    uint256[] internal keys;
+
+    address private constant cToken0 = 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945;
+    address private constant realUser0 = 0xb2d5CB72A621493fe83C6885E4A776279be595bC;
+    address private constant realUser1 = 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9;
+
     function setUp() public {
+        (addresses, keys) = getTestAccounts();
+
         redeemerNoSigs = new RariMerkleRedeemerNoSigs(
             MainnetAddresses.FEI,
             RariMerkleRedeemerTestingLib.getCTokens(),
@@ -261,26 +271,29 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         deal(MainnetAddresses.FEI, address(redeemerNoSigs), 100_000_000_000e18);
         deal(MainnetAddresses.FEI, address(redeemer), 100_000_000_000e18);
 
-        // give users one and two (from the real sample data) ctokens
-        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0xb2d5CB72A621493fe83C6885E4A776279be595bC, 100_000_000e18);
-        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, 100_000_000e18);
+        // give users one and two (from the real sample data) and the first generated address ctokens
+        deal(cToken0, realUser0, 100_000_000e18);
+        deal(cToken0, realUser1, 100_000_000e18);
+        deal(cToken0, addresses[0], 100_000_000e18);
 
         // label some stuff to make testing more understandable
-        vm.label(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, "cToken0");
-        vm.label(0xb2d5CB72A621493fe83C6885E4A776279be595bC, "User0");
-        vm.label(0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9, "User1");
+        vm.label(cToken0, "cToken0");
+        vm.label(realUser0, "User0");
+        vm.label(realUser1, "User1");
+        vm.label(addresses[0], "GeneratedAddress0");
+        vm.label(addresses[1], "GeneratedAddress1");
     }
 
     /**
      * Helper function to get 100 test user accounts
      * Can use the privkeys with vm.sign and can impersonate with pranks
      */
-    function getTestAccounts() internal returns (address[] memory addresses, uint256[] memory keys) {
-        addresses = new address[](100);
-        keys = new uint256[](100);
+    function getTestAccounts() internal returns (address[] memory _addresses, uint256[] memory _keys) {
+        _addresses = new address[](100);
+        _keys = new uint256[](100);
 
         for (uint256 i = 0; i < 100; i++) {
-            (addresses[i], keys[i]) = makeAddrAndKey(vm.toString(i));
+            (_addresses[i], _keys[i]) = makeAddrAndKey(vm.toString(i));
         }
     }
 
@@ -292,7 +305,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         RariMerkleRedeemerTestingLib.UserData[] memory users = RariMerkleRedeemerTestingLib.getUsers();
 
         address[] memory cTokensToTransfer = new address[](1);
-        cTokensToTransfer[0] = address(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945);
+        cTokensToTransfer[0] = cToken0;
 
         uint256[] memory amounts0 = new uint256[](1);
         amounts0[0] = users[0].balance;
@@ -314,9 +327,8 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.startPrank(users[0].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
         redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
-        vm.stopPrank();
 
-        vm.startPrank(users[1].user);
+        changePrank(users[1].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
         redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
         vm.stopPrank();
@@ -327,13 +339,8 @@ contract RariMerkleRedeemerIntegrationTest is Test {
      * contract (but with the fake merkle data) since we *do* have their private keys
      */
     function testWithGeneratedAccounts() public {
-        address[] memory addresses;
-        uint256[] memory keys;
-
-        (addresses, keys) = getTestAccounts();
-
         address[] memory cTokensToTransfer = new address[](1);
-        cTokensToTransfer[0] = address(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945);
+        cTokensToTransfer[0] = cToken0;
 
         uint256[] memory amounts0 = new uint256[](1);
         amounts0[0] = 1;
@@ -343,9 +350,8 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         proofZero[0] = proofs[0];
 
-        deal(0xd8553552f8868C1Ef160eEdf031cF0BCf9686945, addresses[0], 100_000_000e18);
-
         vm.startPrank(addresses[0]);
+
         IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
         (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
 
@@ -355,24 +361,123 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    function testNonAtomicRedemption() public {
-        address[] memory addresses;
-        uint256[] memory keys;
+    function testNonAtomicRedemptionWithGeneratedAccounts() public {
+        vm.startPrank(addresses[0]);
 
-        (addresses, keys) = getTestAccounts();
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature0);
+        redeemer.claim(cToken0, 1, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[0]);
+        redeemer.redeem(cToken0, 1);
+
+        vm.stopPrank();
     }
 
-    function testStepByStepSignClaimRedeem() public {}
+    function testCannotSignTwice() public {
+        vm.startPrank(addresses[0]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature0);
+
+        vm.expectRevert("User has already signed");
+        redeemer.sign(signature0);
+
+        vm.stopPrank();
+    }
+
+    function testCannotClaimTwice() public {
+        vm.startPrank(addresses[0]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature0);
+        redeemer.claim(cToken0, 1, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[0]);
+
+        bytes32[] memory proof = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[0];
+        vm.expectRevert("User has already claimed for this cToken.");
+        redeemer.claim(cToken0, 1, proof);
+
+        vm.stopPrank();
+    }
+
+    function testCannotClaimEmptyProof() public {
+        vm.startPrank(addresses[0]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature0);
+        vm.expectRevert("Merkle proof not valid.");
+        redeemer.claim(cToken0, 1, new bytes32[](0));
+
+        vm.stopPrank();
+    }
+
+    function testCannotClaimInvalidAmount() public {
+        vm.startPrank(addresses[0]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature0);
+        vm.expectRevert("Merkle proof not valid.");
+        redeemer.claim(cToken0, 2, new bytes32[](0));
+
+        vm.stopPrank();
+    }
+
+    function testCannotClaimNonExistentUser() public {
+        vm.startPrank(addresses[99]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[99], redeemer.MESSAGE_HASH());
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        redeemer.sign(signature);
+        vm.expectRevert("Merkle proof not valid.");
+        redeemer.claim(cToken0, 2, new bytes32[](0));
+
+        vm.stopPrank();
+    }
+
+    function cannotClaimWithoutSigning() public {
+        vm.startPrank(addresses[0]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+
+        bytes32[] memory proof = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[0];
+
+        vm.expectRevert("User has not signed.");
+        redeemer.claim(cToken0, 1, proof);
+
+        vm.stopPrank();
+    }
+
+    /*
 
     function testInsufficientUsercTokensFails() public {}
-
-    function testInvalidMerkleProofFails() public {}
 
     function testMultipleMerkleProofs() public {}
 
     function testSomeInvalidMerkleProofsFails() public {}
 
     function testInsufficientApprovalsFails() public {}
+    */
 
     // @todo: test reverting on an invalid base token
     // @todo: test approvals
