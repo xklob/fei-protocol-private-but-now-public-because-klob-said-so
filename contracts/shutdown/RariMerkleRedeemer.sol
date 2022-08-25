@@ -6,8 +6,9 @@ import "./MultiMerkleRedeemer.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract RariMerkleRedeemer is MultiMerkleRedeemer {
+contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // Helpful modifiers
@@ -55,7 +56,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) public override hasSigned {
+    ) public override hasSigned nonReentrant {
         _claim(_cToken, _amount, _merkleProof);
     }
 
@@ -64,14 +65,14 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) public override hasSigned {
+    ) public override hasSigned nonReentrant {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
     // User redeems amount of provided ctoken for the equivalent amount of the base token.
     // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
     // User must have approved the ctokens to this contract
-    function redeem(address cToken, uint256 amount) external override hasSigned {
+    function redeem(address cToken, uint256 amount) external override hasSigned nonReentrant {
         // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
         require(
             currentClaimedAmounts[msg.sender][cToken] + amount <= maximumClaimableAmounts[msg.sender][cToken],
@@ -87,7 +88,12 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // Overloaded version of redeem that supports multiple cTokens
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts)
+        public
+        override
+        hasSigned
+        nonReentrant
+    {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
 
@@ -136,7 +142,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) public override {
+    ) public override nonReentrant {
         // both sign and claim/multiclaim will revert on invalid signatures/proofs
         _sign(signature);
         _multiClaim(cTokens, amounts, merkleProofs);
@@ -148,7 +154,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) public hasSigned {
+    ) public hasSigned nonReentrant {
         _multiClaim(cTokens, amounts, merkleProofs);
         multiRedeem(cTokens, amounts);
     }
@@ -160,8 +166,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) external override {
-        signAndClaim(signature, cTokens, amounts, merkleProofs);
+    ) external override nonReentrant {
+        sign(signature);
+        _multiClaim(cTokens, amounts, merkleProofs);
         multiRedeem(cTokens, amounts);
     }
 
