@@ -55,16 +55,16 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) public hasSigned {
+    ) public override hasSigned {
         _claim(_cToken, _amount, _merkleProof);
     }
 
     // An overloaded version of claim that supports multiple tokekns
-    function claim(
+    function multiClaim(
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) public hasSigned {
+    ) public override hasSigned {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
@@ -74,12 +74,12 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     function redeem(address cToken, uint256 amount) external override hasSigned {
         // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
         require(
-            claimedAmounts[msg.sender][cToken] + amount <= claimableAmounts[msg.sender][cToken],
+            currentClaimedAmounts[msg.sender][cToken] + amount <= maximumClaimableAmounts[msg.sender][cToken],
             "Amount exceeds available remaining claim."
         );
 
         // effect: increment the user's claimedAmount
-        claimedAmounts[msg.sender][cToken] += amount;
+        currentClaimedAmounts[msg.sender][cToken] += amount;
 
         // interaction: safeTransferFrom the user "amount" of "ctoken" to this contract
         IERC20(cToken).safeTransferFrom(msg.sender, address(this), amount);
@@ -87,7 +87,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
     }
 
     // Overloaded version of redeem that supports multiple cTokens
-    function redeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
 
@@ -100,12 +100,13 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
 
             // check: amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
             require(
-                amounts[i] <= claimableAmounts[msg.sender][cTokens[i]] - claimedAmounts[msg.sender][cTokens[i]],
+                currentClaimedAmounts[msg.sender][cTokens[i]] + amounts[i] <=
+                    maximumClaimableAmounts[msg.sender][cTokens[i]],
                 "Amount exceeds available remaining claim."
             );
 
             // effect: increment the user's claimedAmount
-            claimedAmounts[msg.sender][cTokens[i]] += amounts[i];
+            currentClaimedAmounts[msg.sender][cTokens[i]] += amounts[i];
         }
 
         // We give the interactions (the safeTransferFroms) their own for loop, juuuuust to be safe
@@ -149,7 +150,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         bytes32[][] calldata merkleProofs
     ) public hasSigned {
         _multiClaim(cTokens, amounts, merkleProofs);
-        redeem(cTokens, amounts);
+        multiRedeem(cTokens, amounts);
     }
 
     // Optional function to combine sign, claim, and redeem into one call
@@ -161,7 +162,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         bytes32[][] calldata merkleProofs
     ) external override {
         signAndClaim(signature, cTokens, amounts, merkleProofs);
-        redeem(cTokens, amounts);
+        multiRedeem(cTokens, amounts);
     }
 
     /** ---------- Internal Funcs --------------- **/
@@ -208,7 +209,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         bytes32[] calldata _merkleProof
     ) internal override {
         // check: verify that claimableAmount is zero, revert if not
-        require(claimableAmounts[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
+        require(maximumClaimableAmounts[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
 
         // check: verify ctoken and amount and msg.sender against merkle root
         // @todo - ensure that we're using the correct encoding for the leaf structure
@@ -217,7 +218,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer {
         require(MerkleProof.verifyCalldata(_merkleProof, merkleRoots[_cToken], leafHash), "Merkle proof not valid.");
 
         // effect: update claimableAmount for the user
-        claimableAmounts[msg.sender][_cToken] = _amount;
+        maximumClaimableAmounts[msg.sender][_cToken] = _amount;
     }
 
     // User provides the ctokens & the amounts they should get, and it is verified against the merkle root for that ctoken (for each ctoken provided)

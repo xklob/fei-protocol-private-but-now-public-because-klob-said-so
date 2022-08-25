@@ -28,7 +28,6 @@ const fipNumber = 'phase2';
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  // @todo deploy RariMerkleRedeemer
   const rariMerkleRedeemerFactory = new RariMerkleRedeemer__factory((await ethers.getSigners())[0]);
   const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(
     MainnetContractsConfig.fei.address, // token: fei

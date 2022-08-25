@@ -27,8 +27,8 @@ abstract contract MultiMerkleRedeemer {
     // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
     // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
     //    (user addr) => ((ctoken addr) => (ctoken remaining))
-    mapping(address => mapping(address => uint256)) public claimedAmounts;
-    mapping(address => mapping(address => uint256)) public claimableAmounts;
+    mapping(address => mapping(address => uint256)) public currentClaimedAmounts;
+    mapping(address => mapping(address => uint256)) public maximumClaimableAmounts;
 
     // The message that the user will sign
     string public constant MESSAGE = "Sample message, please update.";
@@ -42,6 +42,22 @@ abstract contract MultiMerkleRedeemer {
     }
 
     /** ---------- Public Funcs ----------------- **/
+
+    // A pass-through to the internal _claim function
+    // If user has already claimed for this cToken, this will revert
+    // _amount must be the full amount supported by the merkle proof, else this will revert
+    function claim(
+        address _cToken,
+        uint256 _amount,
+        bytes32[] calldata _merkleProof
+    ) external virtual;
+
+    // An overloaded version of claim that supports multiple tokekns
+    function multiClaim(
+        address[] calldata _cTokens,
+        uint256[] calldata _amounts,
+        bytes32[][] calldata _merkleProofs
+    ) external virtual;
 
     // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
     // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
@@ -58,7 +74,7 @@ abstract contract MultiMerkleRedeemer {
     // User must have approved the ctokens to this contract
     function redeem(address cToken, uint256 amount) external virtual;
 
-    function redeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
     function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
