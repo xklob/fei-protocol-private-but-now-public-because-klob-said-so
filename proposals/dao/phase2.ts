@@ -57,7 +57,8 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // @todo add some quick validations that people could redeem (not extensive, that'll be in the tests)
+  // validate the first few and last few ctokens, rates, and proofs
+  // @todo do this
 };
 
 export { deploy, setup, teardown, validate };
