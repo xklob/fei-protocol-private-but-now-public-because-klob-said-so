@@ -345,12 +345,6 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         address[] memory cTokensToTransfer = new address[](1);
         cTokensToTransfer[0] = cToken0;
 
-        uint256[] memory amountsToClaim0 = new uint256[](1);
-        amountsToClaim0[0] = users[0].balance;
-
-        uint256[] memory amountsToRedeem0 = new uint256[](1);
-        amountsToRedeem0[0] = users[0].balance - 1;
-
         uint256[] memory amountsToClaim1 = new uint256[](1);
         amountsToClaim1[0] = users[1].balance;
 
@@ -362,15 +356,9 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         // when calling signAndClaimAndRedeem we take in an array of ctokens, amounts and proofs
         // thus we need to encapsulate everything into an array
 
-        bytes32[][] memory proofZero = new bytes32[][](1);
         bytes32[][] memory proofOne = new bytes32[][](1);
 
-        proofZero[0] = proofs[0];
         proofOne[0] = proofs[1];
-
-        vm.startPrank(users[0].user);
-        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amountsToClaim0, amountsToRedeem0, proofZero);
 
         changePrank(users[1].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
@@ -614,9 +602,9 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         uint256[] memory amountsToRedeem = new uint256[](1);
         amountsToRedeem[0] = amount - 1;
 
-        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts();
         bytes32[][] memory proofZero = new bytes32[][](1);
-        proofZero[0] = proofs[0];
+        proofZero[0] = proofs[1];
 
         bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
 
@@ -628,7 +616,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
-    function testRedeemInPartsSeparateAmountsSecondAmountTooMany() public {
+    function testRedeemInPartsSeparateAmountsSecondAmountTooMuch() public {
         vm.startPrank(addresses[1]);
 
         IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
@@ -645,9 +633,9 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         uint256[] memory amountsToRedeem = new uint256[](1);
         amountsToRedeem[0] = amount - 1;
 
-        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts();
         bytes32[][] memory proofZero = new bytes32[][](1);
-        proofZero[0] = proofs[0];
+        proofZero[0] = proofs[1];
 
         bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
 

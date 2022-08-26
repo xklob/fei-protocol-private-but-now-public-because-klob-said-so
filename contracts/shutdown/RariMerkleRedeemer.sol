@@ -56,7 +56,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) public override hasSigned nonReentrant {
+    ) public override hasSigned {
         _claim(_cToken, _amount, _merkleProof);
     }
 
@@ -65,7 +65,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) public override hasSigned nonReentrant {
+    ) public override hasSigned {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
@@ -88,12 +88,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     }
 
     // Overloaded version of redeem that supports multiple cTokens
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts)
-        public
-        override
-        hasSigned
-        nonReentrant
-    {
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
 
