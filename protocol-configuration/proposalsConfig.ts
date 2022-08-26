@@ -22,7 +22,7 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     proposalId: '',
     affectedContractSignoff: [],
     deprecatedContractSignoff: [],
-    category: ProposalCategory.DAO
+    category: ProposalCategory.TC
   },
   phase2: {
     deploy: true,
