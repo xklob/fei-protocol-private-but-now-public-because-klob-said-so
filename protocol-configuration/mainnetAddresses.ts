@@ -51,6 +51,11 @@ export const MainnetContractsConfig = {
     address: '0xd079ec4b442600a381eAc7E95662eB1b313cd113',
     category: AddressCategory.Security
   },
+  maxFeiWithdrawalGuard: {
+    artifactName: 'MaxFeiWithdrawalGuard',
+    address: '0x2Ee70721909b9673C6f5029243804b98C12a1bF2',
+    category: AddressCategory.Security
+  },
   ratioPCVControllerV2: {
     artifactName: 'RatioPCVControllerV2',
     address: '0x221fff24FB66dA3c722c7C5B856956a6a30C0179',
@@ -68,11 +73,6 @@ export const MainnetContractsConfig = {
     category: AddressCategory.Utility
   },
 
-  noFeeFeiTribeLBPSwapper: {
-    artifactName: 'BalancerLBPSwapper',
-    address: '0xC05FAF6C5C4bC1bD841AdFC92b3D3f20180F26E8',
-    category: AddressCategory.Utility
-  },
   pcvEquityMinter: {
     artifactName: 'PCVEquityMinter',
     address: '0x904Deb2Dac1EdfCBBb69b9c279aE5F75E57Cf5E9',
@@ -84,7 +84,11 @@ export const MainnetContractsConfig = {
     address: '0x3e0f66c5687FF917809A3F7fA7096e1Bc409fB03',
     category: AddressCategory.Utility
   },
-
+  lusdToDaiSwapper: {
+    artifactName: 'BalancerLBPSwapper',
+    address: '0x09d26e0D6e40b285854C964FF8Dd672b524E235c',
+    category: AddressCategory.Utility
+  },
   feiDAO: {
     artifactName: 'FeiDAO',
     address: '0x0BEF27FEB58e857046d630B2c03dFb7bae567494',
@@ -203,16 +207,6 @@ export const MainnetContractsConfig = {
     address: '0x8096314D9014EbB69Fc777ED3791DDE6FFbaFAed',
     category: AddressCategory.Governance
   },
-  tribalCouncilTimelockFeiLens: {
-    artifactName: 'ERC20PCVDepositWrapper',
-    address: '0x4037a70152F4c88Ad40522f35BD4dDD17E6B2052',
-    category: AddressCategory.PCV
-  },
-  rariTimelockFeiOldLens: {
-    artifactName: 'ERC20PCVDepositWrapper',
-    address: '0x614D46B7eB2AC1a359b8835D64954F3Ee4E6F676',
-    category: AddressCategory.PCV
-  },
 
   tribeReserveStabilizer: {
     artifactName: 'TribeReserveStabilizer',
@@ -231,6 +225,17 @@ export const MainnetContractsConfig = {
     category: AddressCategory.Peg
   },
 
+  tribalCouncilTimelockFeiLens: {
+    artifactName: 'ERC20PCVDepositWrapper',
+    address: '0x4037a70152F4c88Ad40522f35BD4dDD17E6B2052',
+    category: AddressCategory.PCV
+  },
+  rariTimelockFeiOldLens: {
+    artifactName: 'ERC20PCVDepositWrapper',
+    address: '0x614D46B7eB2AC1a359b8835D64954F3Ee4E6F676',
+    category: AddressCategory.PCV
+  },
+
   ethToDaiLensDai: {
     artifactName: 'BPTLens',
     address: '0xdF9Ff5c077d9F3427ade67AC2d27a864Be6F3187',
@@ -240,6 +245,18 @@ export const MainnetContractsConfig = {
   ethToDaiLensEth: {
     artifactName: 'BPTLens',
     address: '0xf24401F6992FaEAcbc5d6C6991db15B5F8364A1B',
+    category: AddressCategory.PCV
+  },
+
+  lusdToDaiLensDai: {
+    artifactName: 'BPTLens',
+    address: '0x49194B3a9330316dC24e806B06a276794e1116DD',
+    category: AddressCategory.PCV
+  },
+
+  lusdToDaiLensLusd: {
+    artifactName: 'BPTLens',
+    address: '0x35cA36B69a4169B6BF71E6b64a03C2B2A6834ad0',
     category: AddressCategory.PCV
   },
 
@@ -286,18 +303,6 @@ export const MainnetContractsConfig = {
     category: AddressCategory.PCV
   },
 
-  compoundDaiPCVDepositWrapper: {
-    artifactName: 'PCVDepositWrapper',
-    address: '0xfDe7077AAEcDaf2C4B85261Aa858c96A7E737a61',
-    category: AddressCategory.PCV
-  },
-
-  feiBuybackLensNoFee: {
-    artifactName: 'BPTLens',
-    address: '0x89DfBC12001b41985eFAbd7dFCae6a77B22E4Ec3',
-    category: AddressCategory.PCV
-  },
-
   daiHoldingPCVDeposit: {
     artifactName: 'ERC20HoldingPCVDeposit',
     address: '0x8fFAe111Ab06F532a18418190129373D14570014',
@@ -314,11 +319,6 @@ export const MainnetContractsConfig = {
     address: '0x4378De2F2991Fbed6616b34AC7727E7653713712',
     category: AddressCategory.PCV
   },
-  gOHMHoldingPCVDeposit: {
-    artifactName: 'ERC20HoldingPCVDeposit',
-    address: '0x2C9980fa0a1ABe4B0cc6263132d8EB41Db9B73Ba',
-    category: AddressCategory.PCV
-  },
   compoundFeiPCVDepositWrapper: {
     artifactName: 'PCVDepositWrapper',
     address: '0xB80B3dc4F8B30589477b2bA0e4EF2b8224bDf0a5',
@@ -328,12 +328,6 @@ export const MainnetContractsConfig = {
   aaveFeiPCVDeposit: {
     artifactName: 'AavePCVDeposit',
     address: '0xaFBd7Bd91B4c1Dd289EE47a4F030FBeDfa7ABc12',
-    category: AddressCategory.PCV_V1
-  },
-
-  compoundDaiPCVDeposit: {
-    artifactName: 'ERC20CompoundPCVDeposit',
-    address: '0xe0f73b8d76D2Ad33492F995af218b03564b8Ce20',
     category: AddressCategory.PCV_V1
   },
 
@@ -383,6 +377,38 @@ export const MainnetContractsConfig = {
     artifactName: 'PCVDeposit',
     address: '0xe1f2a7342459b54fbfea9f40695cdd46efadeeee',
     category: AddressCategory.PCV_V1
+  },
+
+  collateralizationOracle: {
+    artifactName: 'CollateralizationOracle',
+    address: '0xFF6f59333cfD8f4Ebc14aD0a0E181a83e655d257',
+    category: AddressCategory.Collateralization
+  },
+
+  investorUniswapFeiTribeTimelock: {
+    artifactName: 'LinearUnlockTimelock',
+    address: '0x2ef97E5ce736bF81703C4F5C7D5273238b8688EB',
+    category: AddressCategory.Distribution
+  },
+  laTribuFeiTimelock: {
+    artifactName: 'LinearTokenTimelock',
+    address: '0xdb02630ed4f4994414122894B5082dc6D88a4ED4',
+    category: AddressCategory.Distribution
+  },
+  laTribuTribeTimelock: {
+    artifactName: 'QuadraticTokenTimelock',
+    address: '0x552b8A441E945D021D29ae58B6Ae3dE96da75A05',
+    category: AddressCategory.Distribution
+  },
+  rariInfraFeiTimelock: {
+    artifactName: 'LinearTokenTimelock',
+    address: '0xfaFC562265a49975E8B20707EAC966473795CF90',
+    category: AddressCategory.Distribution
+  },
+  rariInfraTribeTimelock: {
+    artifactName: 'LinearTimelockedDelegator',
+    address: '0x625cf6AA7DafB154F3Eb6BE87592110e30290dEe',
+    category: AddressCategory.Distribution
   },
 
   balUsdCompositeOracle: {
@@ -505,28 +531,6 @@ export const MainnetContractsConfig = {
     category: AddressCategory.Oracle
   },
 
-  gOhmUSDOracle: {
-    artifactName: 'CompositeOracle',
-    address: '0x319BCE09E7E3e32dac08206129Df541F189A5Df8',
-    category: AddressCategory.Oracle
-  },
-  gOhmEthOracle: {
-    artifactName: 'GOhmEthOracle',
-    address: '0x49A7e453c164353ac2980ac05756a8C46B062293',
-    category: AddressCategory.Oracle
-  },
-
-  collateralizationOracle: {
-    artifactName: 'CollateralizationOracle',
-    address: '0xFF6f59333cfD8f4Ebc14aD0a0E181a83e655d257',
-    category: AddressCategory.Collateralization
-  },
-
-  namedStaticPCVDepositWrapper: {
-    artifactName: 'NamedStaticPCVDepositWrapper',
-    address: '0x06dAcca04e201AD31393754E68dA04Dc14778Fa6',
-    category: AddressCategory.Collateralization
-  },
   rariTurboFusePool: {
     artifactName: 'unknown',
     address: '0x081E7C60bCB8A2e7E43076a2988068c0a6e69e27',
@@ -561,6 +565,7 @@ export const MainnetContractsConfig = {
     address: '0x0a00F781508a2E3FF5C6Aa80DF97dAebd0fFC259',
     category: AddressCategory.Fuse
   },
+
   rariPool8ConvexD3Plugin: {
     artifactName: 'IConvexERC4626',
     address: '0xaa189e7f4aac757216b62849f78f1236749ba814',
@@ -741,6 +746,12 @@ export const MainnetContractsConfig = {
     address: '0x34809aEDF93066b49F638562c42A9751eDb36DF5',
     category: AddressCategory.External
   },
+  lusdToDaiLBPPool: {
+    // poolId: 0x8485b36623632ffa5e486008df4d0b6d363defdb00020000000000000000034a
+    artifactName: 'IWeightedPool',
+    address: '0x8485b36623632ffa5e486008df4d0b6d363defdb',
+    category: AddressCategory.External
+  },
 
   veBal: {
     artifactName: 'IVeToken',
@@ -823,6 +834,12 @@ export const MainnetContractsConfig = {
   aFei: {
     artifactName: 'IERC20',
     address: '0x683923dB55Fead99A79Fa01A27EeC3cB19679cC3',
+    category: AddressCategory.External
+  },
+
+  cFei: {
+    artifactName: 'IERC20',
+    address: '0x7713DD9Ca933848F6819F38B8352D9A15EA73F67',
     category: AddressCategory.External
   },
 
@@ -1021,12 +1038,6 @@ export const MainnetContractsConfig = {
     artifactName: 'unknown',
     address: '0x9a72298ae3886221820b1c878d12d872087d3a23',
     category: AddressCategory.External
-  },
-
-  chainlinkOhmV2EthOracleWrapper: {
-    artifactName: 'ChainlinkOracleWrapper',
-    address: '0xA67541733A5179977bED7d38F95b63b8c5398E18',
-    category: AddressCategory.Oracle
   },
 
   chainlinkStEthUsdOracle: {
@@ -1560,6 +1571,58 @@ export const MainnetContractsConfig = {
     address: '0x6ef71cA9cD708883E129559F5edBFb9d9D5C6148',
     category: AddressCategory.External
   },
+  olympusMultisig: {
+    artifactName: 'unknown',
+    address: '0x245cc372C84B3645Bf0Ffe6538620B04a217988B',
+    category: AddressCategory.External
+  },
+  noFeeFeiTribeLBPSwapper: {
+    artifactName: 'BalancerLBPSwapper',
+    address: '0xC05FAF6C5C4bC1bD841AdFC92b3D3f20180F26E8',
+    category: AddressCategory.Deprecated
+  },
+
+  compoundDaiPCVDepositWrapper: {
+    artifactName: 'PCVDepositWrapper',
+    address: '0xfDe7077AAEcDaf2C4B85261Aa858c96A7E737a61',
+    category: AddressCategory.Deprecated
+  },
+
+  feiBuybackLensNoFee: {
+    artifactName: 'BPTLens',
+    address: '0x89DfBC12001b41985eFAbd7dFCae6a77B22E4Ec3',
+    category: AddressCategory.Deprecated
+  },
+
+  compoundDaiPCVDeposit: {
+    artifactName: 'ERC20CompoundPCVDeposit',
+    address: '0xe0f73b8d76D2Ad33492F995af218b03564b8Ce20',
+    category: AddressCategory.Deprecated
+  },
+
+  namedStaticPCVDepositWrapper: {
+    artifactName: 'NamedStaticPCVDepositWrapper',
+    address: '0x06dAcca04e201AD31393754E68dA04Dc14778Fa6',
+    category: AddressCategory.Deprecated
+  },
+
+  uniswapFeiTribeLiquidityTimelock: {
+    artifactName: 'FeiTribeLiquidityTimelockInterface',
+    address: '0x7D809969f6A04777F0A87FF94B57E56078E5fE0F',
+    category: AddressCategory.Deprecated
+  },
+
+  chainlinkOhmV2EthOracleWrapper: {
+    artifactName: 'ChainlinkOracleWrapper',
+    address: '0xA67541733A5179977bED7d38F95b63b8c5398E18',
+    category: AddressCategory.Deprecated
+  },
+
+  uniswapLiquidityRemover: {
+    artifactName: 'UniswapLiquidityRemover',
+    address: '0x378CFc826f9235587e50c1BcE0fA108AF5B9B7dA',
+    category: AddressCategory.Deprecated
+  },
 
   dpiToDaiLBPSwapper: {
     artifactName: 'BalancerLBPSwapper',
@@ -1574,6 +1637,16 @@ export const MainnetContractsConfig = {
   aaveEthPCVDripController: {
     artifactName: 'PCVDripController',
     address: '0xb3D63876d95d3a5e591D4DE536dC410b97244086',
+    category: AddressCategory.Deprecated
+  },
+  gOhmUSDOracle: {
+    artifactName: 'CompositeOracle',
+    address: '0x319BCE09E7E3e32dac08206129Df541F189A5Df8',
+    category: AddressCategory.Deprecated
+  },
+  gOhmEthOracle: {
+    artifactName: 'GOhmEthOracle',
+    address: '0x49A7e453c164353ac2980ac05756a8C46B062293',
     category: AddressCategory.Deprecated
   },
   raiPCVDripController: {
@@ -1850,6 +1923,36 @@ export const MainnetContractsConfig = {
     artifactName: 'CompositeOracle',
     address: '0x8A1f9707AbeE2102Da45a2392f2F992BA22Ff446',
     category: AddressCategory.Deprecated
+  },
+  tribeFeiLabsDel1: {
+    artifactName: 'unknown',
+    address: '0x107d1c9ef7a2ddb6a4aecfdcd6658355c7435a43',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDel2: {
+    artifactName: 'unknown',
+    address: '0xe0ac4559739bd36f0913fb0a3f5bfc19bcbacd52',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDel3: {
+    artifactName: 'unknown',
+    address: '0x486c33760ad3f6d9cf4a63493773e2b69635d602',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDel4: {
+    artifactName: 'unknown',
+    address: '0x70b6ab736be7672c917a1ab11e67b5bc9fddeca9',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDel5: {
+    artifactName: 'unknown',
+    address: '0xc8eefb8b3d50ca87da7f99a661720148acf97efa',
+    category: AddressCategory.External
+  },
+  tribeFeiLabsDel6: {
+    artifactName: 'unknown',
+    address: '0x66b9d411e14fbc86424367b67933945fd7e40b11',
+    category: AddressCategory.External
   },
   feiTribeLBPSwapper: {
     artifactName: 'BalancerLBPSwapper',
@@ -2181,6 +2284,11 @@ export const MainnetContractsConfig = {
     address: '0x1126f1fA7Da556F8F82846223E3C2176B5631707',
     category: AddressCategory.Deprecated
   },
+  fox: {
+    artifactName: 'IERC20',
+    address: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+    category: AddressCategory.External
+  },
   d3StakingTokenWrapper: {
     artifactName: 'StakingTokenWrapper',
     address: '0xAa267d0A5A0A56Ef0F17bB4A28f85a5C4e0394F6',
@@ -2431,6 +2539,16 @@ export const MainnetContractsConfig = {
     address: '0x14d2F529576d3a5451BfbA370408a899Bb5261a9',
     category: AddressCategory.Deprecated
   },
+  ohmEscrowUnwind: {
+    artifactName: 'OtcEscrow',
+    address: '0x01e292c0fBe4C35aE3af981a37Af30ca86d5a712',
+    category: AddressCategory.Deprecated
+  },
+  gOHMHoldingPCVDeposit: {
+    artifactName: 'ERC20HoldingPCVDeposit',
+    address: '0x2C9980fa0a1ABe4B0cc6263132d8EB41Db9B73Ba',
+    category: AddressCategory.Deprecated
+  },
   mergerGate: {
     artifactName: 'MergerGate',
     address: '0xC2d452A4Feb76B41659cd036D5746149B98453D6',
@@ -2460,6 +2578,11 @@ export const MainnetContractsConfig = {
     artifactName: 'IdlePCVRedeemer',
     address: '0xBca1d1eC00581ad3033eB88D9F0206BB4B9D1b90',
     category: AddressCategory.Deprecated
+  },
+  idle: {
+    artifactName: 'IERC20',
+    address: '0x875773784Af8135eA0ef43b5a374AaD105c5D39e',
+    category: AddressCategory.External
   },
   bbRedeemer: {
     artifactName: 'SmartYieldRedeemer',
@@ -2491,50 +2614,37 @@ export const MainnetContractsConfig = {
     address: '0x4bFa2625D50b68D622D1e71c82ba6Db99BA0d17F',
     category: AddressCategory.Deprecated
   },
+  feiLabsVestingTimelock: {
+    artifactName: 'TimelockedDelegator',
+    address: '0x38afbf8128cc54323e216acde9516d281c4f1e5f',
+    category: AddressCategory.Deprecated
+  },
+
   pegExchanger: {
     artifactName: 'PegExchanger',
     address: '0xc09BB5ECf865e6f69Fe62A43c27f036A426909f7',
-    category: AddressCategory.TBD
+    category: AddressCategory.Deprecated
   },
   pegExchangerDripper: {
     artifactName: 'PegExchangerDripper',
     address: '0xC416EEe663ECa29cEB726241caDFFe6a77D61E2D',
-    category: AddressCategory.TBD
+    category: AddressCategory.Deprecated
   },
   newRariInfraFeiTimelock: {
     artifactName: 'LinearTokenTimelock',
     address: '0x5d39721BA1c734b395C2CAdbdeeC178F688F6ec9',
-    category: AddressCategory.TBD
+    category: AddressCategory.Deprecated
   },
   newRariInfraTribeTimelock: {
     artifactName: 'LinearTimelockedDelegator',
     address: '0x20bC8FE104fadED2D0aD9634D745f1488f9991eF',
-    category: AddressCategory.TBD
+    category: AddressCategory.Deprecated
   },
-  laTribuFeiTimelock: {
-    artifactName: 'LinearTokenTimelock',
-    address: '0xdb02630ed4f4994414122894B5082dc6D88a4ED4',
-    category: AddressCategory.TBD
-  },
-  laTribuTribeTimelock: {
-    artifactName: 'QuadraticTokenTimelock',
-    address: '0x552b8A441E945D021D29ae58B6Ae3dE96da75A05',
-    category: AddressCategory.TBD
-  },
-  rariInfraFeiTimelock: {
-    artifactName: 'LinearTokenTimelock',
-    address: '0xfaFC562265a49975E8B20707EAC966473795CF90',
-    category: AddressCategory.TBD
-  },
-  rariInfraTribeTimelock: {
-    artifactName: 'LinearTimelockedDelegator',
-    address: '0x625cf6AA7DafB154F3Eb6BE87592110e30290dEe',
-    category: AddressCategory.TBD
-  },
+
   angleEuroRedeemer: {
     artifactName: 'AngleEuroRedeemer',
     address: '0x05A842943a56720Ebecd2D5f1fb32E48dB25863C',
-    category: AddressCategory.TBD
+    category: AddressCategory.Deprecated
   },
 
   vlAuraDelegatorPCVDeposit: {
