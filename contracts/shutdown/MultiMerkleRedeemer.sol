@@ -84,7 +84,8 @@ abstract contract MultiMerkleRedeemer {
     function signAndClaimAndRedeem(
         bytes calldata signature,
         address[] calldata cTokens,
-        uint256[] calldata amounts,
+        uint256[] calldata amountsToClaim,
+        uint256[] calldata amountsToRedeem,
         bytes32[][] calldata merkleProofs
     ) external virtual;
 

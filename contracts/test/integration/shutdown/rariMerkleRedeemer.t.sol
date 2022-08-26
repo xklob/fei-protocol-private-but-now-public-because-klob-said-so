@@ -326,11 +326,55 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         vm.startPrank(users[0].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, proofZero);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, amounts0, proofZero);
 
         changePrank(users[1].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, proofOne);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, amounts1, proofOne);
+        vm.stopPrank();
+    }
+
+    /**
+     * Test the main sign-claim-redeem flow with the sample data; uses the subclassed redeemer
+     * contract which does not actually check signatures (since we dont have their private keys)
+     * This second test provides separate values for amountsToClaim and amountsToRedeem
+     */
+    function testHappyPathNoSigChecksSeparateAmounts() public {
+        RariMerkleRedeemerTestingLib.UserData[] memory users = RariMerkleRedeemerTestingLib.getUsers();
+
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = cToken0;
+
+        uint256[] memory amountsToClaim0 = new uint256[](1);
+        amountsToClaim0[0] = users[0].balance;
+
+        uint256[] memory amountsToRedeem0 = new uint256[](1);
+        amountsToRedeem0[0] = users[0].balance - 1;
+
+        uint256[] memory amountsToClaim1 = new uint256[](1);
+        amountsToClaim1[0] = users[1].balance;
+
+        uint256[] memory amountsToRedeem1 = new uint256[](1);
+        amountsToRedeem1[0] = users[1].balance - 1;
+
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+
+        // when calling signAndClaimAndRedeem we take in an array of ctokens, amounts and proofs
+        // thus we need to encapsulate everything into an array
+
+        bytes32[][] memory proofZero = new bytes32[][](1);
+        bytes32[][] memory proofOne = new bytes32[][](1);
+
+        proofZero[0] = proofs[0];
+        proofOne[0] = proofs[1];
+
+        vm.startPrank(users[0].user);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amountsToClaim0, amountsToRedeem0, proofZero);
+
+        changePrank(users[1].user);
+        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amountsToClaim1, amountsToRedeem1, proofOne);
         vm.stopPrank();
     }
 
@@ -357,7 +401,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
 
-        redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, proofZero);
+        redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, amounts0, proofZero);
         vm.stopPrank();
     }
 
@@ -553,6 +597,70 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.stopPrank();
     }
 
+    function testRedeemInPartsSeparateAmounts() public {
+        vm.startPrank(addresses[1]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
+
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = cToken0;
+
+        uint256 amount = 11152021915736699992171534;
+
+        uint256[] memory amountsToClaim = new uint256[](1);
+        amountsToClaim[0] = amount;
+
+        uint256[] memory amountsToRedeem = new uint256[](1);
+        amountsToRedeem[0] = amount - 1;
+
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+        bytes32[][] memory proofZero = new bytes32[][](1);
+        proofZero[0] = proofs[0];
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        deal(cToken0, addresses[1], 100_000_000e18);
+
+        redeemer.signAndClaimAndRedeem(signature, cTokensToTransfer, amountsToClaim, amountsToRedeem, proofZero);
+        redeemer.redeem(cToken0, 1);
+
+        vm.stopPrank();
+    }
+
+    function testRedeemInPartsSeparateAmountsSecondAmountTooMany() public {
+        vm.startPrank(addresses[1]);
+
+        IERC20(cToken0).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[1], redeemer.MESSAGE_HASH());
+
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = cToken0;
+
+        uint256 amount = 11152021915736699992171534;
+
+        uint256[] memory amountsToClaim = new uint256[](1);
+        amountsToClaim[0] = amount;
+
+        uint256[] memory amountsToRedeem = new uint256[](1);
+        amountsToRedeem[0] = amount - 1;
+
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofs();
+        bytes32[][] memory proofZero = new bytes32[][](1);
+        proofZero[0] = proofs[0];
+
+        bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
+
+        deal(cToken0, addresses[1], 100_000_000e18);
+
+        redeemer.signAndClaimAndRedeem(signature, cTokensToTransfer, amountsToClaim, amountsToRedeem, proofZero);
+
+        vm.expectRevert("Amount exceeds available remaining claim.");
+        redeemer.redeem(cToken0, 2);
+
+        vm.stopPrank();
+    }
+
     function testMultipleProofs() public {
         // user 0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab has 2 cTokens that he can claim in the real sample dataset:
         // ctoken 0xd8553552f8868c1ef160eedf031cf0bcf9686945, balance 993589106605953983
@@ -629,7 +737,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         deal(_cToken1, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
 
         redeemerNoSigs.sign("0xFFFF");
-        redeemerNoSigs.claim(cTokens, amounts, proofs);
+        redeemerNoSigs.claim(cTokens[0], amounts[0], proofs[0]);
 
         vm.stopPrank();
     }
