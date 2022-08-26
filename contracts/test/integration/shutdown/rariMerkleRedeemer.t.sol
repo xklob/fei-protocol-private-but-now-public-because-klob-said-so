@@ -330,7 +330,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         changePrank(users[1].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, amounts0, proofOne);
+        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, amounts1, proofOne);
         vm.stopPrank();
     }
 
