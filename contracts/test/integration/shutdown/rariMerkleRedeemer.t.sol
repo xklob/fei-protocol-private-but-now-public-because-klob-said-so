@@ -629,7 +629,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         deal(_cToken1, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
 
         redeemerNoSigs.sign("0xFFFF");
-        redeemerNoSigs.claim(cTokens, amounts, proofs);
+        redeemerNoSigs.multiClaim(cTokens, amounts, proofs);
 
         vm.stopPrank();
     }
