@@ -164,12 +164,13 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     function signAndClaimAndRedeem(
         bytes calldata signature,
         address[] calldata cTokens,
-        uint256[] calldata amounts,
+        uint256[] calldata amountsToClaim,
+        uint256[] calldata amountsToRedeem,
         bytes32[][] calldata merkleProofs
     ) external override nonReentrant {
         sign(signature);
-        _multiClaim(cTokens, amounts, merkleProofs);
-        multiRedeem(cTokens, amounts);
+        _multiClaim(cTokens, amountsToClaim, merkleProofs);
+        multiRedeem(cTokens, amountsToRedeem);
     }
 
     /** ---------- Internal Funcs --------------- **/
