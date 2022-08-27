@@ -51,4 +51,6 @@ library MainnetAddresses {
     address public constant CHAINLINK_ETH_USD_ORACLE = 0xCd3c40AE1256922BA16C7872229385E20Bc8351e;
 
     address public constant MAKER_USDC_PSM = 0x0A59649758aa4d66E25f08Dd01271e891fe52199;
+
+    address public constant RARI_DAO_TIMELOCK = 0x8ace03Fc45139fDDba944c6A4082b604041d19FC;
 }

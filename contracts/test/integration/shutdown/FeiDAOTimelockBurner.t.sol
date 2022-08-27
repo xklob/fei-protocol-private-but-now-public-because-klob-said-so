@@ -2,28 +2,30 @@
 pragma solidity ^0.8.0;
 
 import {DSTest} from "../../utils/DSTest.sol";
-import {FeiDAOBurnerTimelock} from "../../../shutdown/FeiDAOBurnerTimelock.sol";
+import {FeiDAOTimelockBurner} from "../../../shutdown/FeiDAOTimelockBurner.sol";
 import {Timelock} from "../../../dao/timelock/Timelock.sol";
 import {Vm} from "../../utils/Vm.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 
-contract FeiDAOBurnerTimelockIntegrationTest is DSTest {
-    FeiDAOBurnerTimelock burnerTimelock;
+/// @notice Integration tests for the Fei and Rari DAO timelock burner contracts
+contract DAOBurnerTimelockIntegrationTest is DSTest {
+    FeiDAOTimelockBurner feiDAOBurnerTimelock;
+
     Timelock feiDAOTimelock = Timelock(payable(MainnetAddresses.FEI_DAO_TIMELOCK));
 
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
     function setUp() public {
-        burnerTimelock = new FeiDAOBurnerTimelock();
+        feiDAOBurnerTimelock = new FeiDAOTimelockBurner();
 
-        // Setup burnerTimelock address to be the pending timelock admin
+        // Set pending admin of the Fei DAO timelock to be the feiDAOTimelockBurner
         vm.prank(MainnetAddresses.FEI_DAO_TIMELOCK);
-        feiDAOTimelock.setPendingAdmin(address(burnerTimelock));
+        feiDAOTimelock.setPendingAdmin(address(feiDAOBurnerTimelock));
     }
 
     /// @notice Validate that admin of the Fei DAO timelock can be accepted
     function testAcceptAdmin() public {
-        burnerTimelock.acceptAdmin();
-        assertEq(feiDAOTimelock.admin(), address(burnerTimelock));
+        feiDAOBurnerTimelock.acceptAdmin();
+        assertEq(feiDAOTimelock.admin(), address(feiDAOBurnerTimelock));
     }
 }
