@@ -4,33 +4,55 @@ pragma solidity ^0.8.4;
 import "../refs/CoreRef.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+/// @title Abstract contract for exchange a number of ERC20 tokens for specific base token, permissioned via Merkle root(s)
+/// @notice This contract assumes that the users must sign a message to redeem tokens
+/// @author kryptoklob
 abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
 
+    /// @notice Emitted when a user signs for the first time; should only be emitted once per user
+    /// @param signer the person singing; msg.sender
+    /// @param signature the signed message hash
     event Signed(address indexed signer, bytes signature);
-    event Claimed(address indexed signer, address indexed cToken, uint256 claimAmount);
+
+    /// @notice Emitted when a user completes a claim on a cToken; should only be emitted once per user per cToken at most
+    /// @param claimant the person claiming; msg.sender
+    /// @param cToken the cToken being claimed on
+    /// @param claimAmount the amount the user says he has claim to; verified by Merkle root
+    event Claimed(address indexed claimant, address indexed cToken, uint256 claimAmount);
+
+    /// @notice Emitted when a user exchanges an amount of cTokens for the base token; can happen any number of times per user & cToken
+    /// @param recipient the user; msg.sender
+    /// @param cToken the cToken being exchange for the baseToken
+    /// @param cTokenAmount the amount of cTokens being exchanged
+    /// @param baseTokenAmount the amount of baseTokens being received
     event Redeemed(address indexed recipient, address indexed cToken, uint256 cTokenAmount, uint256 baseTokenAmount);
 
     /** ---------- Storage / Configuration ------ **/
 
-    // The token we're going to give out when a user redeems.
-    // (Immutable in derived contract)
+    /// @notice The address of the token that will be exchange for cTokens
     address public baseToken;
 
-    // One merkle root per ctoken
+    /// @notice The merkle roots that permission users to claim cTokens; one root per cToken
     mapping(address => bytes32) public merkleRoots;
 
-    // Exchange rate of the base asset per each ctoken
+    /// @notice Exchange rate of the base asset per each cToken
     mapping(address => uint256) public cTokenExchangeRates;
 
-    // One signature per user
+    /// @notice Stores user signatures; one signature per user, can only be provided once
     mapping(address => bytes) public userSignatures;
 
     // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
     // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
     //    (user addr) => ((ctoken addr) => (ctoken remaining))
-    mapping(address => mapping(address => uint256)) public currentClaimedAmounts;
-    mapping(address => mapping(address => uint256)) public maximumClaimableAmounts;
+
+    /// @notice The amount of cTokens a user has redeemed, indexed first by user address, then by cToken address
+    /// @dev This value starts at zero and can only increase
+    mapping(address => mapping(address => uint256)) public redemptions;
+
+    /// @notice The amount of cTokens a user in their claim, total; indexed first by user address, then by cToken address
+    /// @dev This value is set when a user proves their claim on a particular cToken, and cannot change once set
+    mapping(address => mapping(address => uint256)) public claims;
 
     // The message that the user will sign
     string public constant MESSAGE = "Sample message, please update.";
