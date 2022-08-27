@@ -53,4 +53,6 @@ library MainnetAddresses {
     address public constant MAKER_USDC_PSM = 0x0A59649758aa4d66E25f08Dd01271e891fe52199;
 
     address public constant RARI_DAO_TIMELOCK = 0x8ace03Fc45139fDDba944c6A4082b604041d19FC;
+    address public constant RARI_FEI_TOKEN_TIMELOCK = 0xfaFC562265a49975E8B20707EAC966473795CF90;
+    address public constant RARI_TRIBE_TOKEN_TIMELOCK = 0x625cf6AA7DafB154F3Eb6BE87592110e30290dEe;
 }
