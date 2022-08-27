@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Abstract contract for exchange a number of ERC20 tokens for specific base token, permissioned via Merkle root(s)
 /// @notice This contract assumes that the users must sign a message to redeem tokens
-/// @author
+/// @author kryptoklob
 abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
 
@@ -56,7 +56,7 @@ abstract contract MultiMerkleRedeemer {
     /// @notice The hash of the message to be signed by any users claiming on cTokens
     bytes32 public MESSAGE_HASH = ECDSA.toEthSignedMessageHash(bytes(MESSAGE));
 
-    /** ---------- Public Funcs ----------------- **/
+    /** ---------- Public State-Changing Funcs ----------------- **/
 
     /// @notice Stores a user's signature (of the message stored in MESSAGE)
     /// @param _signature the user's signature, encoded as a bytes array
@@ -120,6 +120,8 @@ abstract contract MultiMerkleRedeemer {
         uint256[] calldata _amountsToRedeem,
         bytes32[][] calldata _merkleProofs
     ) external virtual;
+
+    /** ---------- Public View/Pure Functions ---------- **/
 
     /// @notice Returns the amount of the base token that can be exchanged for the specified cToken
     function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
