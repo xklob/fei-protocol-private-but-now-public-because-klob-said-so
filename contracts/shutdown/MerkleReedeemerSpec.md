@@ -5,7 +5,7 @@
 - Contract will store one merkle root per cToken; this stores the amount of that cToken each user can exchange
 - Contract will store the signatures provided by each user, and won't allow them to claim until they've provided their sig
 - Contract will store the exchange rate for each cToken<>baseToken pair
-- After signature has been provided, contract stores the amount of each cToken the user can has exchanged so far, and their maximum.
+- After signature has been provided, contract stores the amount of each cToken the user can has exchange so far, and their maximum.
 
 ## Governance Flow
 

@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /// @title Contract for exchanging cTokens for a specific base token, permissioned via Merkle Roots
 /// @notice This implementation is specific to the Rari Redemption as described in TIP-121
+/// @dev See MultiMerkleRedeemer natspec for most public functions
 /// @author kryptoklob
 contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     using SafeERC20 for IERC20;
