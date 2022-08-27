@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Abstract contract for exchange a number of ERC20 tokens for specific base token, permissioned via Merkle root(s)
 /// @notice This contract assumes that the users must sign a message to redeem tokens
-/// @author kryptoklob
+/// @author
 abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
 
@@ -42,10 +42,6 @@ abstract contract MultiMerkleRedeemer {
     /// @notice Stores user signatures; one signature per user, can only be provided once
     mapping(address => bytes) public userSignatures;
 
-    // Mapping of the ctokens remaining for each user, that they are able to send into this contract and withdraw the base token with
-    // Initially all zero. When a user signs a claim and provides their merkle roots, these values are updated to the amounts specified in the merkle roots.
-    //    (user addr) => ((ctoken addr) => (ctoken remaining))
-
     /// @notice The amount of cTokens a user has redeemed, indexed first by user address, then by cToken address
     /// @dev This value starts at zero and can only increase
     mapping(address => mapping(address => uint256)) public redemptions;
@@ -54,87 +50,77 @@ abstract contract MultiMerkleRedeemer {
     /// @dev This value is set when a user proves their claim on a particular cToken, and cannot change once set
     mapping(address => mapping(address => uint256)) public claims;
 
-    // The message that the user will sign
+    /// @notice The message to be signed by any users claiming on cTokens
     string public constant MESSAGE = "Sample message, please update.";
-    bytes32 public MESSAGE_HASH = ECDSA.toEthSignedMessageHash(bytes(MESSAGE));
 
-    // The leaf structure for the merkle tree
-    // This gets hashed into a bytes32 for proving existence in the tree
-    struct Leaf {
-        address user;
-        uint256 amount;
-    }
+    /// @notice The hash of the message to be signed by any users claiming on cTokens
+    bytes32 public MESSAGE_HASH = ECDSA.toEthSignedMessageHash(bytes(MESSAGE));
 
     /** ---------- Public Funcs ----------------- **/
 
+    /// @notice Stores a user's signature (of the message stored in MESSAGE)
+    /// @param _signature the user's signature, encoded as a bytes array
+    /// @dev Signature must be encoded into a packed length of 65 bytes: bytes.concat(bytes32(r), bytes32(s), bytes1(v));
     function sign(bytes calldata _signature) external virtual;
 
-    // A pass-through to the internal _claim function
-    // If user has already claimed for this cToken, this will revert
-    // _amount must be the full amount supported by the merkle proof, else this will revert
+    /// @notice Prove a claim on a particular cToken. Amount provided must match the amount in the merkle tree
+    /// @param _cToken the cToken being claimed
+    /// @param _amount the amount of the particular cToken to claim
+    /// @param _merkleProof the merkle proof for the claim
+    /// @dev This should set the user's claim for this cToken in the "claims" mapping
     function claim(
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
     ) external virtual;
 
-    // An overloaded version of claim that supports multiple tokekns
+    /// @notice Plural version of claim. Amounts provided must match the amounts in the merkle trees
+    /// @param _cTokens the cTokens being claimed
+    /// @param _amounts the amounts of each particular cToken to claim
+    /// @param _merkleProofs the merkle proofs for each claim
+    /// @dev This should set the user's claim for *each* cToken in the "claims" mapping
     function multiClaim(
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
     ) external virtual;
 
-    // User redeems amount of provided ctoken for the equivalent amount of the base token.
-    // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
-    // User must have approved the ctokens to this contract
+    /// @notice Redeem an amount of the specified cToken.
+    /// @dev Requires an approval of the specified amount of the specified cToken to this contract.
+    /// Should increment the user's redeemed amount for this cToken in the "redeemed" mapping.
     function redeem(address cToken, uint256 amount) external virtual;
 
+    /// @notice Redeem an amount of each of the specified cTokens
+    /// @dev Requires an approval of the specified amount of each of the specified cTokens to this contract
+    /// Should increment the user's redeemed amount for each cToken in the "redeemed" mapping
     function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
 
-    // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
-    // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
-    // Can only be called once per user. See _sign, _claim, and _multiClaim below.
+    /// @notice Combines sign and claim into a single function
+    /// @param _signature the user's signature, encoded as a 65-length bytes: bytes.concat(bytes32(r), bytes32(s), bytes1(v));
+    /// @param _cTokens the cTokens being claimed
+    /// @param _amounts the amounts of each cToken to claim
+    /// @param _merkleProofs the merkle proofs for each claim
     function signAndClaim(
-        bytes calldata signature,
-        address[] calldata cTokens,
-        uint256[] calldata amounts,
-        bytes32[][] calldata merkleProofs
+        bytes calldata _signature,
+        address[] calldata _cTokens,
+        uint256[] calldata _amounts,
+        bytes32[][] calldata _merkleProofs
     ) external virtual;
 
-    // View how many base tokens a user could get for redeeming a particular amount of a ctoken
-    function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
-
-    // Optional function to combine sign, claim, and redeem into one call
-    // User must have approved the ctokens to this contract
+    /// @notice Combines sign, claim, and redeem into a single function
+    /// @param _signature the user's signature, encoded as a 65-length bytes: bytes.concat(bytes32(r), bytes32(s), bytes1(v));
+    /// @param _cTokens the cTokens being claimed
+    /// @param _amountsToClaim the amounts of each cToken to claim; should match the merkle proofs
+    /// @param _amountsToRedeem the amounts of each cToken to redeem; must be greater than 0 for each cToken provided
+    /// @param _merkleProofs the merkle proofs for each claim
     function signAndClaimAndRedeem(
-        bytes calldata signature,
-        address[] calldata cTokens,
-        uint256[] calldata amountsToClaim,
-        uint256[] calldata amountsToRedeem,
-        bytes32[][] calldata merkleProofs
+        bytes calldata _signature,
+        address[] calldata _cTokens,
+        uint256[] calldata _amountsToClaim,
+        uint256[] calldata _amountsToRedeem,
+        bytes32[][] calldata _merkleProofs
     ) external virtual;
 
-    /** ---------- Internal Funcs --------------- **/
-
-    // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata signature) internal virtual;
-
-    // User provides the the ctoken & the amount they should get, and it is verified against the merkle root for that ctoken
-    function _claim(
-        address cToken,
-        uint256 amount,
-        bytes32[] calldata merkleProof
-    ) internal virtual;
-
-    // User provides the ctokens & the amounts they should get, and it is verified against the merkle root for that ctoken (for each ctoken provided)
-    function _multiClaim(
-        address[] calldata cTokens,
-        uint256[] calldata amounts,
-        bytes32[][] calldata merkleProofs
-    ) internal virtual;
-
-    function _redeem(address cToken, uint256 amount) internal virtual;
-
-    function _multiRedeem(address[] calldata cTokens, uint256[] calldata amount) internal virtual;
+    /// @notice Returns the amount of the base token that can be exchanged for the specified cToken
+    function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
 }

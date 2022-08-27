@@ -165,7 +165,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     }
 
     // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata _signature) internal virtual override {
+    function _sign(bytes calldata _signature) internal virtual {
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
         require(ECDSA.recover(MESSAGE_HASH, _signature) == msg.sender, "Signature not valid");
 
@@ -180,18 +180,16 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) internal virtual override {
+    ) internal virtual {
         // check: verify that claimableAmount is zero, revert if not
-        require(maximumClaimableAmounts[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
+        require(claims[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
 
         // check: verify ctoken and amount and msg.sender against merkle root
-        // @todo - ensure that we're using the correct encoding for the leaf structure
-        Leaf memory leaf = Leaf(msg.sender, _amount);
-        bytes32 leafHash = keccak256(abi.encodePacked(leaf.user, leaf.amount));
+        bytes32 leafHash = keccak256(abi.encodePacked(msg.sender, _amount));
         require(MerkleProof.verifyCalldata(_merkleProof, merkleRoots[_cToken], leafHash), "Merkle proof not valid.");
 
         // effect: update claimableAmount for the user
-        maximumClaimableAmounts[msg.sender][_cToken] = _amount;
+        claims[msg.sender][_cToken] = _amount;
 
         emit Claimed(msg.sender, _cToken, _amount);
     }
@@ -201,7 +199,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) internal virtual override {
+    ) internal virtual {
         require(_cTokens.length == _amounts.length, "Number of ctokens and amounts must match");
         require(_cTokens.length == _merkleProofs.length, "Number of ctokens and merkle proofs must match");
 
@@ -212,15 +210,15 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         // no events needed here, they happen in _claim
     }
 
-    function _redeem(address cToken, uint256 cTokenAmount) internal virtual override {
+    function _redeem(address cToken, uint256 cTokenAmount) internal virtual {
         // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
         require(
-            currentClaimedAmounts[msg.sender][cToken] + cTokenAmount <= maximumClaimableAmounts[msg.sender][cToken],
+            redemptions[msg.sender][cToken] + cTokenAmount <= claims[msg.sender][cToken],
             "Amount exceeds available remaining claim."
         );
 
         // effect: increment the user's claimedAmount
-        currentClaimedAmounts[msg.sender][cToken] += cTokenAmount;
+        redemptions[msg.sender][cToken] += cTokenAmount;
 
         uint256 baseTokenAmountReceived = previewRedeem(cToken, cTokenAmount);
 
@@ -231,7 +229,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         emit Redeemed(msg.sender, cToken, cTokenAmount, baseTokenAmountReceived);
     }
 
-    function _multiRedeem(address[] calldata cTokens, uint256[] calldata cTokenAmounts) internal virtual override {
+    function _multiRedeem(address[] calldata cTokens, uint256[] calldata cTokenAmounts) internal virtual {
         // check : ctokens.length must equal amounts.length
         require(cTokens.length == cTokenAmounts.length, "Length of cTokens and amounts must match.");
 
@@ -244,13 +242,12 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
 
             // check: amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
             require(
-                currentClaimedAmounts[msg.sender][cTokens[i]] + cTokenAmounts[i] <=
-                    maximumClaimableAmounts[msg.sender][cTokens[i]],
+                redemptions[msg.sender][cTokens[i]] + cTokenAmounts[i] <= claims[msg.sender][cTokens[i]],
                 "Amount exceeds available remaining claim."
             );
 
             // effect: increment the user's claimedAmount
-            currentClaimedAmounts[msg.sender][cTokens[i]] += cTokenAmounts[i];
+            redemptions[msg.sender][cTokens[i]] += cTokenAmounts[i];
         }
 
         // We give the interactions (the safeTransferFroms) their own for loop, juuuuust to be safe
