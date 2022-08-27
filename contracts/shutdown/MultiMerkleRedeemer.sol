@@ -7,7 +7,9 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 abstract contract MultiMerkleRedeemer {
     /** ---------- Events ----------------------- **/
 
-    // @todo: add events
+    event Signed(address indexed signer, bytes signature);
+    event Claimed(address indexed signer, address indexed cToken, uint256 claimAmount);
+    event Redeemed(address indexed recipient, address indexed cToken, uint256 cTokenAmount, uint256 baseTokenAmount);
 
     /** ---------- Storage / Configuration ------ **/
 
@@ -43,6 +45,8 @@ abstract contract MultiMerkleRedeemer {
 
     /** ---------- Public Funcs ----------------- **/
 
+    function sign(bytes calldata _signature) external virtual;
+
     // A pass-through to the internal _claim function
     // If user has already claimed for this cToken, this will revert
     // _amount must be the full amount supported by the merkle proof, else this will revert
@@ -59,6 +63,13 @@ abstract contract MultiMerkleRedeemer {
         bytes32[][] calldata _merkleProofs
     ) external virtual;
 
+    // User redeems amount of provided ctoken for the equivalent amount of the base token.
+    // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
+    // User must have approved the ctokens to this contract
+    function redeem(address cToken, uint256 amount) external virtual;
+
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
+
     // User provides signature of acknowledged message, and all of the ctokens, amounts, and merkleproofs for their claimable tokens.
     // This will set each user's balances in redeemableTokensRemaining according to the data verified by the merkle proofs
     // Can only be called once per user. See _sign, _claim, and _multiClaim below.
@@ -68,13 +79,6 @@ abstract contract MultiMerkleRedeemer {
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
     ) external virtual;
-
-    // User redeems amount of provided ctoken for the equivalent amount of the base token.
-    // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
-    // User must have approved the ctokens to this contract
-    function redeem(address cToken, uint256 amount) external virtual;
-
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
     function previewRedeem(address cToken, uint256 amount) external virtual returns (uint256 baseTokenAmount);
@@ -107,4 +111,8 @@ abstract contract MultiMerkleRedeemer {
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
     ) internal virtual;
+
+    function _redeem(address cToken, uint256 amount) internal virtual;
+
+    function _multiRedeem(address[] calldata cTokens, uint256[] calldata amount) internal virtual;
 }

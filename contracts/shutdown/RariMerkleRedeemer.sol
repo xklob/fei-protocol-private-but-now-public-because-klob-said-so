@@ -45,7 +45,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     // A pass-through to the internal _sign function.
     // Can only be called once; reverts if already successfully executed
     // or if signature is invalid
-    function sign(bytes calldata signature) public hasNotSigned {
+    function sign(bytes calldata signature) external override hasNotSigned nonReentrant {
         _sign(signature);
     }
 
@@ -56,7 +56,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) public override hasSigned {
+    ) external override hasSigned nonReentrant {
         _claim(_cToken, _amount, _merkleProof);
     }
 
@@ -65,7 +65,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) public override hasSigned {
+    ) external override hasSigned nonReentrant {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
@@ -73,48 +73,17 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     // Decrements their available ctoken balance available to redeem with (redeemableTokensRemaining)
     // User must have approved the ctokens to this contract
     function redeem(address cToken, uint256 amount) external override hasSigned nonReentrant {
-        // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
-        require(
-            currentClaimedAmounts[msg.sender][cToken] + amount <= maximumClaimableAmounts[msg.sender][cToken],
-            "Amount exceeds available remaining claim."
-        );
-
-        // effect: increment the user's claimedAmount
-        currentClaimedAmounts[msg.sender][cToken] += amount;
-
-        // interaction: safeTransferFrom the user "amount" of "ctoken" to this contract
-        IERC20(cToken).safeTransferFrom(msg.sender, address(this), amount);
-        IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cToken, amount));
+        _redeem(cToken, amount);
     }
 
     // Overloaded version of redeem that supports multiple cTokens
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) public override hasSigned {
-        // check : ctokens.length must equal amounts.length
-        require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
-
-        for (uint256 i = 0; i < cTokens.length; i++) {
-            // check: cToken cannot be the zero address
-            require(cTokens[i] != address(0), "Invalid ctoken address");
-
-            // check: amount must be greater than 0
-            require(amounts[i] != 0, "Invalid amount");
-
-            // check: amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
-            require(
-                currentClaimedAmounts[msg.sender][cTokens[i]] + amounts[i] <=
-                    maximumClaimableAmounts[msg.sender][cTokens[i]],
-                "Amount exceeds available remaining claim."
-            );
-
-            // effect: increment the user's claimedAmount
-            currentClaimedAmounts[msg.sender][cTokens[i]] += amounts[i];
-        }
-
-        // We give the interactions (the safeTransferFroms) their own for loop, juuuuust to be safe
-        for (uint256 i = 0; i < cTokens.length; i++) {
-            IERC20(cTokens[i]).safeTransferFrom(msg.sender, address(this), amounts[i]);
-            IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cTokens[i], amounts[i]));
-        }
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts)
+        external
+        override
+        hasSigned
+        nonReentrant
+    {
+        _multiRedeem(cTokens, amounts);
     }
 
     // View how many base tokens a user could get for redeeming a particular amount of a ctoken
@@ -137,7 +106,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) public override nonReentrant {
+    ) external override nonReentrant {
         // both sign and claim/multiclaim will revert on invalid signatures/proofs
         _sign(signature);
         _multiClaim(cTokens, amounts, merkleProofs);
@@ -149,9 +118,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) public hasSigned nonReentrant {
+    ) external hasSigned nonReentrant {
         _multiClaim(cTokens, amounts, merkleProofs);
-        multiRedeem(cTokens, amounts);
+        _multiRedeem(cTokens, amounts);
     }
 
     // Optional function to combine sign, claim, and redeem into one call
@@ -163,9 +132,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         uint256[] calldata amountsToRedeem,
         bytes32[][] calldata merkleProofs
     ) external override nonReentrant {
-        sign(signature);
+        _sign(signature);
         _multiClaim(cTokens, amountsToClaim, merkleProofs);
-        multiRedeem(cTokens, amountsToRedeem);
+        _multiRedeem(cTokens, amountsToRedeem);
     }
 
     /** ---------- Internal Funcs --------------- **/
@@ -196,7 +165,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     }
 
     // User provides signature, which is checked against their address and the string constant "message"
-    function _sign(bytes calldata _signature) internal virtual override hasNotSigned {
+    function _sign(bytes calldata _signature) internal virtual override {
         // check: to ensure the signature is a valid signature for the constant message string from msg.sender
         require(ECDSA.recover(MESSAGE_HASH, _signature) == msg.sender, "Signature not valid");
 
@@ -210,7 +179,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) internal override {
+    ) internal virtual override {
         // check: verify that claimableAmount is zero, revert if not
         require(maximumClaimableAmounts[msg.sender][_cToken] == 0, "User has already claimed for this cToken.");
 
@@ -229,12 +198,56 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) internal override {
+    ) internal virtual override {
         require(_cTokens.length == _amounts.length, "Number of ctokens and amounts must match");
         require(_cTokens.length == _merkleProofs.length, "Number of ctokens and merkle proofs must match");
 
         for (uint256 i = 0; i < _cTokens.length; i++) {
             _claim(_cTokens[i], _amounts[i], _merkleProofs[i]);
+        }
+    }
+
+    function _redeem(address cToken, uint256 amount) internal virtual override {
+        // check: verify that the user's claimedAmount+amount of this ctoken doesn't exceed claimableAmount for this ctoken
+        require(
+            currentClaimedAmounts[msg.sender][cToken] + amount <= maximumClaimableAmounts[msg.sender][cToken],
+            "Amount exceeds available remaining claim."
+        );
+
+        // effect: increment the user's claimedAmount
+        currentClaimedAmounts[msg.sender][cToken] += amount;
+
+        // interaction: safeTransferFrom the user "amount" of "ctoken" to this contract
+        IERC20(cToken).safeTransferFrom(msg.sender, address(this), amount);
+        IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cToken, amount));
+    }
+
+    function _multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) internal virtual override {
+        // check : ctokens.length must equal amounts.length
+        require(cTokens.length == amounts.length, "Length of cTokens and amounts must match.");
+
+        for (uint256 i = 0; i < cTokens.length; i++) {
+            // check: cToken cannot be the zero address
+            require(cTokens[i] != address(0), "Invalid ctoken address");
+
+            // check: amount must be greater than 0
+            require(amounts[i] != 0, "Invalid amount");
+
+            // check: amount is less than or equal to the user's claimableAmount-claimedAmount for this ctoken
+            require(
+                currentClaimedAmounts[msg.sender][cTokens[i]] + amounts[i] <=
+                    maximumClaimableAmounts[msg.sender][cTokens[i]],
+                "Amount exceeds available remaining claim."
+            );
+
+            // effect: increment the user's claimedAmount
+            currentClaimedAmounts[msg.sender][cTokens[i]] += amounts[i];
+        }
+
+        // We give the interactions (the safeTransferFroms) their own for loop, juuuuust to be safe
+        for (uint256 i = 0; i < cTokens.length; i++) {
+            IERC20(cTokens[i]).safeTransferFrom(msg.sender, address(this), amounts[i]);
+            IERC20(baseToken).safeTransfer(msg.sender, previewRedeem(cTokens[i], amounts[i]));
         }
     }
 }

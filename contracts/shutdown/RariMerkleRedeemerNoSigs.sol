@@ -27,7 +27,6 @@ contract RariMerkleRedeemerNoSigs is RariMerkleRedeemer {
         //require(SignatureChecker.isValidSignatureNow(msg.sender, MESSAGE_HASH, _signature), "Signature not valid.");
 
         // effect: update user's stored signature
-        // @todo - do we need to add in a length checker on the signature?
         userSignatures[msg.sender] = _signature;
     }
 }
