@@ -22,8 +22,9 @@ contract RariTribeTokenTimelockBurner {
         TIMELOCK.acceptBeneficiary();
     }
 
-    /// @notice Send all TRIBE held on this contract to the Core Treasury
+    /// @notice Permissionless method to send all TRIBE held on this contract to the Core Treasury
     function sendTribeToTreaury() external {
+        TIMELOCK.releaseMax(address(this));
         uint256 tribeBalance = TRIBE.balanceOf(address(this));
 
         if (tribeBalance != 0) {

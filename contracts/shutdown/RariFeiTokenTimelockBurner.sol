@@ -18,8 +18,9 @@ contract RariFeiTokenTimelockBurner {
         TIMELOCK.acceptBeneficiary();
     }
 
-    /// @notice Burn all FEI held on this contract
+    /// @notice Burn all FEI held by the Fei token timelock
     function burnFeiHeld() external {
+        TIMELOCK.releaseMax(address(this));
         uint256 feiBalance = FEI.balanceOf(address(this));
 
         if (feiBalance != 0) {
