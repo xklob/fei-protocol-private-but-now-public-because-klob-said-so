@@ -65,21 +65,24 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
-    function redeem(address cToken, uint256 amount) external override hasSigned nonReentrant {
-        _redeem(cToken, amount);
+    function redeem(address cToken, uint256 cTokenAmount) external override hasSigned nonReentrant {
+        _redeem(cToken, cTokenAmount);
     }
 
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts)
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata cTokenAmounts)
         external
         override
         hasSigned
         nonReentrant
     {
-        _multiRedeem(cTokens, amounts);
+        _multiRedeem(cTokens, cTokenAmounts);
     }
 
     function previewRedeem(address cToken, uint256 amount) public view override returns (uint256 baseTokenAmount) {
-        return cTokenExchangeRates[cToken] * amount;
+        // Each ctoken exchange rate is stored as how much you should get for 1e18 of the particular cToken
+        // Thus, we divide by 1e18 when returning the amount that a person should get when they provide
+        // the amount of cTokens they're turning into the contract
+        return (cTokenExchangeRates[cToken] * amount) / 1e18;
     }
 
     function signAndClaim(
@@ -116,12 +119,17 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
 
     /** ---------- Internal Funcs --------------- **/
 
+    // The exchange rates provided should represent how much of the base token will be given
+    // in exchange for 1e18 cTokens. This increases precision.
     function _configureExchangeRates(address[] memory _cTokens, uint256[] memory _exchangeRates) internal {
         require(_cTokens.length == 27, "Must provide exactly 27 exchange rates.");
         require(_cTokens.length == _exchangeRates.length, "Exchange rates must be provided for each cToken");
 
         for (uint256 i = 0; i < _cTokens.length; i++) {
-            require(_exchangeRates[i] > 0, "Exchange rate must be greater than 0");
+            require(
+                _exchangeRates[i] > 1e10,
+                "Exchange rate must be greater than 1e10. Did you forget to multiply by 1e18?"
+            );
             cTokenExchangeRates[_cTokens[i]] = _exchangeRates[i];
         }
     }
@@ -191,6 +199,9 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
 
     // Transfers in a particular amount of the user's cToken, and increments their redeemed amount in the redemption mapping
     function _redeem(address cToken, uint256 cTokenAmount) internal virtual {
+        // check: amount must be greater than 0
+        require(cTokenAmount != 0, "Invalid amount");
+
         // check: verify that the user's claimedAmount+amount of this cToken doesn't exceed claimableAmount for this cToken
         require(
             redemptions[msg.sender][cToken] + cTokenAmount <= claims[msg.sender][cToken],

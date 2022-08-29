@@ -88,12 +88,12 @@ abstract contract MultiMerkleRedeemer {
     /// @notice Redeem an amount of the specified cToken.
     /// @dev Requires an approval of the specified amount of the specified cToken to this contract.
     /// Should increment the user's redeemed amount for this cToken in the "redeemed" mapping.
-    function redeem(address cToken, uint256 amount) external virtual;
+    function redeem(address cToken, uint256 cTokenAmount) external virtual;
 
     /// @notice Redeem an amount of each of the specified cTokens
     /// @dev Requires an approval of the specified amount of each of the specified cTokens to this contract
     /// Should increment the user's redeemed amount for each cToken in the "redeemed" mapping
-    function multiRedeem(address[] calldata cTokens, uint256[] calldata amounts) external virtual;
+    function multiRedeem(address[] calldata cTokens, uint256[] calldata cTokenAmounts) external virtual;
 
     /// @notice Combines sign and claim into a single function
     /// @param _signature the user's signature, encoded as a 65-length bytes: bytes.concat(bytes32(r), bytes32(s), bytes1(v));

@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
-import {RariMerkleRedeemerNoSigs} from "../../../shutdown/RariMerkleRedeemerNoSigs.sol";
+import {MockRariMerkleRedeemerNoSigs} from "../../../mock/MockRariMerkleRedeemerNoSigs.sol";
 import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {Constants} from "../../../Constants.sol";
@@ -83,13 +83,13 @@ library RariMerkleRedeemerTestingLib {
     function getExampleRates() public pure returns (uint256[] memory rates) {
         rates = new uint256[](27);
 
-        rates[0] = 1;
-        rates[1] = 2;
-        rates[2] = 5;
+        rates[0] = 1e18;
+        rates[1] = 2e18;
+        rates[2] = 5e18;
 
         // unsure if this is needed
         for (uint256 i = 3; i < 27; i++) {
-            rates[i] = 1;
+            rates[i] = 1e18;
         }
 
         return rates;
@@ -235,7 +235,7 @@ library RariMerkleRedeemerTestingLib {
 contract RariMerkleRedeemerIntegrationTest is Test {
     // redeemerNoSigs is a simple subclass of redeemer that doesn't actually verify signatures
     // we use this to test against the real sample data
-    RariMerkleRedeemerNoSigs public redeemerNoSigs;
+    MockRariMerkleRedeemerNoSigs public redeemerNoSigs;
 
     // redeemer is the actual full redeemer contract
     // we generated fake data from accounts we know the privkeys to so that we can fully test
@@ -253,7 +253,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     function setUp() public {
         (addresses, keys) = getTestAccounts();
 
-        redeemerNoSigs = new RariMerkleRedeemerNoSigs(
+        redeemerNoSigs = new MockRariMerkleRedeemerNoSigs(
             MainnetAddresses.FEI,
             RariMerkleRedeemerTestingLib.getCTokens(),
             RariMerkleRedeemerTestingLib.getExampleRates(),
@@ -324,14 +324,38 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         proofZero[0] = proofs[0];
         proofOne[0] = proofs[1];
 
-        vm.startPrank(users[0].user);
-        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, amounts0, proofZero);
+        {
+            vm.startPrank(users[0].user);
+            IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+            uint256 user0PreBal = IERC20(cTokensToTransfer[0]).balanceOf(users[0].user);
+            uint256 baseTokenStartBalance0 = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[0].user);
+            redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts0, amounts0, proofZero);
+            uint256 baseTokenEndBalance0 = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[0].user);
+            assertEq(
+                baseTokenEndBalance0 - baseTokenStartBalance0,
+                amounts0[0] * 1,
+                "User 0 base token balance not correct"
+            );
+            uint256 user0PostBal = IERC20(cTokensToTransfer[0]).balanceOf(users[0].user);
+            assertEq(user0PreBal - user0PostBal, amounts0[0], "User 0 ctoken balance not correct");
+        }
 
-        changePrank(users[1].user);
-        IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
-        redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, amounts1, proofOne);
-        vm.stopPrank();
+        {
+            changePrank(users[1].user);
+            IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+            uint256 user1PreBal = IERC20(cTokensToTransfer[0]).balanceOf(users[1].user);
+            uint256 baseTokenStartBalance1 = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[1].user);
+            redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amounts1, amounts1, proofOne);
+            uint256 baseTokenEndBalance1 = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[1].user);
+            assertEq(
+                baseTokenEndBalance1 - baseTokenStartBalance1,
+                amounts1[0] * 1,
+                "User 1 base token balance not correct"
+            );
+            uint256 user1PostBal = IERC20(cTokensToTransfer[0]).balanceOf(users[1].user);
+            assertEq(user1PreBal - user1PostBal, amounts1[0], "User 1 ctoken balance not correct");
+            vm.stopPrank();
+        }
     }
 
     /**
@@ -362,7 +386,13 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         changePrank(users[1].user);
         IERC20(cTokensToTransfer[0]).approve(address(redeemerNoSigs), 100_000_000e18);
+        uint256 cTokenStartBalance = IERC20(cTokensToTransfer[0]).balanceOf(users[1].user);
+        uint256 baseTokenStartBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[1].user);
         redeemerNoSigs.signAndClaimAndRedeem("0xFFFF", cTokensToTransfer, amountsToClaim1, amountsToRedeem1, proofOne);
+        uint256 basetTokenEndBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(users[1].user);
+        assertEq(basetTokenEndBalance - baseTokenStartBalance, amountsToRedeem1[0] * 1);
+        uint256 cTokenEndBalance = IERC20(cTokensToTransfer[0]).balanceOf(users[1].user);
+        assertEq(cTokenStartBalance - cTokenEndBalance, amountsToRedeem1[0]);
         vm.stopPrank();
     }
 
@@ -389,7 +419,13 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
 
+        uint256 cTokenStartBalance = IERC20(cTokensToTransfer[0]).balanceOf(addresses[0]);
+        uint256 baseTokenStartBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
         redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, amounts0, proofZero);
+        uint256 cTokenEndBalance = IERC20(cTokensToTransfer[0]).balanceOf(addresses[0]);
+        uint256 baseTokenEndBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
+        assertEq(cTokenStartBalance - cTokenEndBalance, amounts0[0] * 1);
+        assertEq(baseTokenEndBalance - baseTokenStartBalance, amounts0[0] * 1);
         vm.stopPrank();
     }
 
@@ -403,7 +439,13 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         redeemer.sign(signature0);
         redeemer.claim(cToken0, 1, RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts()[0]);
+        uint256 baseBalPre = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
+        uint256 cTokenBalPre = IERC20(cToken0).balanceOf(addresses[0]);
         redeemer.redeem(cToken0, 1);
+        uint256 baseBalPost = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
+        uint256 cTokenBalPost = IERC20(cToken0).balanceOf(addresses[0]);
+        assertEq(cTokenBalPre - cTokenBalPost, 1);
+        assertEq(baseBalPost - baseBalPre, 1);
 
         vm.stopPrank();
     }
@@ -703,7 +745,8 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         proofs[0] = proofZero;
         proofs[1] = proofOne;
 
-        vm.startPrank(0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB);
+        address user = 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB;
+        vm.startPrank(user);
 
         IERC20(cToken0).approve(address(redeemerNoSigs), 100_000_000e18);
 
@@ -721,11 +764,28 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         cTokens[0] = _cToken0;
         cTokens[1] = _cToken1;
 
-        deal(_cToken0, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
-        deal(_cToken1, 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB, 100_000_000e18);
+        deal(_cToken0, user, 100_000_000e18);
+        deal(_cToken1, user, 100_000_000e18);
 
         redeemerNoSigs.sign("0xFFFF");
         redeemerNoSigs.multiClaim(cTokens, amounts, proofs);
+
+        uint256 baseTokenBalPre = IERC20(redeemerNoSigs.baseToken()).balanceOf(user);
+        uint256 cToken0BalPre = IERC20(_cToken0).balanceOf(user);
+        uint256 cToken1BalPre = IERC20(_cToken1).balanceOf(user);
+
+        IERC20(_cToken0).approve(address(redeemerNoSigs), type(uint256).max);
+        IERC20(_cToken1).approve(address(redeemerNoSigs), type(uint256).max);
+
+        redeemerNoSigs.multiRedeem(cTokens, amounts);
+
+        uint256 cToken0BalPost = IERC20(_cToken0).balanceOf(user);
+        uint256 cToken1BalPost = IERC20(_cToken1).balanceOf(user);
+        uint256 baseTokenBalPost = IERC20(redeemerNoSigs.baseToken()).balanceOf(user);
+
+        assertEq(cToken0BalPre - cToken0BalPost, amount0, "ctoken 0 amount incorrect");
+        assertEq(cToken1BalPre - cToken1BalPost, amount1, "ctoken 1 amount incorrect");
+        assertEq(baseTokenBalPost - baseTokenBalPre, (1 * amount0) + (2 * amount1), "base token amount incorrect");
 
         vm.stopPrank();
     }
