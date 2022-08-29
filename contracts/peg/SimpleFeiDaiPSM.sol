@@ -44,6 +44,7 @@ contract SimpleFeiDaiPSM {
 
     /// @notice redeem `amountFeiIn` FEI for `amountOut` underlying tokens and send to address `to`
     /// @dev see getRedeemAmountOut() to pre-calculate amount out
+    /// @dev FEI received is not burned, see `burnFeiHeld()` below to batch-burn the FEI redeemed
     function redeem(
         address to,
         uint256 amountFeiIn,
@@ -52,7 +53,6 @@ contract SimpleFeiDaiPSM {
         amountOut = amountFeiIn;
         require(amountOut >= minAmountOut, "SimpleFeiDaiPSM: Redeem not enough out");
         FEI.safeTransferFrom(msg.sender, address(this), amountFeiIn);
-        FEI.burn(amountFeiIn);
         DAI.safeTransfer(to, amountOut);
         emit Redeem(to, amountFeiIn, amountFeiIn);
     }
