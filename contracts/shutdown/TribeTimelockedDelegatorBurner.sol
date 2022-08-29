@@ -2,13 +2,13 @@
 pragma solidity ^0.8.4;
 
 import {Tribe} from "../tribe/Tribe.sol";
-import {LinearTimelockedDelegator} from "../timelocks/LinearTimelockedDelegator.sol";
+import {TimelockedDelegator} from "../timelocks/TimelockedDelegator.sol";
 
-/// @notice Accept Linear TimelockedDelegatorBurner, which can acceptBeneficiary() and permissionlessly send vested
-///         TRIBE tokens to the Core Treasury. Does not have an undelegate() method
+/// @notice TribeLinearTimelockedDelegatorBurner which can acceptBeneficiary(), permissionlessly send
+///         vested tokens to the Core Treasury and also permissionlessly undelegate()
 contract TribeLinearTimelockedDelegatorBurner {
     /// @notice Tribe Linear Timelocked Delegator token timelock
-    LinearTimelockedDelegator public immutable timelock;
+    TimelockedDelegator public immutable timelock;
 
     /// @notice Core Treasury
     address public constant core = 0x8d5ED43dCa8C2F7dFB20CF7b53CC7E593635d7b9;
@@ -16,9 +16,14 @@ contract TribeLinearTimelockedDelegatorBurner {
     /// @notice TRIBE ERC20 token
     Tribe private constant TRIBE = Tribe(0xc7283b66Eb1EB5FB86327f08e1B5816b0720212B);
 
-    /// @param _tribeTimelock Tribe timelock which can acceptBeneficiary() and releaseMax() tokens
-    constructor(LinearTimelockedDelegator _tribeTimelock) {
+    /// @param _tribeTimelock Tribe Timelocked delegator contract which is being burned
+    constructor(TimelockedDelegator _tribeTimelock) {
         timelock = _tribeTimelock;
+    }
+
+    /// @notice Permissionless undelegate method for undelegating before releaseMax() is called
+    function undelegate(address _delegate) external {
+        timelock.undelegate(_delegate);
     }
 
     /// @notice Accept the beneficiary of the target timelock
