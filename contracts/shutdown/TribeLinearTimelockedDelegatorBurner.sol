@@ -4,9 +4,9 @@ pragma solidity ^0.8.4;
 import {Tribe} from "../tribe/Tribe.sol";
 import {LinearTimelockedDelegator} from "../timelocks/LinearTimelockedDelegator.sol";
 
-/// @notice Accept the beneficiary of a Tribe Timelocked Delegator token timelock
+/// @notice Accept the beneficiary of a Tribe Linear Timelocked Delegator token timelock
 ///         Permissionlessly send any TRIBE held to the Treasury
-contract TribeTokenTimelockBurner {
+contract TribeLinearTimelockedDelegatorBurner {
     /// @notice Tribe Timelocked Delegator token timelock
     LinearTimelockedDelegator public immutable timelock;
 

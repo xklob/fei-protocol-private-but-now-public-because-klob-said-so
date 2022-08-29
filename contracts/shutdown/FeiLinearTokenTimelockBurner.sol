@@ -5,7 +5,7 @@ import {Fei} from "../fei/Fei.sol";
 import {LinearTokenTimelock} from "../timelocks/LinearTokenTimelock.sol";
 
 /// @notice Accept the beneficiary of a Fei token timelock. Permissionlessly burn any Fei available for release
-contract FeiTokenTimelockBurner {
+contract FeiLinearTokenTimelockBurner {
     /// @notice Fei token timelock
     LinearTokenTimelock public immutable timelock;
 
