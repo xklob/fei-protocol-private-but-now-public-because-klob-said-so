@@ -163,25 +163,25 @@ export const MainnetContractsConfig = {
   podExecutorV2: {
     artifactName: 'PodExecutor',
     address: '0xC72e814314e79114354F1682111e07015826080D',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   podAdminGateway: {
     artifactName: 'PodAdminGateway',
     address: '0xDDe8AA537c5b289De9cede462E6F0ec3a3a99e39',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   podFactory: {
     artifactName: 'PodFactory',
     address: '0x4B2c8894D29d05dbc0d5A1CE23535be08d844819',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   governanceMetadataRegistry: {
     artifactName: 'GovernanceMetadataRegistry',
     address: '0xd78Cd3AaE6168BE43B548877aAc68312B9df9AFb',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   nopeDAO: {
@@ -193,7 +193,7 @@ export const MainnetContractsConfig = {
   tribalCouncilTimelock: {
     artifactName: 'TimelockController',
     address: '0xe0C7DE94395B629860Cbb3c42995F300F56e6d7a',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   tribalCouncilSafe: {
@@ -1485,7 +1485,7 @@ export const MainnetContractsConfig = {
   wethHoldingPCVDeposit: {
     artifactName: 'ERC20HoldingPCVDeposit',
     address: '0xC6D675ca5217d39C3A5E366141060fC2D1ea2b82',
-    category: AddressCategory.PCV
+    category: AddressCategory.Deprecated
   },
 
   orcaPodController: {
