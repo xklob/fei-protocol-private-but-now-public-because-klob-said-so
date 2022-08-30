@@ -19,7 +19,9 @@ contract TribeTimelockBurnerIntegrationTest is DSTest {
     Vm public constant vm = Vm(HEVM_ADDRESS);
 
     function setUp() public {
-        rariTribeTimelockBurner = new TribeLinearTimelockedDelegatorBurner(MainnetAddresses.RARI_TRIBE_TOKEN_TIMELOCK);
+        rariTribeTimelockBurner = new TribeLinearTimelockedDelegatorBurner(
+            LinearTimelockedDelegator(MainnetAddresses.RARI_TRIBE_TOKEN_TIMELOCK)
+        );
 
         // Set pending admin of the Rari Tribe Token timelock to be the rariTribeTimelockBurner
         address rariBeneficiary = rariTribeTimelock.beneficiary();
@@ -39,6 +41,7 @@ contract TribeTimelockBurnerIntegrationTest is DSTest {
 
     /// @notice Validate releasing TRIBE funds from the parent timelock and sending to the Treasury
     function testSendTribeToTreasury() public {
+        rariTribeTimelockBurner.acceptBeneficiary();
         uint256 initialTreasuryBalance = tribe.balanceOf(address(MainnetAddresses.CORE));
 
         // Send Tribe to Core treasury
@@ -46,6 +49,6 @@ contract TribeTimelockBurnerIntegrationTest is DSTest {
         assertEq(tribe.balanceOf(address(rariTribeTimelockBurner)), 0);
 
         uint256 finalTreasuryBalance = tribe.balanceOf(address(MainnetAddresses.CORE));
-        assertEq(finalTreasuryBalance - initialTreasuryBalance, 100);
+        assertGt(finalTreasuryBalance - initialTreasuryBalance, 0);
     }
 }
