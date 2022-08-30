@@ -39,11 +39,11 @@ contract TribeTimelockedDelegatorBurnerIntegrationTest is DSTest {
     /// @notice Validate can undelegate from a delegate
     function testUndelegate() public {
         address newDelegate = address(0x2);
-        
+
         // Mock making a delegation
         vm.prank(tribeTimelock.beneficiary());
         tribeTimelock.delegate(newDelegate, 100);
-        
+
         uint256 initialTotalDelegated = tribeTimelock.totalDelegated();
         uint256 newDelegateAmount = tribeTimelock.delegateAmount(newDelegate);
         assertEq(newDelegateAmount, 100);
@@ -51,13 +51,13 @@ contract TribeTimelockedDelegatorBurnerIntegrationTest is DSTest {
         // Have the burner accept the beneficiary
         tribeTimelockBurner.acceptBeneficiary();
 
-        // Permissionlessly undelegate 
+        // Permissionlessly undelegate
         tribeTimelockBurner.undelegate(newDelegate);
 
         // Validate undelegation worked
         uint256 finalTotalDelegated = tribeTimelock.totalDelegated();
         assertEq(initialTotalDelegated - finalTotalDelegated, 100);
-        
+
         uint256 finalDelegateAmount = tribeTimelock.delegateAmount(newDelegate);
         assertEq(finalDelegateAmount, 0);
     }
