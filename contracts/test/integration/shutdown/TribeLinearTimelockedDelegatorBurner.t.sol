@@ -9,7 +9,7 @@ import {LinearTimelockedDelegator} from "../../../timelocks/LinearTimelockedDele
 import {Tribe} from "../../../tribe/Tribe.sol";
 
 /// @notice Integration test for the Tribe token timelocked delegator burner contract
-contract TribeTimelockBurnerIntegrationTest is DSTest {
+contract TribeLinearTimelockBurnerIntegrationTest is DSTest {
     TribeLinearTimelockedDelegatorBurner rariTribeTimelockBurner;
 
     LinearTimelockedDelegator rariTribeTimelock =
