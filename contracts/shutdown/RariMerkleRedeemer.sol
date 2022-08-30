@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../refs/CoreRef.sol";
 import "./MultiMerkleRedeemer.sol";
+import "./WhitelistGated.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -12,7 +13,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 /// @notice This implementation is specific to the Rari Redemption as described in TIP-121
 /// @dev See MultiMerkleRedeemer natspec for most public functions
 /// @author kryptoklob
-contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
+contract RariMerkleRedeemer is WhitelistGated, MultiMerkleRedeemer, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     modifier hasSigned() {
@@ -34,10 +35,11 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     /// @param roots The merkle root for each cToken; must be exactly 27 roots
     constructor(
         address token,
+        address whitelister,
         address[] memory cTokens,
         uint256[] memory rates,
         bytes32[] memory roots
-    ) {
+    ) WhitelistGated(whitelister) {
         _configureExchangeRates(cTokens, rates);
         _configureMerkleRoots(cTokens, roots);
         _configureBaseToken(token);
@@ -53,7 +55,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address _cToken,
         uint256 _amount,
         bytes32[] calldata _merkleProof
-    ) external override hasSigned nonReentrant {
+    ) external override gated hasSigned nonReentrant {
         _claim(_cToken, _amount, _merkleProof);
     }
 
@@ -61,17 +63,18 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata _cTokens,
         uint256[] calldata _amounts,
         bytes32[][] calldata _merkleProofs
-    ) external override hasSigned nonReentrant {
+    ) external override gated hasSigned nonReentrant {
         _multiClaim(_cTokens, _amounts, _merkleProofs);
     }
 
-    function redeem(address cToken, uint256 cTokenAmount) external override hasSigned nonReentrant {
+    function redeem(address cToken, uint256 cTokenAmount) external override gated hasSigned nonReentrant {
         _redeem(cToken, cTokenAmount);
     }
 
     function multiRedeem(address[] calldata cTokens, uint256[] calldata cTokenAmounts)
         external
         override
+        gated
         hasSigned
         nonReentrant
     {
@@ -90,7 +93,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) external override nonReentrant {
+    ) external override gated nonReentrant {
         // both sign and claim/multiclaim will revert on invalid signatures/proofs
         _sign(signature);
         _multiClaim(cTokens, amounts, merkleProofs);
@@ -100,7 +103,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         address[] calldata cTokens,
         uint256[] calldata amounts,
         bytes32[][] calldata merkleProofs
-    ) external hasSigned nonReentrant {
+    ) external gated hasSigned nonReentrant {
         _multiClaim(cTokens, amounts, merkleProofs);
         _multiRedeem(cTokens, amounts);
     }
@@ -111,7 +114,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
         uint256[] calldata amountsToClaim,
         uint256[] calldata amountsToRedeem,
         bytes32[][] calldata merkleProofs
-    ) external override hasNotSigned nonReentrant {
+    ) external override gated hasNotSigned nonReentrant {
         _sign(signature);
         _multiClaim(cTokens, amountsToClaim, merkleProofs);
         _multiRedeem(cTokens, amountsToRedeem);

@@ -6,10 +6,11 @@ import "../shutdown/RariMerkleRedeemer.sol";
 contract MockRariMerkleRedeemerNoSigs is RariMerkleRedeemer {
     constructor(
         address token,
+        address whitelister,
         address[] memory cTokens,
         uint256[] memory rates,
         bytes32[] memory roots
-    ) RariMerkleRedeemer(token, cTokens, rates, roots) {}
+    ) RariMerkleRedeemer(token, whitelister, cTokens, rates, roots) {}
 
     // User provides signature, which is checked against their address and the string constant "message"
     function _sign(bytes calldata _signature) internal override {

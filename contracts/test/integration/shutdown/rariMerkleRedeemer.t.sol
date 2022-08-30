@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
 import {MockRariMerkleRedeemerNoSigs} from "../../../mock/MockRariMerkleRedeemerNoSigs.sol";
 import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
+import {WhitelistGated} from "../../../shutdown/WhitelistGated.sol";
 import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
 import {Constants} from "../../../Constants.sol";
 import {Test} from "../../libs/forge-standard/src/Test.sol";
@@ -249,12 +250,24 @@ contract RariMerkleRedeemerIntegrationTest is Test {
     address private constant cToken0 = 0xd8553552f8868C1Ef160eEdf031cF0BCf9686945;
     address private constant realUser0 = 0xb2d5CB72A621493fe83C6885E4A776279be595bC;
     address private constant realUser1 = 0x37349d9cc523D28e6aBFC03fc5F44879bC8BfFD9;
+    address private constant realUser2 = 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB;
+
+    function addToWhitelist(
+        address whitelister,
+        address person,
+        address whitelistRedeemer
+    ) public {
+        changePrank(whitelister);
+        WhitelistGated(whitelistRedeemer).whitelist(person);
+        vm.stopPrank();
+    }
 
     function setUp() public {
         (addresses, keys) = getTestAccounts();
 
         redeemerNoSigs = new MockRariMerkleRedeemerNoSigs(
             MainnetAddresses.FEI,
+            addresses[50],
             RariMerkleRedeemerTestingLib.getCTokens(),
             RariMerkleRedeemerTestingLib.getExampleRates(),
             RariMerkleRedeemerTestingLib.getExampleRoots()
@@ -262,6 +275,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
 
         redeemer = new RariMerkleRedeemer(
             MainnetAddresses.FEI,
+            addresses[50],
             RariMerkleRedeemerTestingLib.getCTokens(),
             RariMerkleRedeemerTestingLib.getExampleRates(),
             RariMerkleRedeemerTestingLib.getExampleRootsWithGeneratedAccounts()
@@ -282,6 +296,13 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         vm.label(realUser1, "User1");
         vm.label(addresses[0], "GeneratedAddress0");
         vm.label(addresses[1], "GeneratedAddress1");
+
+        // add our default addresses to the whitelist; first two tests test the whitelist and do *not* use the defaults
+        addToWhitelist(addresses[50], addresses[0], address(redeemer));
+        addToWhitelist(addresses[50], addresses[1], address(redeemer));
+        addToWhitelist(addresses[50], realUser0, address(redeemerNoSigs));
+        addToWhitelist(addresses[50], realUser1, address(redeemerNoSigs));
+        addToWhitelist(addresses[50], realUser2, address(redeemerNoSigs));
     }
 
     /**
@@ -295,6 +316,50 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         for (uint256 i = 0; i < 100; i++) {
             (_addresses[i], _keys[i]) = makeAddrAndKey(vm.toString(i));
         }
+    }
+
+    function testCannotClaimWithoutBeingWhitelisted() public {
+        address[] memory cTokensToTransfer = new address[](1);
+        cTokensToTransfer[0] = cToken0;
+
+        uint256[] memory amounts0 = new uint256[](1);
+        amounts0[0] = 1;
+
+        bytes32[][] memory proofs = RariMerkleRedeemerTestingLib.getExampleProofsWithGeneratedAccounts();
+        bytes32[][] memory proofZero = new bytes32[][](1);
+
+        proofZero[0] = proofs[0];
+
+        vm.startPrank(addresses[0]);
+
+        IERC20(cTokensToTransfer[0]).approve(address(redeemer), 100_000_000e18);
+        (uint8 v0, bytes32 r0, bytes32 s0) = vm.sign(keys[0], redeemer.MESSAGE_HASH());
+
+        bytes memory signature0 = bytes.concat(r0, s0, bytes1(v0));
+
+        uint256 cTokenStartBalance = IERC20(cTokensToTransfer[0]).balanceOf(addresses[0]);
+        uint256 baseTokenStartBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
+
+        changePrank(addresses[3]);
+        vm.expectRevert("Not whitelisted");
+        redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, amounts0, proofZero);
+
+        changePrank(addresses[0]);
+        redeemer.signAndClaimAndRedeem(signature0, cTokensToTransfer, amounts0, amounts0, proofZero);
+
+        addToWhitelist(addresses[50], addresses[0], address(redeemer));
+
+        changePrank(addresses[0]);
+        uint256 cTokenEndBalance = IERC20(cTokensToTransfer[0]).balanceOf(addresses[0]);
+        uint256 baseTokenEndBalance = IERC20(redeemerNoSigs.baseToken()).balanceOf(addresses[0]);
+        assertEq(cTokenStartBalance - cTokenEndBalance, amounts0[0] * 1);
+        assertEq(baseTokenEndBalance - baseTokenStartBalance, amounts0[0] * 1);
+        vm.stopPrank();
+    }
+
+    function testNonWhitelisterCannotWhitelist() public {
+        vm.expectRevert("Not whitelister");
+        addToWhitelist(addresses[49], addresses[0], address(redeemer));
     }
 
     /**
@@ -523,7 +588,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         bytes memory signature = bytes.concat(r0, s0, bytes1(v0));
 
         redeemer.sign(signature);
-        vm.expectRevert("Merkle proof not valid.");
+        vm.expectRevert("Not whitelisted");
         redeemer.claim(cToken0, 2, new bytes32[](0));
 
         vm.stopPrank();
@@ -745,7 +810,7 @@ contract RariMerkleRedeemerIntegrationTest is Test {
         proofs[0] = proofZero;
         proofs[1] = proofOne;
 
-        address user = 0x3Ee505bA316879d246a8fD2b3d7eE63b51B44FAB;
+        address user = realUser2;
         vm.startPrank(user);
 
         IERC20(cToken0).approve(address(redeemerNoSigs), 100_000_000e18);
