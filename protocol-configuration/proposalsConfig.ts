@@ -5,7 +5,6 @@ import tc_consolidate from '@proposals/description/tc_consolidate';
 import phase2 from '@proposals/description/phase2';
 import tip_121b from '@proposals/description/tip_121b';
 
-
 export const ProposalsConfig: TemplatedProposalsConfigMap = {
   tc_consolidate: {
     deploy: true, // deploy flag for whether to run deploy action during e2e tests or use mainnet state
