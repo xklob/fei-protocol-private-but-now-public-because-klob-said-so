@@ -96,6 +96,52 @@ contract TribeRedeemerTest is DSTest {
         assertEq(token3.balanceOf(address(redeemer)), 0);
     }
 
+    function testRedeemTwoUsers() public {
+        address payable otherOwner = payable(address(43));
+
+        // send half of the redeem tokens to a 2nd user
+        vm.prank(owner);
+        redeemToken.transfer(otherOwner, REDEEM_BASE / 2);
+
+        // first user redeems
+        vm.startPrank(owner);
+        redeemToken.approve(address(redeemer), REDEEM_BASE / 2);
+        redeemer.redeem(owner, REDEEM_BASE / 2);
+        vm.stopPrank();
+
+        // check tokens spent & received by the redeemer
+        assertEq(redeemToken.balanceOf(owner), 0);
+        assertEq(redeemToken.balanceOf(otherOwner), REDEEM_BASE / 2);
+        assertEq(redeemToken.balanceOf(address(redeemer)), REDEEM_BASE / 2);
+
+        // check received balances & sent by the redeemer
+        assertEq(token1.balanceOf(owner), 25000 ether);
+        assertEq(token2.balanceOf(owner), 10000 ether);
+        assertEq(token3.balanceOf(owner), 15000000 ether);
+        assertEq(token1.balanceOf(address(redeemer)), 25000 ether);
+        assertEq(token2.balanceOf(address(redeemer)), 10000 ether);
+        assertEq(token3.balanceOf(address(redeemer)), 15000000 ether);
+
+        // second user redeems
+        vm.startPrank(otherOwner);
+        redeemToken.approve(address(redeemer), REDEEM_BASE / 2);
+        redeemer.redeem(otherOwner, REDEEM_BASE / 2);
+        vm.stopPrank();
+
+        // check tokens spent & received by the redeemer
+        assertEq(redeemToken.balanceOf(owner), 0);
+        assertEq(redeemToken.balanceOf(otherOwner), 0);
+        assertEq(redeemToken.balanceOf(address(redeemer)), REDEEM_BASE);
+
+        // check received balances & sent by the redeemer
+        assertEq(token1.balanceOf(otherOwner), 25000 ether);
+        assertEq(token2.balanceOf(otherOwner), 10000 ether);
+        assertEq(token3.balanceOf(otherOwner), 15000000 ether);
+        assertEq(token1.balanceOf(address(redeemer)), 0);
+        assertEq(token2.balanceOf(address(redeemer)), 0);
+        assertEq(token3.balanceOf(address(redeemer)), 0);
+    }
+
     function testRedeemSendAway() public {
         // owner redeems and sends to receiver
         vm.startPrank(owner);

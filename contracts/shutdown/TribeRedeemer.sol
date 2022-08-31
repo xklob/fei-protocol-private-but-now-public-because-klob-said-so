@@ -63,6 +63,7 @@ contract TribeRedeemer is ReentrancyGuard {
         (address[] memory tokens, uint256[] memory amounts) = previewRedeem(amount);
 
         uint256 base = redeemBase;
+        redeemBase = base - amount; // decrement the base for future redemptions
         for (uint256 i = 0; i < tokens.length; i++) {
             IERC20(tokens[i]).safeTransfer(to, amounts[i]);
         }
