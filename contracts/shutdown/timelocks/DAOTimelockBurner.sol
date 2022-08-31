@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import {Timelock} from "../dao/timelock/FeiDAOTimelock.sol";
+import {Timelock} from "../../dao/timelock/FeiDAOTimelock.sol";
 
 /// @title DAO timelock burner
 /// @notice Accepts the admin of the Fei and Rari DAO timelocks, in order to burn them and prevent the admin being transferred

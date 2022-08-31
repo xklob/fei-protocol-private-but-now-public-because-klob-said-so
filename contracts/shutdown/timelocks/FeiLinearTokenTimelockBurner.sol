@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import {Fei} from "../fei/Fei.sol";
-import {LinearTokenTimelock} from "../timelocks/LinearTokenTimelock.sol";
+import {Fei} from "../../fei/Fei.sol";
+import {LinearTokenTimelock} from "../../timelocks/LinearTokenTimelock.sol";
 
 /// @notice Accept the beneficiary of a Fei token timelock. Permissionlessly burn any Fei available for release
 contract FeiLinearTokenTimelockBurner {

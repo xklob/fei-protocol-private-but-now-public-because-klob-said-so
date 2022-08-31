@@ -2,13 +2,13 @@
 pragma solidity ^0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {getCore, getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
-import {MockRariMerkleRedeemerNoSigs} from "../../../mock/MockRariMerkleRedeemerNoSigs.sol";
-import {RariMerkleRedeemer} from "../../../shutdown/RariMerkleRedeemer.sol";
-import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
-import {Constants} from "../../../Constants.sol";
-import {Test} from "../../libs/forge-standard/src/Test.sol";
-import {console2} from "../../libs/forge-standard/src/console2.sol";
+import {getCore, getAddresses, FeiTestAddresses} from "../../../utils/Fixtures.sol";
+import {MockRariMerkleRedeemerNoSigs} from "../../../../mock/MockRariMerkleRedeemerNoSigs.sol";
+import {RariMerkleRedeemer} from "../../../../shutdown/fuse/RariMerkleRedeemer.sol";
+import {MainnetAddresses} from "../../fixtures/MainnetAddresses.sol";
+import {Constants} from "../../../../Constants.sol";
+import {Test} from "../../../libs/forge-standard/src/Test.sol";
+import {console2} from "../../../libs/forge-standard/src/console2.sol";
 
 /**
  * Library to assist with testing.
