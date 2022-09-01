@@ -40,10 +40,14 @@ contract TribeRedeemer is ReentrancyGuard {
     }
 
     /// @notice Return the balances of `tokensReceived` that would be
-    /// transferred if redeeming `amount` of `redeemedToken`.
-    function previewRedeem(uint256 amount) public view returns (address[] memory tokens, uint256[] memory amounts) {
+    /// transferred if redeeming `amountIn` of `redeemedToken`.
+    function previewRedeem(uint256 amountIn)
+        public
+        view
+        returns (address[] memory tokens, uint256[] memory amountsOut)
+    {
         tokens = tokensReceivedOnRedeem();
-        amounts = new uint256[](tokens.length);
+        amountsOut = new uint256[](tokens.length);
 
         uint256 base = redeemBase;
         for (uint256 i = 0; i < tokensReceived.length; i++) {
@@ -51,23 +55,23 @@ contract TribeRedeemer is ReentrancyGuard {
             require(balance != 0, "ZERO_BALANCE");
             // @dev, this assumes all of `tokensReceived` and `redeemedToken`
             // have the same number of decimals
-            uint256 redeemedAmount = (amount * balance) / base;
-            amounts[i] = redeemedAmount;
+            uint256 redeemedAmount = (amountIn * balance) / base;
+            amountsOut[i] = redeemedAmount;
         }
     }
 
     /// @notice Redeem `redeemedToken` for a pro-rata basket of `tokensReceived`
-    function redeem(address to, uint256 amount) external nonReentrant {
-        IERC20(redeemedToken).safeTransferFrom(msg.sender, address(this), amount);
+    function redeem(address to, uint256 amountIn) external nonReentrant {
+        IERC20(redeemedToken).safeTransferFrom(msg.sender, address(this), amountIn);
 
-        (address[] memory tokens, uint256[] memory amounts) = previewRedeem(amount);
+        (address[] memory tokens, uint256[] memory amountsOut) = previewRedeem(amountIn);
 
         uint256 base = redeemBase;
-        redeemBase = base - amount; // decrement the base for future redemptions
+        redeemBase = base - amountIn; // decrement the base for future redemptions
         for (uint256 i = 0; i < tokens.length; i++) {
-            IERC20(tokens[i]).safeTransfer(to, amounts[i]);
+            IERC20(tokens[i]).safeTransfer(to, amountsOut[i]);
         }
 
-        emit Redeemed(msg.sender, to, amount, base);
+        emit Redeemed(msg.sender, to, amountIn, base);
     }
 }
