@@ -2,11 +2,11 @@ pragma solidity ^0.8.4;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import {Vm} from "../../utils/Vm.sol";
-import {DSTest} from "../../utils/DSTest.sol";
-import {TribeRedeemer} from "../../../shutdown/TribeRedeemer.sol";
-import {MockERC20} from "../../../mock/MockERC20.sol";
-import {getAddresses, FeiTestAddresses} from "../../utils/Fixtures.sol";
+import {Vm} from "../../../utils/Vm.sol";
+import {DSTest} from "../../../utils/DSTest.sol";
+import {TribeRedeemer} from "../../../../shutdown/redeem/TribeRedeemer.sol";
+import {MockERC20} from "../../../../mock/MockERC20.sol";
+import {getAddresses, FeiTestAddresses} from "../../../utils/Fixtures.sol";
 
 contract TribeRedeemerTest is DSTest {
     event Redeemed(address indexed owner, address indexed receiver, uint256 amount, uint256 base);
