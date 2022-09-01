@@ -13,7 +13,7 @@ import { getImpersonatedSigner, overwriteChainlinkAggregator } from '@test/helpe
 import { TransactionResponse } from '@ethersproject/providers';
 import { forceEth } from '@test/integration/setup/utils';
 
-const fipNumber = '121a';
+const fipNumber = 'tip_121a';
 const e18 = ethers.utils.parseEther;
 
 let pcvStatsBefore: PcvStats;
