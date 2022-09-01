@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
-const tip_121: TemplatedProposalDescription = {
+const tip_121c: TemplatedProposalDescription = {
   title: 'TIP-121: PCV Consolidation (phase 1.c)',
   commands: [
     // 1. DAI : deprecate old psm, setup new psm, move all DAI to new psm.
@@ -190,4 +190,4 @@ const tip_121: TemplatedProposalDescription = {
   `
 };
 
-export default tip_121;
+export default tip_121c;
