@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {DSTest} from "../../utils/DSTest.sol";
-import {Vm} from "../../utils/Vm.sol";
-import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
-import {TribeTimelockedDelegatorBurner} from "../../../shutdown/TribeTimelockedDelegatorBurner.sol";
-import {TimelockedDelegator} from "../../../timelocks/TimelockedDelegator.sol";
-import {Tribe} from "../../../tribe/Tribe.sol";
+import {DSTest} from "../../../utils/DSTest.sol";
+import {Vm} from "../../../utils/Vm.sol";
+import {MainnetAddresses} from "../../fixtures/MainnetAddresses.sol";
+import {TribeTimelockedDelegatorBurner} from "../../../../shutdown/timelocks/TribeTimelockedDelegatorBurner.sol";
+import {TimelockedDelegator} from "../../../../timelocks/TimelockedDelegator.sol";
+import {Tribe} from "../../../../tribe/Tribe.sol";
 
 /// @notice Integration test for the Tribe token timelocked delegator burner contract
 /// @dev This version of the timelock has an undelegate() method in addition to the methods

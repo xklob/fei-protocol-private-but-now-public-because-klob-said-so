@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {DSTest} from "../../utils/DSTest.sol";
-import {DAOTimelockBurner} from "../../../shutdown/DAOTimelockBurner.sol";
-import {Timelock} from "../../../dao/timelock/Timelock.sol";
-import {Vm} from "../../utils/Vm.sol";
-import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
+import {DSTest} from "../../../utils/DSTest.sol";
+import {DAOTimelockBurner} from "../../../../shutdown/timelocks/DAOTimelockBurner.sol";
+import {Timelock} from "../../../../dao/timelock/Timelock.sol";
+import {Vm} from "../../../utils/Vm.sol";
+import {MainnetAddresses} from "../../fixtures/MainnetAddresses.sol";
 
 /// @notice Integration tests for the Fei and Rari DAO timelock burner contract
 contract DAOBurnerTimelockIntegrationTest is DSTest {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import {Tribe} from "../tribe/Tribe.sol";
-import {TimelockedDelegator} from "../timelocks/TimelockedDelegator.sol";
+import {Tribe} from "../../tribe/Tribe.sol";
+import {TimelockedDelegator} from "../../timelocks/TimelockedDelegator.sol";
 
 /// @notice TribeTimelockedDelegatorBurner which can acceptBeneficiary(), permissionlessly send
 ///         vested tokens to the Core Treasury and also permissionlessly undelegate()

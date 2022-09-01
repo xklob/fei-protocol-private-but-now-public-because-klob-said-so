@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.0;
 
-import {DSTest} from "../../utils/DSTest.sol";
-import {Vm} from "../../utils/Vm.sol";
-import {MainnetAddresses} from "../fixtures/MainnetAddresses.sol";
-import {FeiLinearTokenTimelockBurner} from "../../../shutdown/FeiLinearTokenTimelockBurner.sol";
-import {LinearTokenTimelock} from "../../../timelocks/LinearTokenTimelock.sol";
-import {Fei} from "../../../fei/Fei.sol";
+import {DSTest} from "../../../utils/DSTest.sol";
+import {Vm} from "../../../utils/Vm.sol";
+import {MainnetAddresses} from "../../fixtures/MainnetAddresses.sol";
+import {FeiLinearTokenTimelockBurner} from "../../../../shutdown/timelocks/FeiLinearTokenTimelockBurner.sol";
+import {LinearTokenTimelock} from "../../../../timelocks/LinearTokenTimelock.sol";
+import {Fei} from "../../../../fei/Fei.sol";
 
 /// @notice Integration test for the Fei token timelock burner contract. Burns the Rari token timelock
 contract FeiTimelockBurnerIntegrationTest is DSTest {

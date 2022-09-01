@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "../shutdown/RariMerkleRedeemer.sol";
+import "../shutdown/fuse/RariMerkleRedeemer.sol";
 
 contract MockRariMerkleRedeemerNoSigs is RariMerkleRedeemer {
     constructor(
