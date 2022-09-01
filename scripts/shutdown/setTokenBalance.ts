@@ -1,8 +1,7 @@
-import { MainnetContractsConfig } from '../../protocol-configuration/mainnetAddresses';
 import { BigNumber, ethers } from 'ethers';
+import { parseEther } from 'ethers/lib/utils';
+import { MainnetContractsConfig } from '../../protocol-configuration/mainnetAddresses';
 import { ExternalTest__factory } from '../../types/contracts';
-import { cTokens } from './data/sample/cTokens';
-import { parseEther, parseUnits } from 'ethers/lib/utils';
 
 async function main(cToken: string, giveTo: string, amount: BigNumber) {
   console.log('Connecting to nodeinator...');
