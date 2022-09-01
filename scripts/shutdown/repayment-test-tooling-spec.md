@@ -9,11 +9,12 @@
 
 ## Scripts
 
-- AppendFakeDataToJson.ts
-- JSONToMerkleTree.ts
+- AppendFakeDataToJson.ts - not started
+- JSONToMerkleTree.ts - halfway done; need to adapt the merkle.ts code to output JSON
 - resetFork.ts - done. resets the forked-anvil instanfce to a fresh state and updated block.
 - deployMerkleRedeemer.ts - done. deploys the merkle redeemer contract to the forked-anvil instance.
-- SetcTokenBalance.ts
+- SetcTokenBalance.ts - mostly done; just need to debug the deal() transaction
+- E2E - not started; will combine all of the above scripts for repeatable testing
 
 ## Needed for Contract Deployment
 
