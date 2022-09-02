@@ -1,7 +1,7 @@
 import { Vm, Vm__factory } from '../../types/contracts';
 import { ethers } from 'ethers';
 
-async function main(forkBlock = 'latest', debug = false) {
+async function main() {
   if (process.argv[2] === 'help') {
     console.log(`
       Usage: 
@@ -19,16 +19,26 @@ async function main(forkBlock = 'latest', debug = false) {
     return;
   }
 
+  let forkBlock: string | number = 'latest';
+  let debug = false;
+
+  if (process.argv[2] !== undefined) {
+    forkBlock = process.argv[2];
+  }
+
+  if (process.argv[3] !== undefined) {
+    debug = process.argv[3] === 'true';
+  }
+
   if (debug) console.log('Connecting to nodeinator...');
+
   const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
   await provider.ready;
+
   if (debug) console.log('Nodeinator connected.');
+
   const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
-  const vm = new ethers.Contract(
-    '0x7109709ECfa91a80626fF3989D68f67F5b1DD12D',
-    Vm__factory.createInterface(),
-    wallet
-  ) as Vm;
+  const vm = new ethers.Contract('0x7109709ECfa91a80626fF3989D68f67F5b1DD12D', Vm__factory.createInterface(), wallet) as Vm;
 
   if (forkBlock === 'latest') {
     if (debug) console.log(`Resetting fork to clean state @ latest block`);
@@ -41,4 +51,4 @@ async function main(forkBlock = 'latest', debug = false) {
   if (debug) console.log(`Fork reset!`);
 }
 
-main(process.argv.length == 3 ? process.argv[2] : undefined);
+main();
