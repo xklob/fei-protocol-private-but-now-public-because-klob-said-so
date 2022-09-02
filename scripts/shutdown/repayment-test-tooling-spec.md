@@ -13,7 +13,7 @@
 - JSONToMerkleTree.ts - halfway done; need to adapt the merkle.ts code to output JSON
 - resetFork.ts - done. resets the forked-anvil instance to a fresh state and updated block.
 - deployMerkleRedeemer.ts - done. deploys the merkle redeemer contract to the forked-anvil instance.
-- SetcTokenBalance.ts - mostly done; just need to debug the deal() transaction
+- SetcTokenBalance.ts - done. takes in process args and transfers the requested amount of ctoken from the top holder of the ctoken
 - E2E - not started; will combine all of the above scripts for repeatable testing
 
 ## Needed for Contract Deployment
