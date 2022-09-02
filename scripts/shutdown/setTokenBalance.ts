@@ -88,7 +88,9 @@ const cTokenHolders = {
   '0xe92a3db67e4b6ac86114149f522644b34264f858': ['0x108e4f1486bb38b60629ab570d82bf5420181217', '6000000000000000000']
 };
 
-async function main(cToken: string, giveTo: string, amount: BigNumber) {
+async function main(cToken: string, giveTo: string, amount: string) {
+  if (debug) console.log(`Args: ${cToken}, ${giveTo}, ${amount}`);
+
   if (debug) console.log('Connecting to nodeinator...');
   const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
   await provider.ready;
@@ -155,4 +157,5 @@ async function main(cToken: string, giveTo: string, amount: BigNumber) {
   if (debug) console.log(`New token balance: ${newBalance.toString()}`);
 }
 
-main('0xd8553552f8868c1ef160eedf031cf0bcf9686945', '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', parseEther('1'));
+//main('0xd8553552f8868c1ef160eedf031cf0bcf9686945', '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', parseEther('1'));
+main(process.argv[2], process.argv[3], process.argv[4]);
