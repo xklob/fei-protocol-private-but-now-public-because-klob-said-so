@@ -2,7 +2,7 @@ import hre, { ethers, artifacts, network } from 'hardhat';
 import chai from 'chai';
 import CBN from 'chai-bn';
 import { Core, Core__factory } from '@custom-types/contracts';
-import { BigNumber, BigNumberish, Contract, ContractTransaction, Signer } from 'ethers';
+import { BigNumber, BigNumberish, Contract, ContractTransaction, ethers as PureEthers, Signer } from 'ethers';
 import { NamedAddresses } from '@custom-types/types';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import EthersAdapter from '@gnosis.pm/safe-ethers-lib';
@@ -340,6 +340,7 @@ export {
   expectApproxAbs,
   deployDevelopmentWeth,
   getImpersonatedSigner,
+  getImpersonatedSignerForge,
   setNextBlockTimestamp,
   resetTime,
   resetFork,
