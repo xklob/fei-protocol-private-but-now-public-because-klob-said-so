@@ -97,16 +97,8 @@ export const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, con
 };
 
 export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts) => {
-  const {
-    aaveEthPCVDripController,
-    ethPSM,
-    ethPSMRouter,
-    aaveEthPCVDeposit,
-    wethERC20,
-    pcvGuardian,
-    ethReserveStabilizer,
-    bondingCurve
-  } = contracts;
+  const { aaveEthPCVDripController, ethPSM, ethPSMRouter, aaveEthPCVDeposit, wethERC20, pcvGuardian, ethReserveStabilizer, bondingCurve } =
+    contracts;
 
   expect(await aaveEthPCVDripController.source()).to.be.equal(aaveEthPCVDeposit.address);
   expect(await aaveEthPCVDripController.target()).to.be.equal(ethPSM.address);

@@ -1,12 +1,6 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { getImpersonatedSigner, validateArraysEqual } from '@test/helpers';
 import { tribeCouncilPodConfig, PodCreationConfig } from '@protocol/optimisticGovernance';
 import { abi as inviteTokenABI } from '../../artifacts/@orcaprotocol/contracts/contracts/InviteToken.sol/InviteToken.json';
@@ -17,12 +11,7 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 
 // Transfers Orca tokens from deployer address to the factory, so that it can deploy pods
 // Requirement of holding Orca tokens to deploy is a slow rollout mechanism used by Orca
-const transferOrcaTokens = async (
-  orcaERC20Address: string,
-  deploySigner: SignerWithAddress,
-  receiver: string,
-  amount: number
-) => {
+const transferOrcaTokens = async (orcaERC20Address: string, deploySigner: SignerWithAddress, receiver: string, amount: number) => {
   // Mint Orca Ship tokens to deploy address, to allow to deploy contracts
   const inviteToken = new ethers.Contract(orcaERC20Address, inviteTokenABI, deploySigner);
   const deployerBalance = await inviteToken.balanceOf(deploySigner.address);
@@ -62,11 +51,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 
   // 3. Deploy PodAdminGateway contract
   const podAdminGatewayFactory = await ethers.getContractFactory('PodAdminGateway');
-  const podAdminGateway = await podAdminGatewayFactory.deploy(
-    addresses.core,
-    addresses.orcaMemberToken,
-    podFactory.address
-  );
+  const podAdminGateway = await podAdminGatewayFactory.deploy(addresses.core, addresses.orcaMemberToken, podFactory.address);
   await podAdminGateway.deployTransaction.wait();
   logging && console.log(`Deployed PodAdminGateway at ${podAdminGateway.address}`);
   await transferOrcaTokens(addresses.orcaShipToken, deploySigner, podFactory.address, 1);
@@ -207,10 +192,7 @@ const validateContractRoles = async (
   expect(councilIsPodAdmin).to.be.true;
 
   // TribalCouncil Gnosis Safe roles: POD_METADATA_REGISTER_ROLE
-  const councilHasMetadataRegisterRole = await core.hasRole(
-    ethers.utils.id('POD_METADATA_REGISTER_ROLE'),
-    tribalCouncilSafeAddress
-  );
+  const councilHasMetadataRegisterRole = await core.hasRole(ethers.utils.id('POD_METADATA_REGISTER_ROLE'), tribalCouncilSafeAddress);
   expect(councilHasMetadataRegisterRole).to.be.true;
 
   // RoleBastion role: GOVERNOR

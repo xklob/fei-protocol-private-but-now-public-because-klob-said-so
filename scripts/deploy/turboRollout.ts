@@ -67,16 +67,10 @@ export const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses
 
   // 4. Set boost caps for new collateral types
   console.log('Setting boost supply caps');
-  const balBoostCapTx = await turboBoosterContract.setBoostCapForCollateral(
-    balConfig.address,
-    balConfig.feiDenomBoostCap
-  );
+  const balBoostCapTx = await turboBoosterContract.setBoostCapForCollateral(balConfig.address, balConfig.feiDenomBoostCap);
   await balBoostCapTx.wait();
 
-  const gOHMBoostCapTx = await turboBoosterContract.setBoostCapForCollateral(
-    gOhmConfig.address,
-    gOhmConfig.feiDenomBoostCap
-  );
+  const gOHMBoostCapTx = await turboBoosterContract.setBoostCapForCollateral(gOhmConfig.address, gOhmConfig.feiDenomBoostCap);
   await gOHMBoostCapTx.wait();
   await validateCollateralBoostCaps(turboBoosterContract);
   console.log('Finished');

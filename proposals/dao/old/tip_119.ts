@@ -50,10 +50,7 @@ let initialVoltTimelockBalance: BigNumber;
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
   ////////////// 1. Create and deploy gOHM USD oracle
   const chainlinkOracleWrapperFactory = await ethers.getContractFactory('ChainlinkOracleWrapper');
-  const chainlinkOhmV2EthOracleWrapper = await chainlinkOracleWrapperFactory.deploy(
-    addresses.core,
-    addresses.chainlinkOHMV2EthOracle
-  );
+  const chainlinkOhmV2EthOracleWrapper = await chainlinkOracleWrapperFactory.deploy(addresses.core, addresses.chainlinkOHMV2EthOracle);
   await chainlinkOhmV2EthOracleWrapper.deployed();
   logging && console.log(`Deployed Chainlink OhmV2 ETH oracle wrapper to: ${chainlinkOhmV2EthOracleWrapper.address}`);
 
@@ -164,9 +161,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const balanceDiff = (await contracts.wethHoldingPCVDeposit.balance()).sub(initialWethBalance);
   expect(balanceDiff).to.be.equal(CETHER_WITHDRAW);
 
-  expect(
-    toBN(await contracts.wethHoldingPCVDeposit.provider.getBalance(addresses.rariPool146Eth))
-  ).to.be.bignumber.lessThan(
+  expect(toBN(await contracts.wethHoldingPCVDeposit.provider.getBalance(addresses.rariPool146Eth))).to.be.bignumber.lessThan(
     ethers.constants.WeiPerEther.mul(10) // Withdrawn ~38 ETH. Should be less than 10 ETH remaining
   );
 
@@ -178,9 +173,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(feiTotalSupplyDiff).to.be.equal(FEI_LOAN_PAID_BACK);
 
   // Verify Volt optimistic timelock received their VOLT tokens
-  const voltOptimisticTimelockDiff = (await contracts.volt.balanceOf(addresses.voltOptimisticTimelock)).sub(
-    initialVoltTimelockBalance
-  );
+  const voltOptimisticTimelockDiff = (await contracts.volt.balanceOf(addresses.voltOptimisticTimelock)).sub(initialVoltTimelockBalance);
   expect(voltOptimisticTimelockDiff).to.be.equal(VOLT_OTC_AMOUNT);
 
   // 8. Verify Tribal Council timelock is not a safe address

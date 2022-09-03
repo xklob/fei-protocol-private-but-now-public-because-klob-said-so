@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { Core, Tribe, TribeMinter, TribeReserveStabilizer } from '@custom-types/contracts';
 
 chai.use(CBN(ethers.BigNumber));
@@ -209,12 +203,8 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
 
   const collateralizationOracle = contracts.collateralizationOracle;
 
-  expect(await collateralizationOracle.getDepositsForToken(addresses.dpi)).to.not.include(
-    addresses.dpiBondingCurveWrapper
-  );
-  expect(await collateralizationOracle.getDepositsForToken(addresses.rai)).to.not.include(
-    addresses.raiBondingCurveWrapper
-  );
+  expect(await collateralizationOracle.getDepositsForToken(addresses.dpi)).to.not.include(addresses.dpiBondingCurveWrapper);
+  expect(await collateralizationOracle.getDepositsForToken(addresses.rai)).to.not.include(addresses.raiBondingCurveWrapper);
   expect(await collateralizationOracle.getDepositsForToken(addresses.dai)).to.include(daiPSM.address);
 
   expect((await contracts.bondingCurve.buffer()).toString()).to.be.equal('75');

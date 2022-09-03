@@ -47,12 +47,8 @@ export const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, con
 
 export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts) => {
   // Balances should be reported in USD
-  expect(await contracts.d3poolCurvePCVDeposit.balanceReportedIn()).to.be.equal(
-    '0x1111111111111111111111111111111111111111'
-  );
-  expect(await contracts.d3poolConvexPCVDeposit.balanceReportedIn()).to.be.equal(
-    '0x1111111111111111111111111111111111111111'
-  );
+  expect(await contracts.d3poolCurvePCVDeposit.balanceReportedIn()).to.be.equal('0x1111111111111111111111111111111111111111');
+  expect(await contracts.d3poolConvexPCVDeposit.balanceReportedIn()).to.be.equal('0x1111111111111111111111111111111111111111');
 
   // Deposits should be added to CR oracle
   expect(await contracts.collateralizationOracle.depositToToken(contracts.d3poolCurvePCVDeposit.address)).to.be.equal(

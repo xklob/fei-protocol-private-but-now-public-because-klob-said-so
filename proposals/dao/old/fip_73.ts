@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { getImpersonatedSigner } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -44,11 +38,9 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   // Initial condition checks
   expect(await contracts.pcvGuardian.isSafeAddress(addresses.d3poolCurvePCVDeposit)).to.be.false;
   expect(await contracts.pcvGuardian.isSafeAddress(addresses.d3poolConvexPCVDeposit)).to.be.false;
-  expect(await contracts.core.hasRole(ethers.utils.id('PCV_GUARDIAN_ADMIN_ROLE'), contracts.optimisticTimelock.address))
-    .to.be.false;
+  expect(await contracts.core.hasRole(ethers.utils.id('PCV_GUARDIAN_ADMIN_ROLE'), contracts.optimisticTimelock.address)).to.be.false;
   expect(await contracts.ethPSM.reservesThreshold()).to.be.equal(ethers.constants.WeiPerEther.mul('250'));
-  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), contracts.opsOptimisticTimelock.address)).to
-    .be.false;
+  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), contracts.opsOptimisticTimelock.address)).to.be.false;
 };
 
 // Tears down any changes made in setup() that need to be
@@ -62,23 +54,15 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   expect(await contracts.pcvGuardian.isSafeAddress(addresses.d3poolCurvePCVDeposit)).to.be.true;
   expect(await contracts.pcvGuardian.isSafeAddress(addresses.d3poolConvexPCVDeposit)).to.be.true;
-  expect(await contracts.core.hasRole(ethers.utils.id('PCV_GUARDIAN_ADMIN_ROLE'), contracts.optimisticTimelock.address))
-    .to.be.true;
+  expect(await contracts.core.hasRole(ethers.utils.id('PCV_GUARDIAN_ADMIN_ROLE'), contracts.optimisticTimelock.address)).to.be.true;
   expect(await contracts.ethPSM.reservesThreshold()).to.be.equal(ethers.constants.WeiPerEther.mul('5000'));
-  expect(await contracts.collateralizationOracle.depositToToken(contracts.wethDepositWrapper.address)).to.be.equal(
-    contracts.weth.address
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(contracts.dpiDepositWrapper.address)).to.be.equal(
-    contracts.dpi.address
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(contracts.raiDepositWrapper.address)).to.be.equal(
-    contracts.rai.address
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(contracts.wethDepositWrapper.address)).to.be.equal(contracts.weth.address);
+  expect(await contracts.collateralizationOracle.depositToToken(contracts.dpiDepositWrapper.address)).to.be.equal(contracts.dpi.address);
+  expect(await contracts.collateralizationOracle.depositToToken(contracts.raiDepositWrapper.address)).to.be.equal(contracts.rai.address);
   expect(await contracts.collateralizationOracle.depositToToken(contracts.agEurDepositWrapper.address)).to.be.equal(
     contracts.agEUR.address
   );
-  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), contracts.opsOptimisticTimelock.address)).to
-    .be.true;
+  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), contracts.opsOptimisticTimelock.address)).to.be.true;
 };
 
 export { deploy, setup, teardown, validate };

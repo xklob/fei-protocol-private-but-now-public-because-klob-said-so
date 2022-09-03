@@ -96,9 +96,7 @@ describe('AavePCVDeposit', function () {
 
       // withdrawing should take balance back to 0
       expect(await this.aavePCVDeposit.balance()).to.be.equal(this.depositAmount);
-      await this.aavePCVDeposit
-        .connect(impersonatedSigners[pcvControllerAddress])
-        .withdraw(userAddress, this.depositAmount);
+      await this.aavePCVDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, this.depositAmount);
       expect(await this.aavePCVDeposit.balance()).to.be.equal(toBN('0'));
 
       const userBalanceAfter = await this.token.balanceOf(userAddress);
@@ -111,9 +109,7 @@ describe('AavePCVDeposit', function () {
     describe('Not PCVController', function () {
       it('reverts', async function () {
         await expectRevert(
-          this.aavePCVDeposit
-            .connect(impersonatedSigners[userAddress])
-            .withdrawERC20(this.aToken.address, userAddress, this.depositAmount),
+          this.aavePCVDeposit.connect(impersonatedSigners[userAddress]).withdrawERC20(this.aToken.address, userAddress, this.depositAmount),
           'CoreRef: Caller is not a PCV controller'
         );
       });

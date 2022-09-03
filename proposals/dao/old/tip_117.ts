@@ -81,9 +81,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // check the updated references
   expect(await contracts.pcvEquityMinter.collateralizationOracle()).to.be.equal(addresses.collateralizationOracle);
-  expect(await contracts.tribeReserveStabilizer.collateralizationOracle()).to.be.equal(
-    addresses.collateralizationOracle
-  );
+  expect(await contracts.tribeReserveStabilizer.collateralizationOracle()).to.be.equal(addresses.collateralizationOracle);
 
   // check the pcv equity minter value with new CR oracle
   // 65M$ equity at 20% APR is 250k$ per week
@@ -132,12 +130,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   await contracts.tribeReserveStabilizer.resetOracleDelayCountdown();
 
   //////  Ops optimistic timelock deprecation validation /////////
-  expect(await contracts.core.hasRole(ethers.utils.id('METAGOVERNANCE_VOTE_ADMIN'), addresses.opsOptimisticTimelock)).to
-    .be.false;
-  expect(await contracts.core.hasRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), addresses.opsOptimisticTimelock))
-    .to.be.false;
-  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), addresses.opsOptimisticTimelock)).to.be
-    .false;
+  expect(await contracts.core.hasRole(ethers.utils.id('METAGOVERNANCE_VOTE_ADMIN'), addresses.opsOptimisticTimelock)).to.be.false;
+  expect(await contracts.core.hasRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), addresses.opsOptimisticTimelock)).to.be.false;
+  expect(await contracts.core.hasRole(ethers.utils.id('ORACLE_ADMIN_ROLE'), addresses.opsOptimisticTimelock)).to.be.false;
 };
 
 export { deploy, setup, teardown, validate };

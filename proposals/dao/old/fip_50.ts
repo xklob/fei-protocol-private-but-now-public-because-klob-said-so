@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc,
-  NamedContracts
-} from '@custom-types/types';
+import { DeployUpgradeFunc, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc, NamedContracts } from '@custom-types/types';
 
 chai.use(CBN(ethers.BigNumber));
 
@@ -78,9 +72,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.fei.balanceOf(addresses.feiDAOTimelock)).to.be.equal(ethers.constants.Zero);
 
   // Check LUSD balance BAMM deposit
-  expect(await contracts.lusd.balanceOf(addresses.bammDeposit)).to.be.at.least(
-    ethers.constants.WeiPerEther.mul(89_000_000)
-  );
+  expect(await contracts.lusd.balanceOf(addresses.bammDeposit)).to.be.at.least(ethers.constants.WeiPerEther.mul(89_000_000));
 
   // Check balancer LBPSwapper balance is near 0 (note these are still reported in wei)
   const remainingBalances = await contracts.feiLusdLens.resistantBalanceAndFei();
@@ -88,9 +80,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(remainingBalances[1]).to.be.at.most(ethers.constants.WeiPerEther); // < 1 FEI left
 
   // check Pool7LUSDDeposit holding 10m
-  expect(await contracts.rariPool7LusdPCVDeposit.balance()).to.be.bignumber.equal(
-    ethers.constants.WeiPerEther.mul(10_000_000)
-  );
+  expect(await contracts.rariPool7LusdPCVDeposit.balance()).to.be.bignumber.equal(ethers.constants.WeiPerEther.mul(10_000_000));
 
   // Check CR Oracle
   // Check stETH sitting on about 48k ETH

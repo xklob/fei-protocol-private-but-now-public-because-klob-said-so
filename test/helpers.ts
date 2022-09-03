@@ -17,10 +17,7 @@ const { expect } = chai;
 const WETH9 = artifacts.readArtifactSync('WETH9');
 
 async function deployDevelopmentWeth(): Promise<void> {
-  await network.provider.send('hardhat_setCode', [
-    '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    WETH9.deployedBytecode
-  ]);
+  await network.provider.send('hardhat_setCode', ['0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', WETH9.deployedBytecode]);
 
   const weth = await ethers.getContractAt(WETH9.abi, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2');
   await weth.init();
@@ -243,8 +240,7 @@ const time = {
     target = ethers.BigNumber.from(target);
 
     const currentBlock = await time.latestBlock();
-    if (target.lt(currentBlock))
-      throw Error(`Target block #(${target}) is lower than current block #(${currentBlock})`);
+    if (target.lt(currentBlock)) throw Error(`Target block #(${target}) is lower than current block #(${currentBlock})`);
 
     const diff = target.sub(currentBlock);
     await hre.network.provider.send('hardhat_mine', [ethers.utils.hexStripZeros(diff.toHexString())]);
@@ -287,22 +283,12 @@ async function performDAOAction(
   await time.advanceBlockTo(endBlock.toString());
 
   // queue
-  await feiDAO['queue(address[],uint256[],bytes[],bytes32)'](
-    targets,
-    values,
-    calldatas,
-    ethers.utils.keccak256(description)
-  );
+  await feiDAO['queue(address[],uint256[],bytes[],bytes32)'](targets, values, calldatas, ethers.utils.keccak256(description));
 
   await time.increase('1000000');
 
   // execute
-  await feiDAO['execute(address[],uint256[],bytes[],bytes32)'](
-    targets,
-    values,
-    calldatas,
-    ethers.utils.keccak256(description)
-  );
+  await feiDAO['execute(address[],uint256[],bytes[],bytes32)'](targets, values, calldatas, ethers.utils.keccak256(description));
 }
 
 async function initialiseGnosisSDK(safeOwner: Signer, safeAddress: string): Promise<Safe> {

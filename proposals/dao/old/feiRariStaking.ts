@@ -68,9 +68,7 @@ const validate = async (addresses, oldContracts, contracts) => {
   const { rariPool8Comptroller, tribalChief, stakingTokenWrapperRari, tribe } = contracts;
   const { rariRewardsDistributorDelegator } = addresses;
 
-  expect(await rariPool8Comptroller.comptrollerImplementation()).to.be.equal(
-    '0xE16DB319d9dA7Ce40b666DD2E365a4b8B3C18217'
-  );
+  expect(await rariPool8Comptroller.comptrollerImplementation()).to.be.equal('0xE16DB319d9dA7Ce40b666DD2E365a4b8B3C18217');
   expect(await rariPool8Comptroller.rewardsDistributors(0)).to.be.equal(rariRewardsDistributorDelegator);
   expect(await tribalChief.stakedToken(3)).to.be.equal(stakingTokenWrapperRari.address);
   expect(await tribalChief.numPools()).to.be.equal('4');

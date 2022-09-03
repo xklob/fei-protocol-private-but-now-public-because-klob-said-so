@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { contract } from '@openzeppelin/test-environment';
 import { Fei } from '@custom-types/contracts';
 import { getImpersonatedSigner } from '@test/helpers';
@@ -120,9 +114,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // Call drip on the rai pcv drip controller and make sure the rai price bound psm got the drip
   await contracts.raiPCVDripController.drip();
 
-  expect(await contracts.rai.balanceOf(contracts.raiPriceBoundPSM.address)).to.be.gt(
-    ethers.constants.WeiPerEther.mul(1_000_000)
-  );
+  expect(await contracts.rai.balanceOf(contracts.raiPriceBoundPSM.address)).to.be.gt(ethers.constants.WeiPerEther.mul(1_000_000));
 
   // Query the rai oracle just to make sure the contract call works
   await contracts.chainlinkRaiUsdOracleWrapper.read();

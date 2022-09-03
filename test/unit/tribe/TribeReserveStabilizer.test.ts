@@ -44,9 +44,7 @@ describe('TribeReserveStabilizer', function () {
     fei = await ethers.getContractAt('Fei', await core.fei());
     tribe = await ethers.getContractAt('Tribe', await core.tribe());
     oracle = await (await ethers.getContractFactory('MockOracle')).deploy(400); // 400:1 oracle price
-    collateralizationOracle = await (
-      await ethers.getContractFactory('MockCollateralizationOracle')
-    ).deploy(core.address, 1);
+    collateralizationOracle = await (await ethers.getContractFactory('MockCollateralizationOracle')).deploy(core.address, 1);
 
     tribeMinter = await (await ethers.getContractFactory('MockTribeMinter')).deploy(tribe.address);
 
@@ -161,20 +159,14 @@ describe('TribeReserveStabilizer', function () {
         await reserveStabilizer.connect(impersonatedSigners[governorAddress]).setCollateralizationThreshold('9900', {});
         await reserveStabilizer.resetOracleDelayCountdown();
 
-        await expectRevert(
-          reserveStabilizer.connect(impersonatedSigners[userAddress]).exchangeFei(40000000, {}),
-          'Timed: time not ended'
-        );
+        await expectRevert(reserveStabilizer.connect(impersonatedSigners[userAddress]).exchangeFei(40000000, {}), 'Timed: time not ended');
       });
     });
 
     describe('Paused', function () {
       it('reverts', async function () {
         await reserveStabilizer.connect(impersonatedSigners[governorAddress]).pause({});
-        await expectRevert(
-          reserveStabilizer.connect(impersonatedSigners[userAddress]).exchangeFei(toBN('400000'), {}),
-          'Pausable: paused'
-        );
+        await expectRevert(reserveStabilizer.connect(impersonatedSigners[userAddress]).exchangeFei(toBN('400000'), {}), 'Pausable: paused');
       });
     });
     describe('Not Enough FEI', function () {

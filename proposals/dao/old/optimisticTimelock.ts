@@ -60,9 +60,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts)
   const tribalChiefOptimisticMultisig: string = addresses.tribalChiefOptimisticMultisig;
 
   expect((await fei.balanceOf(tribalChiefOptimisticTimelock)).toString()).to.be.equal('0');
-  expect((await fei.balanceOf(optimisticTimelock.address)).toString()).to.be.equal(
-    ethers.constants.WeiPerEther.mul(1_000_000).toString()
-  );
+  expect((await fei.balanceOf(optimisticTimelock.address)).toString()).to.be.equal(ethers.constants.WeiPerEther.mul(1_000_000).toString());
 
   const proposerRole = await optimisticTimelock.PROPOSER_ROLE();
   const executorRole = await optimisticTimelock.EXECUTOR_ROLE();

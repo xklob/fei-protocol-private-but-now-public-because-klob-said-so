@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { deploy as deploySTW } from '@scripts/deploy/deployStakingTokenWrapper';
 import { getImpersonatedSigner } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
@@ -66,8 +60,7 @@ const deployCTokenCalldata = async function (addresses, underlying, name, symbol
 };
 
 export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, logging = false) => {
-  const { core, tribalChiefSyncV2, tribalChief, rewardsDistributorAdmin, rariPool8MasterOracle, rariPool8Comptroller } =
-    addresses;
+  const { core, tribalChiefSyncV2, tribalChief, rewardsDistributorAdmin, rariPool8MasterOracle, rariPool8Comptroller } = addresses;
 
   // 1.
   const factory = await ethers.getContractFactory('TribalChiefSyncExtension');
@@ -171,9 +164,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   // Ctoken configs
   // supply cap
   expect(await rariPool8Comptroller.supplyCaps(d3Ctoken)).to.be.equal(ethers.constants.WeiPerEther.mul(25_000_000)); // 25 M
-  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCtoken)).to.be.equal(
-    ethers.constants.WeiPerEther.mul(25_000_000)
-  ); // 25 M
+  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCtoken)).to.be.equal(ethers.constants.WeiPerEther.mul(25_000_000)); // 25 M
 
   // borrow paused
   expect(await rariPool8Comptroller.borrowGuardianPaused(d3Ctoken)).to.be.true;
@@ -197,9 +188,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect(d3RewardSpeed[0]).to.be.equal(await rariRewardsDistributorDelegator.compSupplySpeeds(d3Ctoken));
 
   expect(fei3CrvCtoken).to.be.equal(await fei3CrvAutoRewardsDistributor.cTokenAddress());
-  expect(await fei3CrvStakingtokenWrapper.pid()).to.be.equal(
-    await fei3CrvAutoRewardsDistributor.tribalChiefRewardIndex()
-  );
+  expect(await fei3CrvStakingtokenWrapper.pid()).to.be.equal(await fei3CrvAutoRewardsDistributor.tribalChiefRewardIndex());
   expect((await tribalChief.poolInfo(await fei3CrvStakingtokenWrapper.pid())).allocPoint).to.be.equal(250);
   const fei3CrvRewardSpeed = await fei3CrvAutoRewardsDistributor.getNewRewardSpeed();
   expect(fei3CrvRewardSpeed[1]).to.be.false;

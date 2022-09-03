@@ -50,14 +50,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
 
     globalRateLimitedMinter = await (
       await ethers.getContractFactory('GlobalRateLimitedMinter')
-    ).deploy(
-      core.address,
-      globalRateLimitPerSecond,
-      globalRateLimitPerSecond,
-      maxRateLimitPerSecond,
-      maxBufferCap,
-      bufferCap
-    );
+    ).deploy(core.address, globalRateLimitPerSecond, globalRateLimitPerSecond, maxRateLimitPerSecond, maxBufferCap, bufferCap);
 
     authorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
@@ -70,9 +63,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
 
   describe('Add Minter', function () {
     beforeEach(async function () {
-      await globalRateLimitedMinter
-        .connect(impersonatedSigners[governorAddress])
-        .removeAddress(authorizedMinter.address);
+      await globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).removeAddress(authorizedMinter.address);
     });
 
     it('starting values are 0', async function () {
@@ -88,9 +79,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
 
       expect(await globalRateLimitedMinter.getBufferCap(authorizedMinter.address)).to.be.equal(bufferCap);
       expect(await globalRateLimitedMinter.individualBuffer(authorizedMinter.address)).to.be.equal(bufferCap);
-      expect(await globalRateLimitedMinter.getRateLimitPerSecond(authorizedMinter.address)).to.be.equal(
-        globalRateLimitPerSecond
-      );
+      expect(await globalRateLimitedMinter.getRateLimitPerSecond(authorizedMinter.address)).to.be.equal(globalRateLimitPerSecond);
     });
 
     it('fails when buffer cap is over global max', async function () {
@@ -114,9 +103,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
 
   describe('Non governor actions', function () {
     beforeEach(async function () {
-      await globalRateLimitedMinter
-        .connect(impersonatedSigners[governorAddress])
-        .removeAddress(authorizedMinter.address);
+      await globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).removeAddress(authorizedMinter.address);
 
       await core.createRole(ADD_MINTER_ROLE, GOVERN_ROLE);
       await core.grantRole(ADD_MINTER_ROLE, governorAddress);
@@ -129,18 +116,14 @@ describe('GlobalRateLimitedMinterGovernor', function () {
           ['addAddressAsMinter(address)'](authorizedMinter.address);
 
         await expectRevert(
-          globalRateLimitedMinter
-            .connect(impersonatedSigners[governorAddress])
-            ['addAddressAsMinter(address)'](authorizedMinter.address),
+          globalRateLimitedMinter.connect(impersonatedSigners[governorAddress])['addAddressAsMinter(address)'](authorizedMinter.address),
           'MultiRateLimited: address already added'
         );
       });
 
       it('non-governor reverts', async function () {
         await expectRevert(
-          globalRateLimitedMinter
-            .connect(impersonatedSigners[userAddress])
-            ['addAddressAsMinter(address)'](authorizedMinter.address),
+          globalRateLimitedMinter.connect(impersonatedSigners[userAddress])['addAddressAsMinter(address)'](authorizedMinter.address),
           'UNAUTHORIZED'
         );
       });
@@ -172,11 +155,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
         await expectRevert(
           globalRateLimitedMinter
             .connect(impersonatedSigners[governorAddress])
-            ['addAddressAsMinter(address,uint112,uint112)'](
-              authorizedMinter.address,
-              rateLimitPerSecond.add(1),
-              bufferCap
-            ),
+            ['addAddressAsMinter(address,uint112,uint112)'](authorizedMinter.address, rateLimitPerSecond.add(1), bufferCap),
           'MultiRateLimited: rlps exceeds role amt'
         );
       });
@@ -185,11 +164,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
         await expectRevert(
           globalRateLimitedMinter
             .connect(impersonatedSigners[governorAddress])
-            ['addAddressAsMinter(address,uint112,uint112)'](
-              authorizedMinter.address,
-              rateLimitPerSecond,
-              bufferCap.add(1)
-            ),
+            ['addAddressAsMinter(address,uint112,uint112)'](authorizedMinter.address, rateLimitPerSecond, bufferCap.add(1)),
           'MultiRateLimited: buffercap exceeds role amt'
         );
       });
@@ -207,9 +182,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
 
   describe('Remove Minter', function () {
     it('governor succeeds and all caps are zero', async function () {
-      await globalRateLimitedMinter
-        .connect(impersonatedSigners[governorAddress])
-        .removeAddress(authorizedMinter.address);
+      await globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).removeAddress(authorizedMinter.address);
 
       expect(await globalRateLimitedMinter.getRateLimitPerSecond(authorizedMinter.address)).to.be.equal(0);
       expect(await globalRateLimitedMinter.getBufferCap(authorizedMinter.address)).to.be.equal(0);
@@ -272,15 +245,12 @@ describe('GlobalRateLimitedMinterGovernor', function () {
     });
 
     it('minor minter add role succeeds', async function () {
-      const startingBufferStored = (await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address))
-        .bufferStored;
+      const startingBufferStored = (await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).bufferStored;
       await globalRateLimitedMinter
         .connect(impersonatedSigners[governorAddress])
         .updateAddress(authorizedMinter.address, maxRateLimitPerSecond, maxBufferCap);
 
-      const { bufferCap, bufferStored, rateLimitPerSecond } = await globalRateLimitedMinter.rateLimitPerAddress(
-        authorizedMinter.address
-      );
+      const { bufferCap, bufferStored, rateLimitPerSecond } = await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address);
 
       expect(rateLimitPerSecond).to.be.equal(maxRateLimitPerSecond);
       expect(bufferStored).to.be.equal(startingBufferStored);
@@ -341,9 +311,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
   describe('updateMaxBufferCap', function () {
     it('governor succeeds', async function () {
       const newRateLimitPerSecond = 10000;
-      await globalRateLimitedMinter
-        .connect(impersonatedSigners[governorAddress])
-        .updateMaxBufferCap(newRateLimitPerSecond);
+      await globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).updateMaxBufferCap(newRateLimitPerSecond);
 
       expect(await globalRateLimitedMinter.individualMaxBufferCap()).to.be.equal(newRateLimitPerSecond);
     });
@@ -367,9 +335,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
   describe('updateMaxRateLimitPerSecond', function () {
     it('governor succeeds', async function () {
       const newRateLimitPerSecond = 10000;
-      await globalRateLimitedMinter
-        .connect(impersonatedSigners[governorAddress])
-        .updateMaxRateLimitPerSecond(newRateLimitPerSecond);
+      await globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).updateMaxRateLimitPerSecond(newRateLimitPerSecond);
 
       expect(await globalRateLimitedMinter.individualMaxRateLimitPerSecond()).to.be.equal(newRateLimitPerSecond);
     });
@@ -377,9 +343,7 @@ describe('GlobalRateLimitedMinterGovernor', function () {
     it('governor fails when over global max rate limit per second', async function () {
       const newRateLimitPerSecond = globalRateLimitPerSecond.add(1);
       await expectRevert(
-        globalRateLimitedMinter
-          .connect(impersonatedSigners[governorAddress])
-          .updateMaxRateLimitPerSecond(newRateLimitPerSecond),
+        globalRateLimitedMinter.connect(impersonatedSigners[governorAddress]).updateMaxRateLimitPerSecond(newRateLimitPerSecond),
         'MultiRateLimited: exceeds global max rate limit per second'
       );
     });

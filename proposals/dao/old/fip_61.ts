@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 
 chai.use(CBN(ethers.BigNumber));
 
@@ -149,13 +143,7 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
 
   // 2. Deploy TribalChiefSyncV2
   const tcFactory = await ethers.getContractFactory('TribalChiefSyncV2');
-  const tribalChiefSyncV2 = await tcFactory.deploy(
-    tribalChief,
-    autoRewardsDistributor,
-    optimisticTimelock,
-    rewards,
-    timestamps
-  );
+  const tribalChiefSyncV2 = await tcFactory.deploy(tribalChief, autoRewardsDistributor, optimisticTimelock, rewards, timestamps);
   await tribalChiefSyncV2.deployTransaction.wait();
 
   logging && console.log('tribalChiefSyncV2: ', tribalChiefSyncV2.address);
@@ -187,16 +175,10 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   const usdAddress = '0x1111111111111111111111111111111111111111';
 
   expect(await collateralizationOracle.depositToToken(namedStaticPCVDepositWrapper.address)).to.be.equal(usdAddress);
-  expect(await collateralizationOracle.depositToToken(staticPcvDepositWrapper2.address)).to.be.equal(
-    ethers.constants.AddressZero
-  );
-  expect(await collateralizationOracle.depositToToken(daiBondingCurveWrapper.address)).to.be.equal(
-    ethers.constants.AddressZero
-  );
+  expect(await collateralizationOracle.depositToToken(staticPcvDepositWrapper2.address)).to.be.equal(ethers.constants.AddressZero);
+  expect(await collateralizationOracle.depositToToken(daiBondingCurveWrapper.address)).to.be.equal(ethers.constants.AddressZero);
 
-  expect(await collateralizationOracle.getDepositsForToken(usdAddress)).to.include(
-    namedStaticPCVDepositWrapper.address
-  );
+  expect(await collateralizationOracle.getDepositsForToken(usdAddress)).to.include(namedStaticPCVDepositWrapper.address);
   expect(await namedStaticPCVDepositWrapper.numDeposits()).to.equal(10);
   expect(await namedStaticPCVDepositWrapper.balance()).to.equal(eth.mul(2_240_000));
   expect(await namedStaticPCVDepositWrapper.feiReportBalance()).to.equal(eth.mul(64_000_000));
@@ -204,17 +186,10 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect(await daiBondingCurve.paused()).to.be.true;
 
   expect(
-    await optimisticTimelock.hasRole(
-      '0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63',
-      addresses.tribalChiefSyncV2
-    )
+    await optimisticTimelock.hasRole('0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63', addresses.tribalChiefSyncV2)
   ).to.be.true;
-  expect(
-    await optimisticTimelock.hasRole(
-      '0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63',
-      addresses.tribalChiefSync
-    )
-  ).to.be.false;
+  expect(await optimisticTimelock.hasRole('0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63', addresses.tribalChiefSync))
+    .to.be.false;
 
   expect(await daiPSM.redeemFeeBasisPoints()).to.be.equal(ethers.BigNumber.from(25));
   expect(await daiPSM.mintFeeBasisPoints()).to.be.equal(ethers.BigNumber.from(25));

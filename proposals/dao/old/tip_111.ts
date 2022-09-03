@@ -27,10 +27,7 @@ const fipNumber = 'tip_111';
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
   // Deploy Lido stETH/USD oracle
   const chainlinkOracleWrapperFactory = await ethers.getContractFactory('ChainlinkOracleWrapper');
-  const chainlinkStEthUsdOracleWrapper = await chainlinkOracleWrapperFactory.deploy(
-    addresses.core,
-    addresses.chainlinkStEthUsdOracle
-  );
+  const chainlinkStEthUsdOracleWrapper = await chainlinkOracleWrapperFactory.deploy(addresses.core, addresses.chainlinkStEthUsdOracle);
   await chainlinkStEthUsdOracleWrapper.deployed();
   logging && console.log(`chainlinkStEthUsdOracleWrapper: ${chainlinkStEthUsdOracleWrapper.address}`);
 

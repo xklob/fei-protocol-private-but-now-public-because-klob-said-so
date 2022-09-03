@@ -27,10 +27,7 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
   logging && console.log('weightedBalancerPoolManagerBase: ', weightedBalancerPoolManagerBase.address);
 
   // Create a new FEI/WETH pool
-  const weightedPoolTwoTokensFactory = await ethers.getContractAt(
-    'IWeightedPool2TokensFactory',
-    addresses.balancerWeightedPoolFactory
-  );
+  const weightedPoolTwoTokensFactory = await ethers.getContractAt('IWeightedPool2TokensFactory', addresses.balancerWeightedPoolFactory);
   const tx: TransactionResponse = await weightedPoolTwoTokensFactory.create(
     'Balancer 30 FEI 70 WETH',
     'B-30FEI-70WETH',
@@ -120,9 +117,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   const ethPrice = (await contracts.chainlinkEthUsdOracleWrapper.read())[0] / 1e18; // ~3200.0 in Number
   expectApproxAbs(
     (await contracts.balancerDepositFeiWeth.resistantBalanceAndFei())[1],
-    ethers.constants.WeiPerEther.mul(
-      Math.round((((ethPrice * uniswapEthBalanceBefore * 0.5) / 1e18) * 30) / 70).toString()
-    ),
+    ethers.constants.WeiPerEther.mul(Math.round((((ethPrice * uniswapEthBalanceBefore * 0.5) / 1e18) * 30) / 70).toString()),
     ethers.constants.WeiPerEther.mul('10000').toString() // +/- 10k FEI
   );
 
@@ -149,9 +144,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   );
 
   // New Balancer deposit is added to CR oracle
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerDepositFeiWeth)).to.be.equal(
-    addresses.weth
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerDepositFeiWeth)).to.be.equal(addresses.weth);
 
   return;
 
@@ -161,9 +154,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   if (deadline > currentTime) await time.increaseTo(deadline);
 
   // Move the 2nd half of PCV
-  expect(
-    await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)
-  ).to.be.true;
+  expect(await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)).to.be.true;
   await contracts.delayedPCVMoverWethUniToBal.withdrawRatio();
   await contracts.balancerDepositFeiWeth.deposit();
 
@@ -189,7 +180,5 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   );
 
   // The DelayedPCVMover should have revoked its PCV_CONTROLLER_ROLE role
-  expect(
-    await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)
-  ).to.be.false;
+  expect(await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)).to.be.false;
 };

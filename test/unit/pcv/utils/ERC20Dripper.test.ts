@@ -71,13 +71,7 @@ describe('ERC20Dripper', () => {
     await this.tribalChief.initialize(this.core.address, this.tribe.address);
 
     const dripperFactory = await ethers.getContractFactory(ERC20Dripper.abi, ERC20Dripper.bytecode);
-    this.dripper = await dripperFactory.deploy(
-      this.core.address,
-      this.tribalChief.address,
-      dripFrequency,
-      dripAmount,
-      this.tribe.address
-    );
+    this.dripper = await dripperFactory.deploy(this.core.address, this.tribalChief.address, dripFrequency, dripAmount, this.tribe.address);
 
     // 11 if max times we call drip in any given test
     await this.tribe.mint(this.dripper.address, dripAmount.mul(toBN(11)));
@@ -88,9 +82,7 @@ describe('ERC20Dripper', () => {
       const totalLockedTribe = await this.dripper.balance();
 
       await expectRevert(
-        this.dripper
-          .connect(await getImpersonatedSigner(userAddress))
-          .withdraw(this.tribalChief.address, totalLockedTribe),
+        this.dripper.connect(await getImpersonatedSigner(userAddress)).withdraw(this.tribalChief.address, totalLockedTribe),
         'CoreRef: Caller is not a PCV controller'
       );
     });

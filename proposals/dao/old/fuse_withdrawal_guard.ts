@@ -117,9 +117,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   expect(await contracts.lusd.balanceOf(addresses.lusdPSM)).to.be.gt(e18.mul(900_000).add(lusdPSMBalanceBefore));
   expect(await contracts.dai.balanceOf(addresses.daiFixedPricePSM)).to.be.gt(e18.mul(120_000).add(daiPSMBalanceBefore));
-  expect(await contracts.fei.balanceOf(addresses.daiFixedPricePSM)).to.be.gt(
-    e18.mul(13_800_000).add(daiPSMFeiBalanceBefore)
-  );
+  expect(await contracts.fei.balanceOf(addresses.daiFixedPricePSM)).to.be.gt(e18.mul(13_800_000).add(daiPSMFeiBalanceBefore));
 };
 
 export { deploy, setup, teardown, validate };

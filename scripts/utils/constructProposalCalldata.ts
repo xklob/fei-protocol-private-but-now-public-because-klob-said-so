@@ -67,11 +67,7 @@ function getDAOCalldata(proposal: ExtendedAlphaProposal): string {
   return calldata;
 }
 
-function getPodCalldata(
-  proposal: ExtendedAlphaProposal,
-  proposalInfo: TemplatedProposalDescription,
-  podConfig: PodConfig
-): string {
+function getPodCalldata(proposal: ExtendedAlphaProposal, proposalInfo: TemplatedProposalDescription, podConfig: PodConfig): string {
   const timelockControllerInterface = new Interface(TimelockControllerABI);
   const metadataRegistryInterface = new Interface(MetadataRegistryABI);
 

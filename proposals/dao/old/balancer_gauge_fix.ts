@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { getImpersonatedSigner, overwriteChainlinkAggregator, time } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -47,10 +41,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 
   // Deploy lens to report the B-30FEI-70WETH staked in gauge
   const gaugeLensFactory = await ethers.getContractFactory('CurveGaugeLens');
-  const gaugeLensBpt30Fei70WethGauge = await gaugeLensFactory.deploy(
-    addresses.balancerGaugeBpt30Fei70Weth,
-    balancerGaugeStaker.address
-  );
+  const gaugeLensBpt30Fei70WethGauge = await gaugeLensFactory.deploy(addresses.balancerGaugeBpt30Fei70Weth, balancerGaugeStaker.address);
   await gaugeLensBpt30Fei70WethGauge.deployTransaction.wait();
   logging && console.log('gaugeLensBpt30Fei70WethGauge:', gaugeLensBpt30Fei70WethGauge.address);
 
@@ -105,9 +96,7 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // check the new staking contract has staked in gauge
-  expect(await contracts.balancerGaugeBpt30Fei70Weth.balanceOf(addresses.balancerGaugeStaker)).to.be.equal(
-    '252865858892972812879565'
-  );
+  expect(await contracts.balancerGaugeBpt30Fei70Weth.balanceOf(addresses.balancerGaugeStaker)).to.be.equal('252865858892972812879565');
 
   // check rewards can be claimed
   await time.increase('86400');
@@ -117,9 +106,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(balBalanceAfter.sub(balBalanceBefore)).to.be.at.least(`1${e18}`);
 
   // check collateralization oracle reports the LP tokens staked
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70Weth)).to.be.equal(
-    addresses.weth
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70Weth)).to.be.equal(addresses.weth);
   expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70WethOld)).to.be.equal(
     ethers.constants.AddressZero
   );

@@ -1,12 +1,5 @@
 import { Core, Fei, MockOracle, MockPCVDepositV2, PegStabilityModule, PSMRouter, WETH9 } from '@custom-types/contracts';
-import {
-  deployDevelopmentWeth,
-  expectRevert,
-  getAddresses,
-  getCore,
-  getImpersonatedSigner,
-  MAX_UINT256
-} from '@test/helpers';
+import { deployDevelopmentWeth, expectRevert, getAddresses, getCore, getImpersonatedSigner, MAX_UINT256 } from '@test/helpers';
 import { expect } from 'chai';
 import { Signer, utils } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -233,9 +226,7 @@ describe.skip('PSM Router', function () {
       it('redeem fails when eth receiver reverts and deadline is in the future', async () => {
         const ethReceiver = await (await ethers.getContractFactory('RevertReceiver')).deploy();
         await weth.connect(impersonatedSigners[userAddress]).deposit({ value: ethers.constants.WeiPerEther.mul(10) });
-        await weth
-          .connect(impersonatedSigners[userAddress])
-          .transfer(psm.address, ethers.constants.WeiPerEther.mul(10));
+        await weth.connect(impersonatedSigners[userAddress]).transfer(psm.address, ethers.constants.WeiPerEther.mul(10));
         const expectedEthAmount = 1994;
         await fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, bufferCap);
         await fei.approve(psmRouter.address, MAX_UINT256);
@@ -244,12 +235,7 @@ describe.skip('PSM Router', function () {
         await expectRevert(
           psmRouter
             .connect(impersonatedSigners[userAddress])
-            ['redeem(address,uint256,uint256,uint256)'](
-              ethReceiver.address,
-              10_000_000,
-              expectedEthAmount,
-              timestamp + 10
-            ),
+            ['redeem(address,uint256,uint256,uint256)'](ethReceiver.address, 10_000_000, expectedEthAmount, timestamp + 10),
           'PSMRouter: eth transfer failed'
         );
       });
@@ -310,9 +296,7 @@ describe.skip('PSM Router', function () {
 
       it('mint fails when msg.value and ethAmountIn mismatch', async () => {
         await expectRevert(
-          psmRouter
-            .connect(impersonatedSigners[userAddress])
-            ['mint(address,uint256,uint256)'](userAddress, 0, 2, { value: 1 }),
+          psmRouter.connect(impersonatedSigners[userAddress])['mint(address,uint256,uint256)'](userAddress, 0, 2, { value: 1 }),
           'PSMRouter: ethAmountIn and msg.value mismatch'
         );
       });

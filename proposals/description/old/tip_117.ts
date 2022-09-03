@@ -86,8 +86,7 @@ const proposal: TemplatedProposalDescription = {
       values: '0',
       method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('ORACLE_ADMIN_ROLE'), addresses.collateralizationOracleGuardian],
-      description:
-        'Revoke ORACLE_ADMIN_ROLE from collateralizationOracleGuardian (no more guardian updates of cached CR Oracle)'
+      description: 'Revoke ORACLE_ADMIN_ROLE from collateralizationOracleGuardian (no more guardian updates of cached CR Oracle)'
     },
     {
       target: 'core',
@@ -198,12 +197,7 @@ const proposal: TemplatedProposalDescription = {
       target: 'ratioPCVControllerV2',
       values: '0',
       method: 'withdrawRatioERC20(address,address,address,uint256)',
-      arguments: (addresses) => [
-        addresses.d3poolCurvePCVDeposit,
-        addresses.alusd,
-        addresses.tribalCouncilSafe,
-        '10000'
-      ],
+      arguments: (addresses) => [addresses.d3poolCurvePCVDeposit, addresses.alusd, addresses.tribalCouncilSafe, '10000'],
       description: 'Withdraw all alUSD on d3 deposit to TC Multisig where it can be sold'
     },
     {

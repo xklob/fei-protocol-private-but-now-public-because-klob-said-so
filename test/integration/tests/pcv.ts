@@ -67,9 +67,7 @@ describe('e2e-pcv', function () {
 
       const stabilityPool = '0x66017D22b0f8556afDd19FC67041899Eb65a21bb';
       const signer = await getImpersonatedSigner(stabilityPool);
-      await contracts.lusd
-        .connect(signer)
-        .transfer(contracts.bammDeposit.address, ethers.constants.WeiPerEther.mul(10_000));
+      await contracts.lusd.connect(signer).transfer(contracts.bammDeposit.address, ethers.constants.WeiPerEther.mul(10_000));
       await contracts.bammDeposit.deposit();
 
       await contracts.bammDeposit.withdraw(contractAddresses.feiDAOTimelock, ethers.constants.WeiPerEther.mul(100));
@@ -239,9 +237,7 @@ describe('e2e-pcv', function () {
       doLogging && console.log(`Borrowing ${borrowAmount}`);
       await aaveLendingPool.borrow(fei.address, borrowAmount, 2, 0, deployAddress);
 
-      expect(toBN((await fei.balanceOf(deployAddress)).toString())).to.be.equal(
-        toBN(balanceBefore).add(toBN(borrowAmount))
-      );
+      expect(toBN((await fei.balanceOf(deployAddress)).toString())).to.be.equal(toBN(balanceBefore).add(toBN(borrowAmount)));
 
       doLogging && console.log('Getting reserve data...');
       const { variableDebtTokenAddress } = await aaveLendingPool.getReserveData(fei.address);

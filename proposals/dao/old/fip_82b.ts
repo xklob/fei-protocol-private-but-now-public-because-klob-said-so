@@ -139,26 +139,16 @@ const validateContractAdmins = async (contracts: NamedContracts) => {
 
   expect(await contracts.optimisticMinter.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('FEI_MINT_ADMIN'));
   expect(await contracts.pcvEquityMinter.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('FEI_MINT_ADMIN'));
-  expect(await contracts.indexDelegator.CONTRACT_ADMIN_ROLE()).to.be.equal(
-    ethers.utils.id('METAGOVERNANCE_VOTE_ADMIN')
-  );
-  expect(await contracts.ethTokemakPCVDeposit.CONTRACT_ADMIN_ROLE()).to.be.equal(
-    ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE')
-  );
+  expect(await contracts.indexDelegator.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('METAGOVERNANCE_VOTE_ADMIN'));
+  expect(await contracts.ethTokemakPCVDeposit.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'));
   expect(await contracts.uniswapPCVDeposit.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
 
   expect(await contracts.lusdPSMFeiSkimmer.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
   expect(await contracts.ethPSMFeiSkimmer.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
 
-  expect(await contracts.aaveEthPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(
-    ethers.utils.id('PCV_MINOR_PARAM_ROLE')
-  );
-  expect(await contracts.daiPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(
-    ethers.utils.id('PCV_MINOR_PARAM_ROLE')
-  );
-  expect(await contracts.lusdPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(
-    ethers.utils.id('PCV_MINOR_PARAM_ROLE')
-  );
+  expect(await contracts.aaveEthPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
+  expect(await contracts.daiPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
+  expect(await contracts.lusdPCVDripController.CONTRACT_ADMIN_ROLE()).to.be.equal(ethers.utils.id('PCV_MINOR_PARAM_ROLE'));
 };
 
 const validateCallingContractsHaveNewAdmin = async (core: Contract, addresses: NamedAddresses) => {

@@ -22,8 +22,7 @@ async function setup(addresses, oldContracts, contracts, logging) {
 async function run(addresses, oldContracts, contracts, logging = false) {
   const { fei, aaveFeiPCVDeposit, erc20Dripper } = contracts;
 
-  const { aaveTribeIncentivesControllerAddress, aFeiVariableDebtAddress, timelockAddress, proxyAdminAddress } =
-    addresses;
+  const { aaveTribeIncentivesControllerAddress, aFeiVariableDebtAddress, timelockAddress, proxyAdminAddress } = addresses;
 
   // 1.
   await fei.mint(aaveFeiPCVDeposit.address, `25000000${e18}`);
@@ -41,11 +40,7 @@ async function run(addresses, oldContracts, contracts, logging = false) {
     'function changeAdmin(address newAdmin)'
   ];
   const adminSigner = ethers.provider.getSigner(timelockAddress);
-  const incentivesController = new ethers.Contract(
-    aaveTribeIncentivesControllerAddress,
-    incentivesControllerAbi,
-    adminSigner
-  );
+  const incentivesController = new ethers.Contract(aaveTribeIncentivesControllerAddress, incentivesControllerAbi, adminSigner);
 
   await incentivesController.changeAdmin(proxyAdminAddress);
 
@@ -326,11 +321,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts)
   ];
 
   const adminSigner = ethers.provider.getSigner(timelockAddress);
-  const incentivesController = new ethers.Contract(
-    aaveTribeIncentivesControllerAddress,
-    incentivesControllerAbi,
-    adminSigner
-  );
+  const incentivesController = new ethers.Contract(aaveTribeIncentivesControllerAddress, incentivesControllerAbi, adminSigner);
 
   const end = await incentivesController.getDistributionEnd();
   expect(end.toString()).to.be.equal(END_TIMESTAMP);

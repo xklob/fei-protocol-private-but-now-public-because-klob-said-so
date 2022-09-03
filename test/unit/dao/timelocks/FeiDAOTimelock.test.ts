@@ -18,9 +18,7 @@ describe('FeiDAOTimelock', function () {
     core = await getCore();
 
     delay = 1000;
-    timelock = await (
-      await ethers.getContractFactory('FeiDAOTimelock')
-    ).deploy(core.address, userAddress, delay, delay);
+    timelock = await (await ethers.getContractFactory('FeiDAOTimelock')).deploy(core.address, userAddress, delay, delay);
 
     userSigner = await getImpersonatedSigner(userAddress);
   });
@@ -32,18 +30,12 @@ describe('FeiDAOTimelock', function () {
 
     it('queue reverts', async function () {
       const eta = (await latestTime()) + delay;
-      await expectRevert(
-        timelock.connect(userSigner).queueTransaction(userAddress, 100, '', '0x', eta),
-        'Pausable: paused'
-      );
+      await expectRevert(timelock.connect(userSigner).queueTransaction(userAddress, 100, '', '0x', eta), 'Pausable: paused');
     });
 
     it('execute reverts', async function () {
       const eta = (await latestTime()) + delay;
-      await expectRevert(
-        timelock.connect(userSigner).executeTransaction(userAddress, 100, '', '0x', eta),
-        'Pausable: paused'
-      );
+      await expectRevert(timelock.connect(userSigner).executeTransaction(userAddress, 100, '', '0x', eta), 'Pausable: paused');
     });
   });
 
@@ -63,9 +55,7 @@ describe('FeiDAOTimelock', function () {
       const txHash = await timelock.getTxHash(userAddress, 100, '', '0x', eta);
       expect(await timelock.queuedTransactions(txHash)).to.be.equal(true);
 
-      await timelock
-        .connect(await getImpersonatedSigner(guardianAddress))
-        .vetoTransactions([userAddress], [100], [''], ['0x'], [eta]);
+      await timelock.connect(await getImpersonatedSigner(guardianAddress)).vetoTransactions([userAddress], [100], [''], ['0x'], [eta]);
       expect(await timelock.queuedTransactions(txHash)).to.be.equal(false);
     });
 
@@ -76,9 +66,7 @@ describe('FeiDAOTimelock', function () {
       const txHash = await timelock.getTxHash(userAddress, 100, '', '0x', eta);
       expect(await timelock.queuedTransactions(txHash)).to.be.equal(true);
 
-      await timelock
-        .connect(await getImpersonatedSigner(governorAddress))
-        .vetoTransactions([userAddress], [100], [''], ['0x'], [eta]);
+      await timelock.connect(await getImpersonatedSigner(governorAddress)).vetoTransactions([userAddress], [100], [''], ['0x'], [eta]);
       expect(await timelock.queuedTransactions(txHash)).to.be.equal(false);
     });
   });

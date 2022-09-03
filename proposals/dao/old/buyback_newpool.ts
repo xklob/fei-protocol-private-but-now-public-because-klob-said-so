@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { TransactionResponse } from '@ethersproject/providers';
 import { expectApprox } from '@test/helpers';
 import { getImpersonatedSigner } from '@test/helpers';
@@ -65,10 +59,7 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
   logging && console.log('FEI->TRIBE LBP Swapper: ', noFeeFeiTribeLBPSwapper.address);
 
   // 2.
-  const lbpFactory = await ethers.getContractAt(
-    'ILiquidityBootstrappingPoolFactory',
-    addresses.balancerLBPoolFactoryNoFee
-  );
+  const lbpFactory = await ethers.getContractAt('ILiquidityBootstrappingPoolFactory', addresses.balancerLBPoolFactoryNoFee);
 
   const tx: TransactionResponse = await lbpFactory.create(
     'FEI->TRIBE Auction Pool', // pool name
@@ -166,9 +157,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
     '0x0000000000000000000000000000000000000000'
   );
   // added new BPTLens
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.feiBuybackLensNoFee)).to.be.equal(
-    addresses.fei
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.feiBuybackLensNoFee)).to.be.equal(addresses.fei);
 
   const price = (await contracts.noFeeFeiTribeLBPSwapper.readOracle())[0];
   // sanity check on the price offered in the pool

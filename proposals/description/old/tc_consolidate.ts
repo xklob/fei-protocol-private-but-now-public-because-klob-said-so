@@ -38,8 +38,7 @@ const tc_consolidate: TemplatedProposalDescription = {
       values: '0',
       method: 'clawback()',
       arguments: (addresses) => [],
-      description:
-        'End the vesting of TRIBE to the Rari Infra TRIBE timelock, return funds to the Tribal Council timelock'
+      description: 'End the vesting of TRIBE to the Rari Infra TRIBE timelock, return funds to the Tribal Council timelock'
     },
     // 3. Grant FEI and TRIBE approvals to DAO timelock, so funds can later be moved
     //    appropriately once final figures are known

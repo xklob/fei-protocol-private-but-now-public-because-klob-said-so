@@ -303,12 +303,7 @@ describe('NamedStaticPCVDepositWrapper', function () {
     it('successfully removes existing deposit when governor calls removeDeposit', async function () {
       const startingNumDeposits = await deposit.numDeposits();
       for (let i = 0; i < parseInt(startingNumDeposits.toString()); i++) {
-        expectEvent(
-          await deposit.connect(impersonatedSigners[governorAddress]).removeDeposit(0),
-          deposit,
-          'DepositRemoved',
-          [0]
-        );
+        expectEvent(await deposit.connect(impersonatedSigners[governorAddress]).removeDeposit(0), deposit, 'DepositRemoved', [0]);
       }
 
       const endingBalance = await deposit.balance();
@@ -323,12 +318,7 @@ describe('NamedStaticPCVDepositWrapper', function () {
     it('successfully removes existing deposit when guardian calls removeDeposit', async function () {
       const startingNumDeposits = await deposit.numDeposits();
       for (let i = 0; i < parseInt(startingNumDeposits.toString()); i++) {
-        expectEvent(
-          await deposit.connect(impersonatedSigners[guardianAddress]).removeDeposit(0),
-          deposit,
-          'DepositRemoved',
-          [0]
-        );
+        expectEvent(await deposit.connect(impersonatedSigners[guardianAddress]).removeDeposit(0), deposit, 'DepositRemoved', [0]);
       }
 
       const [endingBalance, endingFeiBalance] = await deposit.resistantBalanceAndFei();
@@ -342,12 +332,7 @@ describe('NamedStaticPCVDepositWrapper', function () {
     it('successfully removes existing deposit when governor calls removeDeposit', async function () {
       const startingNumDeposits = await deposit.numDeposits();
       for (let i = 0; i < parseInt(startingNumDeposits.toString()); i++) {
-        expectEvent(
-          await deposit.connect(impersonatedSigners[governorAddress]).removeDeposit(0),
-          deposit,
-          'DepositRemoved',
-          [0]
-        );
+        expectEvent(await deposit.connect(impersonatedSigners[governorAddress]).removeDeposit(0), deposit, 'DepositRemoved', [0]);
       }
 
       const [endingBalance, endingFeiBalance] = await deposit.resistantBalanceAndFei();

@@ -87,20 +87,15 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
   logging && console.log(`Deploying new ETH Bonding curve...`);
 
   const bondingCurveFactory = await ethers.getContractFactory('EthBondingCurve');
-  const bondingCurve = await bondingCurveFactory.deploy(
-    core,
-    chainlinkEthUsdOracleWrapper,
-    ethers.constants.AddressZero,
-    {
-      scale: SCALE,
-      buffer: BUFFER,
-      discount: DISCOUNT,
-      pcvDeposits: [aaveEthPCVDeposit, compoundEthPCVDeposit],
-      ratios: [5000, 5000],
-      duration: BC_DURATION,
-      incentive: BC_INCENTIVE
-    }
-  );
+  const bondingCurve = await bondingCurveFactory.deploy(core, chainlinkEthUsdOracleWrapper, ethers.constants.AddressZero, {
+    scale: SCALE,
+    buffer: BUFFER,
+    discount: DISCOUNT,
+    pcvDeposits: [aaveEthPCVDeposit, compoundEthPCVDeposit],
+    ratios: [5000, 5000],
+    duration: BC_DURATION,
+    incentive: BC_INCENTIVE
+  });
 
   logging && console.log(`3/4 Bonding curve deployed to: ${bondingCurve.address}`);
   logging && console.log(`Deploying RatioPCVController...`);

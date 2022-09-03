@@ -89,10 +89,7 @@ describe('CollateralizationOracleGuardian', function () {
 
   describe('setCache', function () {
     it('before time reverts', async function () {
-      await expectRevert(
-        oracleGuardian.connect(impersonatedSigners[governorAddress]).setCache('300', '400'),
-        'Timed: time not ended'
-      );
+      await expectRevert(oracleGuardian.connect(impersonatedSigners[governorAddress]).setCache('300', '400'), 'Timed: time not ended');
     });
 
     it('should revert if not governor', async function () {
@@ -119,10 +116,7 @@ describe('CollateralizationOracleGuardian', function () {
       it('second set inside window fails', async function () {
         expect(await oracleGuardian.isTimeEnded()).to.be.false;
 
-        await expectRevert(
-          oracleGuardian.connect(impersonatedSigners[governorAddress]).setCache('300', '400'),
-          'Timed: time not ended'
-        );
+        await expectRevert(oracleGuardian.connect(impersonatedSigners[governorAddress]).setCache('300', '400'), 'Timed: time not ended');
       });
 
       it('second set after time succeeds', async function () {
@@ -158,35 +152,25 @@ describe('CollateralizationOracleGuardian', function () {
 
   describe('calculateDeviationThresholdBasisPoints()', function () {
     it('100% difference', async function () {
-      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('100', '0')).toString()).to.be.equal(
-        '10000'
-      );
+      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('100', '0')).toString()).to.be.equal('10000');
     });
 
     it('50% difference', async function () {
-      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('1000', '500')).toString()).to.be.equal(
-        '5000'
-      );
+      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('1000', '500')).toString()).to.be.equal('5000');
     });
 
     it('33% difference', async function () {
-      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('750', '1000')).toString()).to.be.equal(
-        '3333'
-      );
+      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('750', '1000')).toString()).to.be.equal('3333');
     });
 
     it('0% difference', async function () {
-      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('200', '200')).toString()).to.be.equal(
-        '0'
-      );
+      await expect((await oracleGuardian.calculateDeviationThresholdBasisPoints('200', '200')).toString()).to.be.equal('0');
     });
   });
 
   describe('setDeviationThresholdBasisPoints()', function () {
     it('should emit DeviationThresholdUpdate', async function () {
-      await expect(
-        await oracleGuardian.connect(impersonatedSigners[governorAddress]).setDeviationThresholdBasisPoints('300')
-      )
+      await expect(await oracleGuardian.connect(impersonatedSigners[governorAddress]).setDeviationThresholdBasisPoints('300'))
         .to.emit(oracleGuardian, 'DeviationThresholdUpdate')
         .withArgs('1000', '300');
     });

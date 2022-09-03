@@ -46,14 +46,7 @@ describe('GlobalRateLimitedMinterBuffer', function () {
 
     globalRateLimitedMinter = await (
       await ethers.getContractFactory('GlobalRateLimitedMinter')
-    ).deploy(
-      core.address,
-      globalRateLimitPerSecond,
-      globalRateLimitPerSecond,
-      maxRateLimitPerSecond,
-      maxBufferCap,
-      bufferCap
-    );
+    ).deploy(core.address, globalRateLimitPerSecond, globalRateLimitPerSecond, maxRateLimitPerSecond, maxBufferCap, bufferCap);
 
     authorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
@@ -66,27 +59,21 @@ describe('GlobalRateLimitedMinterBuffer', function () {
 
   describe('Init', function () {
     it('buffercap is correct on individual minter', async function () {
-      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).bufferCap).to.be.equal(
-        bufferCap
-      );
+      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).bufferCap).to.be.equal(bufferCap);
     });
 
     it('rateLimitPerSecond is correctly initialized on individual minter', async function () {
-      expect(
-        (await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).rateLimitPerSecond
-      ).to.be.equal(globalRateLimitPerSecond);
+      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).rateLimitPerSecond).to.be.equal(
+        globalRateLimitPerSecond
+      );
     });
 
     it('lastBufferUsedTime is not 0 individual minter', async function () {
-      expect(
-        (await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).lastBufferUsedTime
-      ).to.not.be.equal(0);
+      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).lastBufferUsedTime).to.not.be.equal(0);
     });
 
     it('bufferStored is correctly initialized on individual minter', async function () {
-      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).bufferStored).to.be.equal(
-        bufferCap
-      );
+      expect((await globalRateLimitedMinter.rateLimitPerAddress(authorizedMinter.address)).bufferStored).to.be.equal(bufferCap);
     });
 
     it('maxBufferCap is correctly initialized on individual minter', async function () {
@@ -134,13 +121,9 @@ describe('GlobalRateLimitedMinterBuffer', function () {
           maxBufferCap
         );
 
-        authorizedMinter = await (
-          await ethers.getContractFactory('MockMinter')
-        ).deploy(globalRateLimitedMinter.address);
+        authorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
-        secondAuthorizedMinter = await (
-          await ethers.getContractFactory('MockMinter')
-        ).deploy(globalRateLimitedMinter.address);
+        secondAuthorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
         await core.connect(impersonatedSigners[governorAddress]).grantMinter(globalRateLimitedMinter.address);
 
@@ -195,8 +178,9 @@ describe('GlobalRateLimitedMinterBuffer', function () {
       });
 
       it('mint fails when user has no buffer or allocation in the system', async function () {
-        const { lastBufferUsedTime, bufferCap, rateLimitPerSecond, bufferStored } =
-          await globalRateLimitedMinter.rateLimitPerAddress(userAddress);
+        const { lastBufferUsedTime, bufferCap, rateLimitPerSecond, bufferStored } = await globalRateLimitedMinter.rateLimitPerAddress(
+          userAddress
+        );
 
         expect(lastBufferUsedTime).to.be.equal(0);
         expect(bufferCap).to.be.equal(0);
@@ -225,9 +209,7 @@ describe('GlobalRateLimitedMinterBuffer', function () {
     let secondAuthorizedMinter: Contract;
 
     beforeEach(async function () {
-      secondAuthorizedMinter = await (
-        await ethers.getContractFactory('MockMinter')
-      ).deploy(globalRateLimitedMinter.address);
+      secondAuthorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
       await globalRateLimitedMinter
         .connect(impersonatedSigners[governorAddress])
@@ -250,9 +232,7 @@ describe('GlobalRateLimitedMinterBuffer', function () {
       await secondAuthorizedMinter.mint(userAddress, mintAmount);
 
       /// expect individual buffers to be 50% depleted + 2 seconds of replenishment for the first minter
-      expect((await globalRateLimitedMinter.individualBuffer(secondAuthorizedMinter.address)).mul(2)).to.be.equal(
-        bufferCap
-      );
+      expect((await globalRateLimitedMinter.individualBuffer(secondAuthorizedMinter.address)).mul(2)).to.be.equal(bufferCap);
       expect((await globalRateLimitedMinter.individualBuffer(authorizedMinter.address)).mul(2)).to.be.equal(
         bufferCap.add(globalRateLimitPerSecond.mul(2))
       );
@@ -267,18 +247,15 @@ describe('GlobalRateLimitedMinterBuffer', function () {
       ).to.be.equal(1);
 
       /// assert that the second minter updated the global buffer last used time correctly
-      expect(
-        (await globalRateLimitedMinter.rateLimitPerAddress(secondAuthorizedMinter.address)).lastBufferUsedTime
-      ).to.be.equal(await globalRateLimitedMinter.lastBufferUsedTime());
+      expect((await globalRateLimitedMinter.rateLimitPerAddress(secondAuthorizedMinter.address)).lastBufferUsedTime).to.be.equal(
+        await globalRateLimitedMinter.lastBufferUsedTime()
+      );
     });
 
     it('second minter mint fails as global buffer is depleted', async function () {
       const remainingGlobalBuffer = await globalRateLimitedMinter.buffer();
       await authorizedMinter.mint(userAddress, remainingGlobalBuffer);
-      await expectRevert(
-        secondAuthorizedMinter.mint(userAddress, remainingGlobalBuffer),
-        'RateLimited: rate limit hit'
-      );
+      await expectRevert(secondAuthorizedMinter.mint(userAddress, remainingGlobalBuffer), 'RateLimited: rate limit hit');
     });
   });
 
@@ -288,14 +265,7 @@ describe('GlobalRateLimitedMinterBuffer', function () {
     beforeEach(async function () {
       globalRateLimitedMinter = await (
         await ethers.getContractFactory('GlobalRateLimitedMinter')
-      ).deploy(
-        core.address,
-        globalRateLimitPerSecond,
-        globalRateLimitPerSecond,
-        maxRateLimitPerSecond,
-        maxBufferCap,
-        bufferCap
-      );
+      ).deploy(core.address, globalRateLimitPerSecond, globalRateLimitPerSecond, maxRateLimitPerSecond, maxBufferCap, bufferCap);
 
       authorizedMinter = await (await ethers.getContractFactory('MockMinter')).deploy(globalRateLimitedMinter.address);
 
@@ -348,14 +318,7 @@ describe('GlobalRateLimitedMinterBuffer', function () {
       await expectRevert(
         (
           await ethers.getContractFactory('GlobalRateLimitedMinter')
-        ).deploy(
-          core.address,
-          globalRateLimitPerSecond,
-          globalRateLimitPerSecond,
-          maxRateLimitPerSecond,
-          bufferCap,
-          bufferCap
-        ),
+        ).deploy(core.address, globalRateLimitPerSecond, globalRateLimitPerSecond, maxRateLimitPerSecond, bufferCap, bufferCap),
         'MultiRateLimited: max buffer cap invalid'
       );
     });

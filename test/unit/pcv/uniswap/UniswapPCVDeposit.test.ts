@@ -46,26 +46,15 @@ describe('EthUniswapPCVDeposit', function () {
 
     this.fei = await ethers.getContractAt('Fei', await this.core.fei());
     this.weth = await (await ethers.getContractFactory('MockWeth')).deploy();
-    this.pair = await (
-      await ethers.getContractFactory('MockUniswapV2PairLiquidity')
-    ).deploy(this.fei.address, this.weth.address);
+    this.pair = await (await ethers.getContractFactory('MockUniswapV2PairLiquidity')).deploy(this.fei.address, this.weth.address);
     this.oracle = await (await ethers.getContractFactory('MockOracle')).deploy(400); // 400:1 oracle price
     this.router = await (await ethers.getContractFactory('MockRouter')).deploy(this.pair.address);
     this.router.setWETH(this.weth.address);
     this.pcvDeposit = await (
       await ethers.getContractFactory('UniswapPCVDeposit')
-    ).deploy(
-      this.core.address,
-      this.pair.address,
-      this.router.address,
-      this.oracle.address,
-      this.oracle.address,
-      '100'
-    );
+    ).deploy(this.core.address, this.pair.address, this.router.address, this.oracle.address, this.oracle.address, '100');
 
-    await this.pair
-      .connect(impersonatedSigners[userAddress])
-      .set(50000000, 100000, LIQUIDITY_INCREMENT, { value: 100000 }); // 500:1 FEI/ETH with 10k liquidity
+    await this.pair.connect(impersonatedSigners[userAddress]).set(50000000, 100000, LIQUIDITY_INCREMENT, { value: 100000 }); // 500:1 FEI/ETH with 10k liquidity
 
     await this.fei.connect(impersonatedSigners[minterAddress]).mint(this.pair.address, 50000000, {});
 
@@ -74,9 +63,7 @@ describe('EthUniswapPCVDeposit', function () {
 
   describe('Resistant Balance', function () {
     it('succeeds', async function () {
-      await this.pair
-        .connect(impersonatedSigners[userAddress])
-        .transfer(this.pcvDeposit.address, LIQUIDITY_INCREMENT, {});
+      await this.pair.connect(impersonatedSigners[userAddress]).transfer(this.pcvDeposit.address, LIQUIDITY_INCREMENT, {});
       const resistantBalances = await this.pcvDeposit.resistantBalanceAndFei();
 
       // Resistant balances should multiply to k and have price of 400
@@ -196,10 +183,7 @@ describe('EthUniswapPCVDeposit', function () {
             to: this.pcvDeposit.address,
             value: 100000
           });
-          await expectRevert(
-            this.pcvDeposit.connect(impersonatedSigners[userAddress]).deposit({}),
-            'amount liquidity revert'
-          );
+          await expectRevert(this.pcvDeposit.connect(impersonatedSigners[userAddress]).deposit({}), 'amount liquidity revert');
         });
 
         describe('after threshold update', function () {
@@ -355,9 +339,7 @@ describe('EthUniswapPCVDeposit', function () {
       it('reverts', async function () {
         await this.pcvDeposit.connect(impersonatedSigners[governorAddress]).pause({});
         await expectRevert(
-          this.pcvDeposit
-            .connect(impersonatedSigners[pcvControllerAddress])
-            .withdraw(beneficiaryAddress1, '100000', {}),
+          this.pcvDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(beneficiaryAddress1, '100000', {}),
           'Pausable: paused'
         );
       });
@@ -396,11 +378,7 @@ describe('EthUniswapPCVDeposit', function () {
 
       describe('Partial', function () {
         beforeEach(async function () {
-          await expect(
-            await this.pcvDeposit
-              .connect(impersonatedSigners[pcvControllerAddress])
-              .withdraw(beneficiaryAddress1, '50000')
-          )
+          await expect(await this.pcvDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(beneficiaryAddress1, '50000'))
             .to.emit(this.pcvDeposit, 'Withdrawal')
             .withArgs(pcvControllerAddress, beneficiaryAddress1, '50000');
         });
@@ -428,9 +406,7 @@ describe('EthUniswapPCVDeposit', function () {
 
       describe('Total', function () {
         beforeEach(async function () {
-          await this.pcvDeposit
-            .connect(impersonatedSigners[pcvControllerAddress])
-            .withdraw(beneficiaryAddress1, '100000', {});
+          await this.pcvDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(beneficiaryAddress1, '100000', {});
         });
 
         it('user balance updates', async function () {
@@ -459,9 +435,7 @@ describe('EthUniswapPCVDeposit', function () {
   describe('Access', function () {
     describe('setMaxBasisPointsFromPegLP', function () {
       it('Governor set succeeds', async function () {
-        await expect(
-          await this.pcvDeposit.connect(impersonatedSigners[governorAddress]).setMaxBasisPointsFromPegLP(300)
-        )
+        await expect(await this.pcvDeposit.connect(impersonatedSigners[governorAddress]).setMaxBasisPointsFromPegLP(300))
           .to.emit(this.pcvDeposit, 'MaxBasisPointsFromPegLPUpdate')
           .withArgs('100', '300');
 
@@ -499,9 +473,7 @@ describe('EthUniswapPCVDeposit', function () {
 
       it('Non-PCVController fails', async function () {
         await expectRevert(
-          this.pcvDeposit
-            .connect(impersonatedSigners[userAddress])
-            .withdrawERC20(this.weth.address, userAddress, toBN('1000'), {}),
+          this.pcvDeposit.connect(impersonatedSigners[userAddress]).withdrawERC20(this.weth.address, userAddress, toBN('1000'), {}),
           'CoreRef: Caller is not a PCV controller'
         );
       });
@@ -509,9 +481,7 @@ describe('EthUniswapPCVDeposit', function () {
 
     describe('Pair', function () {
       it('Governor set succeeds', async function () {
-        const pair2 = await (
-          await ethers.getContractFactory('MockUniswapV2PairLiquidity')
-        ).deploy(this.weth.address, this.fei.address);
+        const pair2 = await (await ethers.getContractFactory('MockUniswapV2PairLiquidity')).deploy(this.weth.address, this.fei.address);
         await expect(await this.pcvDeposit.connect(impersonatedSigners[governorAddress]).setPair(pair2.address))
           .to.emit(this.pcvDeposit, 'PairUpdate')
           .withArgs(this.pair.address, pair2.address);

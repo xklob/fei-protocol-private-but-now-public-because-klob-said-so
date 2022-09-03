@@ -1,11 +1,4 @@
-import {
-  BalancerPool2Lens,
-  MockERC20,
-  MockOracle,
-  MockPCVDepositV2,
-  MockVault,
-  MockWeightedPool
-} from '@custom-types/contracts';
+import { BalancerPool2Lens, MockERC20, MockOracle, MockPCVDepositV2, MockVault, MockWeightedPool } from '@custom-types/contracts';
 import { expectApproxAbs, getAddresses, getCore, getImpersonatedSigner } from '@test/helpers';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
@@ -67,14 +60,8 @@ describe('BalancerPool2Lens', function () {
     await pool.mint(deposit.address, 10000);
 
     // set weights to 70%, 30%
-    await pool.updateWeightsGradually(0, 0, [
-      ethers.constants.WeiPerEther.div(100).mul(70),
-      ethers.constants.WeiPerEther.div(100).mul(30)
-    ]);
-    await pool.mockSetNormalizedWeights([
-      ethers.constants.WeiPerEther.div(100).mul(70),
-      ethers.constants.WeiPerEther.div(100).mul(30)
-    ]);
+    await pool.updateWeightsGradually(0, 0, [ethers.constants.WeiPerEther.div(100).mul(70), ethers.constants.WeiPerEther.div(100).mul(30)]);
+    await pool.mockSetNormalizedWeights([ethers.constants.WeiPerEther.div(100).mul(70), ethers.constants.WeiPerEther.div(100).mul(30)]);
 
     oracle1 = await (await ethers.getContractFactory('MockOracle')).deploy('3500');
     oracle2 = await (await ethers.getContractFactory('MockOracle')).deploy('1');

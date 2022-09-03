@@ -72,9 +72,7 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
   logging && console.log('lusdPCVDripController: ', lusdPCVDripController.address);
 
   // 3. deploy lusd PSM Fei Skimmer
-  const lusdPSMFeiSkimmer = await (
-    await ethers.getContractFactory('FeiSkimmer')
-  ).deploy(core, lusdPSM.address, lusdPSMBufferCap);
+  const lusdPSMFeiSkimmer = await (await ethers.getContractFactory('FeiSkimmer')).deploy(core, lusdPSM.address, lusdPSMBufferCap);
 
   logging && console.log('lusdPSMFeiSkimmer: ', lusdPSMFeiSkimmer.address);
 
@@ -98,15 +96,7 @@ export const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, con
 };
 
 export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts) => {
-  const {
-    lusdPCVDripController,
-    lusdPSMFeiSkimmer,
-    lusdPSM,
-    pcvGuardian,
-    bammDeposit,
-    lusd,
-    rariPool146EthPCVDeposit
-  } = contracts;
+  const { lusdPCVDripController, lusdPSMFeiSkimmer, lusdPSM, pcvGuardian, bammDeposit, lusd, rariPool146EthPCVDeposit } = contracts;
 
   expect(await lusdPCVDripController.source()).to.be.equal(bammDeposit.address);
   expect(await lusdPCVDripController.target()).to.be.equal(lusdPSM.address);

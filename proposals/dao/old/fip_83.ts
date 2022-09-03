@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { getImpersonatedSigner, time } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -66,12 +60,8 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
   const eswakSigner = await getImpersonatedSigner(eswak);
   // check timelock balances
-  expect(await contracts.fei.balanceOf(contracts.laTribuFeiTimelock.address)).to.be.equal(
-    ethers.constants.WeiPerEther.mul('1120000')
-  );
-  expect(await contracts.tribe.balanceOf(contracts.laTribuTribeTimelock.address)).to.be.equal(
-    ethers.constants.WeiPerEther.mul('1000000')
-  );
+  expect(await contracts.fei.balanceOf(contracts.laTribuFeiTimelock.address)).to.be.equal(ethers.constants.WeiPerEther.mul('1120000'));
+  expect(await contracts.tribe.balanceOf(contracts.laTribuTribeTimelock.address)).to.be.equal(ethers.constants.WeiPerEther.mul('1000000'));
   // fast-forward 1 month
   await time.increase('2592000');
   // can claim FEI

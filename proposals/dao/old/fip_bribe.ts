@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 
 /*
 
@@ -34,10 +28,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 
   // Deploy StakingTokenWrapper for votiumBriberD3pool
   const stakingTokenWrapperFactory = await ethers.getContractFactory('StakingTokenWrapper');
-  const stakingTokenWrapperBribeD3pool = await stakingTokenWrapperFactory.deploy(
-    addresses.tribalChief,
-    votiumBriberD3pool.address
-  );
+  const stakingTokenWrapperBribeD3pool = await stakingTokenWrapperFactory.deploy(addresses.tribalChief, votiumBriberD3pool.address);
   await stakingTokenWrapperBribeD3pool.deployTransaction.wait();
   logging && console.log('stakingTokenWrapperBribeD3pool :', stakingTokenWrapperBribeD3pool.address);
 
@@ -51,9 +42,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // This could include setting up Hardhat to impersonate accounts,
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  await contracts.tribalChief.add('250', addresses.stakingTokenWrapperBribeD3pool, ethers.constants.AddressZero, [
-    [0, 10000]
-  ]);
+  await contracts.tribalChief.add('250', addresses.stakingTokenWrapperBribeD3pool, ethers.constants.AddressZero, [[0, 10000]]);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -72,9 +61,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.votiumBriberD3pool)).to.be.at.least('0');
 
   const stakingTokenWrapperBribeD3poolPid = await contracts.stakingTokenWrapperBribeD3pool.pid();
-  expect(await contracts.tribalChief.stakedToken(stakingTokenWrapperBribeD3poolPid)).to.be.equal(
-    addresses.stakingTokenWrapperBribeD3pool
-  );
+  expect(await contracts.tribalChief.stakedToken(stakingTokenWrapperBribeD3poolPid)).to.be.equal(addresses.stakingTokenWrapperBribeD3pool);
   expect((await contracts.tribalChief.poolInfo(stakingTokenWrapperBribeD3poolPid)).allocPoint).to.be.equal('250');
 };
 

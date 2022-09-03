@@ -57,8 +57,7 @@ describe('RewardsDistributorAdmin', function () {
     it('hasRole', async function () {
       for (let i = 0; i < impersonatedAddresses.length; i++) {
         /// assert that all users that were setup in constructor were given ARD role
-        expect(await rewardsDistributorAdmin.hasRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, impersonatedAddresses[i])).to.be
-          .true;
+        expect(await rewardsDistributorAdmin.hasRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, impersonatedAddresses[i])).to.be.true;
       }
     });
 
@@ -81,9 +80,7 @@ describe('RewardsDistributorAdmin', function () {
           .grantRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, governorAddress);
 
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._setCompSupplySpeed(pcvControllerAddress, 0),
+          rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setCompSupplySpeed(pcvControllerAddress, 0),
           'Pausable: paused'
         );
       });
@@ -99,9 +96,7 @@ describe('RewardsDistributorAdmin', function () {
           .connect(impersonatedSigners[governorAddress])
           .grantRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, governorAddress);
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._setCompBorrowSpeed(pcvControllerAddress, 0),
+          rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setCompBorrowSpeed(pcvControllerAddress, 0),
           'Pausable: paused'
         );
       });
@@ -113,9 +108,7 @@ describe('RewardsDistributorAdmin', function () {
       it('fails when caller does not have correct role', async function () {
         const expectedError = `AccessControl: account ${governorAddress.toLowerCase()} is missing role ${AUTO_REWARDS_DISTRIBUTOR_ROLE}`;
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._setCompSupplySpeed(pcvControllerAddress, 0),
+          rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setCompSupplySpeed(pcvControllerAddress, 0),
           expectedError
         );
       });
@@ -141,9 +134,7 @@ describe('RewardsDistributorAdmin', function () {
       it('fails when caller does not have correct role', async function () {
         const expectedError = `AccessControl: account ${governorAddress.toLowerCase()} is missing role ${AUTO_REWARDS_DISTRIBUTOR_ROLE}`;
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._setCompBorrowSpeed(pcvControllerAddress, 0),
+          rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setCompBorrowSpeed(pcvControllerAddress, 0),
           expectedError
         );
       });
@@ -169,9 +160,7 @@ describe('RewardsDistributorAdmin', function () {
     describe('guardianDisableSupplySpeed', function () {
       it('fails when caller does not have correct role', async function () {
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[pcvControllerAddress])
-            .guardianDisableSupplySpeed(pcvControllerAddress),
+          rewardsDistributorAdmin.connect(impersonatedSigners[pcvControllerAddress]).guardianDisableSupplySpeed(pcvControllerAddress),
           'CoreRef: Caller is not a guardian or governor'
         );
       });
@@ -179,9 +168,7 @@ describe('RewardsDistributorAdmin', function () {
       it('succeeds when caller has correct role', async function () {
         const newCompBorrowSpeed = 0;
         await expect(
-          await rewardsDistributorAdmin
-            .connect(impersonatedSigners[guardianAddress])
-            .guardianDisableSupplySpeed(pcvControllerAddress)
+          await rewardsDistributorAdmin.connect(impersonatedSigners[guardianAddress]).guardianDisableSupplySpeed(pcvControllerAddress)
         )
           .to.emit(rewardsDistributor, 'successSetCompSupplySpeed')
           .withArgs();
@@ -193,9 +180,7 @@ describe('RewardsDistributorAdmin', function () {
     describe('guardianDisableBorrowSpeed', function () {
       it('fails when caller does not have correct role', async function () {
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[pcvControllerAddress])
-            .guardianDisableBorrowSpeed(pcvControllerAddress),
+          rewardsDistributorAdmin.connect(impersonatedSigners[pcvControllerAddress]).guardianDisableBorrowSpeed(pcvControllerAddress),
           'CoreRef: Caller is not a guardian or governor'
         );
       });
@@ -203,9 +188,7 @@ describe('RewardsDistributorAdmin', function () {
       it('succeeds when caller has correct role', async function () {
         const newCompBorrowSpeed = 0;
         await expect(
-          await rewardsDistributorAdmin
-            .connect(impersonatedSigners[guardianAddress])
-            .guardianDisableBorrowSpeed(pcvControllerAddress)
+          await rewardsDistributorAdmin.connect(impersonatedSigners[guardianAddress]).guardianDisableBorrowSpeed(pcvControllerAddress)
         )
           .to.emit(rewardsDistributor, 'successSetCompBorrowSpeed')
           .withArgs();
@@ -224,9 +207,7 @@ describe('RewardsDistributorAdmin', function () {
       });
 
       it('succeeds when caller has correct role', async function () {
-        await expect(
-          await rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._addMarket(pcvControllerAddress)
-        )
+        await expect(await rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._addMarket(pcvControllerAddress))
           .to.emit(rewardsDistributor, 'successAddMarket')
           .withArgs();
         expect(await rewardsDistributor.newMarket()).to.be.equal(pcvControllerAddress);
@@ -236,17 +217,13 @@ describe('RewardsDistributorAdmin', function () {
     describe('_setImplementation', function () {
       it('fails when caller does not have correct role', async function () {
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[pcvControllerAddress])
-            ._setImplementation(pcvControllerAddress),
+          rewardsDistributorAdmin.connect(impersonatedSigners[pcvControllerAddress])._setImplementation(pcvControllerAddress),
           'CoreRef: Caller is not a governor'
         );
       });
 
       it('succeeds when caller has correct role', async function () {
-        await rewardsDistributorAdmin
-          .connect(impersonatedSigners[governorAddress])
-          ._setImplementation(pcvControllerAddress);
+        await rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setImplementation(pcvControllerAddress);
         expect(await rewardsDistributor.implementation()).to.be.equal(pcvControllerAddress);
       });
     });
@@ -255,9 +232,7 @@ describe('RewardsDistributorAdmin', function () {
       it('fails when caller does not have correct role', async function () {
         const compGrantAmount = 1000;
         await expectRevert(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[pcvControllerAddress])
-            ._grantComp(pcvControllerAddress, compGrantAmount),
+          rewardsDistributorAdmin.connect(impersonatedSigners[pcvControllerAddress])._grantComp(pcvControllerAddress, compGrantAmount),
           'CoreRef: Caller is not a governor'
         );
       });
@@ -265,9 +240,7 @@ describe('RewardsDistributorAdmin', function () {
       it('succeeds when caller has correct role', async function () {
         const compGrantAmount = 1000;
         await expect(
-          rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._grantComp(pcvControllerAddress, compGrantAmount)
+          rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._grantComp(pcvControllerAddress, compGrantAmount)
         )
           .to.emit(rewardsDistributor, 'successGrantComp')
           .withArgs(pcvControllerAddress, compGrantAmount);
@@ -278,18 +251,11 @@ describe('RewardsDistributorAdmin', function () {
 
     describe('_setPendingAdmin', function () {
       it('fails when caller is not governor', async function () {
-        await expectRevert(
-          rewardsDistributorAdmin._setPendingAdmin(pcvControllerAddress),
-          'CoreRef: Caller is not a governor'
-        );
+        await expectRevert(rewardsDistributorAdmin._setPendingAdmin(pcvControllerAddress), 'CoreRef: Caller is not a governor');
       });
 
       it('succeeds when caller is governor', async function () {
-        await expect(
-          await rewardsDistributorAdmin
-            .connect(impersonatedSigners[governorAddress])
-            ._setPendingAdmin(pcvControllerAddress)
-        )
+        await expect(await rewardsDistributorAdmin.connect(impersonatedSigners[governorAddress])._setPendingAdmin(pcvControllerAddress))
           .to.emit(rewardsDistributor, 'successSetAdmin')
           .withArgs(pcvControllerAddress);
         expect(await rewardsDistributor.pendingNewAdmin()).to.be.equal(pcvControllerAddress);

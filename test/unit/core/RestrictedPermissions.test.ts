@@ -36,16 +36,11 @@ describe('RestrictedPermissions', function () {
   });
 
   beforeEach(async function () {
-    ({ userAddress, minterAddress, burnerAddress, pcvControllerAddress, governorAddress, guardianAddress } =
-      await getAddresses());
+    ({ userAddress, minterAddress, burnerAddress, pcvControllerAddress, governorAddress, guardianAddress } = await getAddresses());
     core = await getCore();
 
     const restrictedPermissionsFactory = await ethers.getContractFactory('MockRestrictedPermissions');
-    restrictedPermissions = await restrictedPermissionsFactory.deploy(
-      core.address,
-      await core.fei(),
-      await core.tribe()
-    );
+    restrictedPermissions = await restrictedPermissionsFactory.deploy(core.address, await core.fei(), await core.tribe());
 
     const coreRefFactory = await ethers.getContractFactory('MockCoreRef');
     coreRef = await coreRefFactory.deploy(restrictedPermissions.address);
@@ -59,10 +54,7 @@ describe('RestrictedPermissions', function () {
 
     it('onlyMinter from non-minter reverts', async function () {
       expect(await restrictedPermissions.isMinter(userAddress)).to.be.false;
-      await expectRevert(
-        coreRef.connect(impersonatedSigners[userAddress]).testMinter({}),
-        'CoreRef: Caller is not a minter'
-      );
+      await expectRevert(coreRef.connect(impersonatedSigners[userAddress]).testMinter({}), 'CoreRef: Caller is not a minter');
     });
   });
 
@@ -85,19 +77,13 @@ describe('RestrictedPermissions', function () {
     it('onlyGovernor from governor reverts', async function () {
       expect(await core.isGovernor(governorAddress)).to.be.true;
       expect(await restrictedPermissions.isGovernor(governorAddress)).to.be.false;
-      await expectRevert(
-        coreRef.connect(impersonatedSigners[governorAddress]).testGovernor({}),
-        'CoreRef: Caller is not a governor'
-      );
+      await expectRevert(coreRef.connect(impersonatedSigners[governorAddress]).testGovernor({}), 'CoreRef: Caller is not a governor');
     });
 
     it('onlyGovernor from non-governor reverts', async function () {
       expect(await core.isGovernor(userAddress)).to.be.false;
       expect(await restrictedPermissions.isGovernor(userAddress)).to.be.false;
-      await expectRevert(
-        coreRef.connect(impersonatedSigners[userAddress]).testGovernor({}),
-        'CoreRef: Caller is not a governor'
-      );
+      await expectRevert(coreRef.connect(impersonatedSigners[userAddress]).testGovernor({}), 'CoreRef: Caller is not a governor');
     });
   });
 

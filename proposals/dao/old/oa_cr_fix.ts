@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { ZERO_ADDRESS, overwriteChainlinkAggregator } from '@test/helpers';
 
 const fipNumber = 'oa_cr_fix';
@@ -60,38 +54,18 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // Check the removed PCV Deposits
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8FeiPCVDepositWrapper)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8DaiPCVDeposit)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8LusdPCVDeposit)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool18FeiPCVDepositWrapper)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool27FeiPCVDepositWrapper)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool90FeiPCVDepositWrapper)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool146EthPCVDeposit)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.convexPoolPCVDepositWrapper)).to.be.equal(
-    ZERO_ADDRESS
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8FeiPCVDepositWrapper)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8DaiPCVDeposit)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool8LusdPCVDeposit)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool18FeiPCVDepositWrapper)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool27FeiPCVDepositWrapper)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool90FeiPCVDepositWrapper)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.rariPool146EthPCVDeposit)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.convexPoolPCVDepositWrapper)).to.be.equal(ZERO_ADDRESS);
 
   // Check the lens swap
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70WethOld)).to.be.equal(
-    ZERO_ADDRESS
-  );
-  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70Weth)).to.be.equal(
-    addresses.weth
-  );
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70WethOld)).to.be.equal(ZERO_ADDRESS);
+  expect(await contracts.collateralizationOracle.depositToToken(addresses.balancerLensBpt30Fei70Weth)).to.be.equal(addresses.weth);
 
   // Check the new lens returned values
   const balance = (await contracts.balancerLensBpt30Fei70Weth.balance()) / 1e18;

@@ -1,19 +1,5 @@
-import {
-  Core,
-  MockERC20,
-  MockEthUniswapPCVDeposit,
-  MockPCVDepositV2,
-  RatioPCVControllerV2,
-  WETH9
-} from '@custom-types/contracts';
-import {
-  balance,
-  deployDevelopmentWeth,
-  expectRevert,
-  getAddresses,
-  getCore,
-  getImpersonatedSigner
-} from '@test/helpers';
+import { Core, MockERC20, MockEthUniswapPCVDeposit, MockPCVDepositV2, RatioPCVControllerV2, WETH9 } from '@custom-types/contracts';
+import { balance, deployDevelopmentWeth, expectRevert, getAddresses, getCore, getImpersonatedSigner } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 import { expect } from 'chai';
 import { BigNumber, Signer } from 'ethers';
@@ -61,9 +47,7 @@ describe('RatioPCVControllerV2', function () {
 
     pcvAmount = toBN('10000000000');
 
-    pcvDepositWeth = await (
-      await ethers.getContractFactory('MockPCVDepositV2')
-    ).deploy(core.address, weth.address, pcvAmount, '0');
+    pcvDepositWeth = await (await ethers.getContractFactory('MockPCVDepositV2')).deploy(core.address, weth.address, pcvAmount, '0');
 
     await impersonatedSigners[userAddress].sendTransaction({
       from: userAddress,
@@ -104,9 +88,7 @@ describe('RatioPCVControllerV2', function () {
 
         it('200% reverts', async function () {
           await expectRevert(
-            pcvController
-              .connect(impersonatedSigners[pcvControllerAddress])
-              .withdrawRatio(pcvDepositEth.address, userAddress, '20000', {}),
+            pcvController.connect(impersonatedSigners[pcvControllerAddress]).withdrawRatio(pcvDepositEth.address, userAddress, '20000', {}),
             'RatioPCVController: basisPoints too high'
           );
         });
@@ -117,9 +99,7 @@ describe('RatioPCVControllerV2', function () {
             .withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}); // withdraw all
 
           await expectRevert(
-            pcvController
-              .connect(impersonatedSigners[pcvControllerAddress])
-              .withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
+            pcvController.connect(impersonatedSigners[pcvControllerAddress]).withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
             'RatioPCVController: no value to withdraw'
           );
         });
@@ -128,9 +108,7 @@ describe('RatioPCVControllerV2', function () {
       describe('not from pcvController', function () {
         it('reverts', async function () {
           await expectRevert(
-            pcvController
-              .connect(impersonatedSigners[userAddress])
-              .withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
+            pcvController.connect(impersonatedSigners[userAddress]).withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
             'CoreRef: Caller is not a PCV controller'
           );
         });
@@ -140,9 +118,7 @@ describe('RatioPCVControllerV2', function () {
         it('reverts', async function () {
           await pcvController.connect(impersonatedSigners[governorAddress]).pause({});
           await expectRevert(
-            pcvController
-              .connect(impersonatedSigners[pcvControllerAddress])
-              .withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
+            pcvController.connect(impersonatedSigners[pcvControllerAddress]).withdrawRatio(pcvDepositEth.address, userAddress, '10000', {}),
             'Pausable: paused'
           );
         });
@@ -276,9 +252,7 @@ describe('RatioPCVControllerV2', function () {
       describe('not from pcvController', function () {
         it('reverts', async function () {
           await expectRevert(
-            pcvController
-              .connect(impersonatedSigners[userAddress])
-              .withdrawRatioWrapETH(pcvDepositEth.address, userAddress, '10000', {}),
+            pcvController.connect(impersonatedSigners[userAddress]).withdrawRatioWrapETH(pcvDepositEth.address, userAddress, '10000', {}),
             'CoreRef: Caller is not a PCV controller'
           );
         });
@@ -820,9 +794,7 @@ describe('RatioPCVControllerV2', function () {
       describe('from pcvController', function () {
         it('succeeds', async function () {
           const userBalanceBefore = await token.balanceOf(userAddress);
-          await pcvController
-            .connect(impersonatedSigners[pcvControllerAddress])
-            .transferERC20(token.address, userAddress);
+          await pcvController.connect(impersonatedSigners[pcvControllerAddress]).transferERC20(token.address, userAddress);
           const userBalanceAfter = await token.balanceOf(userAddress);
 
           expect(await token.balanceOf(pcvController.address)).to.be.equal('0');

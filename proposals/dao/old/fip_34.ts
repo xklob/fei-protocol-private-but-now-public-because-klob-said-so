@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '../../../types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '../../../types/types';
 import { FeiDAOTimelock } from '@custom-types/contracts';
 import { getImpersonatedSigner } from '@test/helpers';
 
@@ -63,9 +57,7 @@ export const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, con
 export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts) => {
   const { fei, optimisticMinter, optimisticTimelock, feiDAOTimelock, feiDAO, timelock, tribe } = contracts;
 
-  expect(await fei.balanceOf(optimisticTimelock.address)).to.be.bignumber.greaterThan(
-    ethers.constants.WeiPerEther.mul(100_000_000)
-  );
+  expect(await fei.balanceOf(optimisticTimelock.address)).to.be.bignumber.greaterThan(ethers.constants.WeiPerEther.mul(100_000_000));
 
   expect(await optimisticMinter.owner()).to.be.equal(optimisticTimelock.address);
   expect(await optimisticMinter.isTimeStarted()).to.be.true;

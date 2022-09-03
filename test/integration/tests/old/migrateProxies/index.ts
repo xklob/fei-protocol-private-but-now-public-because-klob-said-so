@@ -102,12 +102,7 @@ describe.skip('e2e-migrate-proxies', function () {
     expect(initialFeiDAOTimelock).to.equal(contractAddresses.timelock);
 
     const values = [0, 0, 0, 0];
-    const targets = [
-      contractAddresses.proxyAdmin,
-      contractAddresses.timelock,
-      contractAddresses.timelock,
-      contractAddresses.feiDAO
-    ];
+    const targets = [contractAddresses.proxyAdmin, contractAddresses.timelock, contractAddresses.timelock, contractAddresses.feiDAO];
     await performDAOAction(feiDAO, contractAddresses.guardianMultisig, fip_84bCalldata, targets, values);
 
     // 1. Check ProxyAdmin owner changed to newTimelock

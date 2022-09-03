@@ -1,12 +1,6 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import {
-  DeployUpgradeFunc,
-  NamedAddresses,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { getImpersonatedSigner, time } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -96,9 +90,7 @@ const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, loggi
   // commit a smart wallet checker (the Balancer team will have to deploy a new contract
   // for this purpose. For this local mock, we add the Angle Protocol's smartwallet checker,
   // that is already deployed onchain.
-  await contracts.veBal
-    .connect(balAuthorizerSigner)
-    .commit_smart_wallet_checker('0xAa241Ccd398feC742f463c534a610529dCC5888E');
+  await contracts.veBal.connect(balAuthorizerSigner).commit_smart_wallet_checker('0xAa241Ccd398feC742f463c534a610529dCC5888E');
   await contracts.veBal.connect(balAuthorizerSigner).apply_smart_wallet_checker();
 
   // add veBalDelegatorPCVDeposit as a smartwallet on the smartwallet checker
@@ -149,9 +141,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.veBal.balanceOf(contracts.veBalDelegatorPCVDeposit.address)).to.be.at.least(e18(100_000));
 
   // Check that gauge vote is properly set to 100% for B-30FEI-70WETH
-  expect(
-    await contracts.balancerGaugeController.vote_user_power(contracts.veBalDelegatorPCVDeposit.address)
-  ).to.be.equal('10000'); // 100% voting power engaged
+  expect(await contracts.balancerGaugeController.vote_user_power(contracts.veBalDelegatorPCVDeposit.address)).to.be.equal('10000'); // 100% voting power engaged
   expect(
     await contracts.balancerGaugeController.last_user_vote(
       contracts.veBalDelegatorPCVDeposit.address,
@@ -160,9 +150,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   ).to.be.at.least(1); // timestamp of last vote > 0
 
   // Should have staked all B-30FEI-70WETH in gauge
-  expect(
-    await contracts.balancerGaugeBpt30Fei70Weth.balanceOf(contracts.veBalDelegatorPCVDeposit.address)
-  ).to.be.at.least(e18(252_865));
+  expect(await contracts.balancerGaugeBpt30Fei70Weth.balanceOf(contracts.veBalDelegatorPCVDeposit.address)).to.be.at.least(e18(252_865));
 
   // Resistant balance & fei properly reported
   // B-30FEI-70WETH staked in gauge should contain ~14k ETH (~50M$) and ~21M FEI

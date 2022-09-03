@@ -32,12 +32,7 @@ export async function exec(txData: string, totalValue: string, addresses: NamedA
   execProposal(voterAddress, governorAlphaAddress, totalValue, proposalNo);
 }
 
-export async function execProposal(
-  voterAddress: string,
-  governorAlphaAddress: string,
-  totalValue: string,
-  proposalNo: string
-) {
+export async function execProposal(voterAddress: string, governorAlphaAddress: string, totalValue: string, proposalNo: string) {
   const governor = await ethers.getContractAt('FeiDAO', governorAlphaAddress);
   const signer = await getImpersonatedSigner(voterAddress);
 

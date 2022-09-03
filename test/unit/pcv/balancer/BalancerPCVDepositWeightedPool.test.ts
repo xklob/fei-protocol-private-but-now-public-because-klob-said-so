@@ -53,10 +53,7 @@ describe('BalancerPCVDepositWeightedPool', function () {
       bal = await new MockERC20__factory(await getImpersonatedSigner(userAddress)).deploy();
       oracleBal = await new MockOracle__factory(await getImpersonatedSigner(userAddress)).deploy('25');
       oracleWeth = await new MockOracle__factory(await getImpersonatedSigner(userAddress)).deploy('4000');
-      vault = await new MockVault__factory(await getImpersonatedSigner(userAddress)).deploy(
-        [bal.address, weth.address],
-        userAddress
-      );
+      vault = await new MockVault__factory(await getImpersonatedSigner(userAddress)).deploy([bal.address, weth.address], userAddress);
       await vault.setMockDoTransfers(true);
       rewards = await new MockMerkleOrchard__factory(await getImpersonatedSigner(userAddress)).deploy(bal.address);
       deposit = await new BalancerPCVDepositWeightedPool__factory(await getImpersonatedSigner(userAddress)).deploy(
@@ -102,15 +99,15 @@ describe('BalancerPCVDepositWeightedPool', function () {
     describe('Withdraw', function () {
       it('reverts if paused', async function () {
         await deposit.connect(await getImpersonatedSigner(governorAddress)).pause();
-        await expect(
-          deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdraw(userAddress, '1000')
-        ).to.be.revertedWith('Pausable: paused');
+        await expect(deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdraw(userAddress, '1000')).to.be.revertedWith(
+          'Pausable: paused'
+        );
       });
 
       it('reverts if not PCVController', async function () {
-        await expect(
-          deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, '1000')
-        ).to.be.revertedWith('CoreRef: Caller is not a PCV controller');
+        await expect(deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, '1000')).to.be.revertedWith(
+          'CoreRef: Caller is not a PCV controller'
+        );
       });
 
       it('succeeds if deposit is not empty', async function () {
@@ -141,9 +138,7 @@ describe('BalancerPCVDepositWeightedPool', function () {
         expect(await bal.balanceOf(userAddress)).to.be.equal('0');
 
         // send half of rewards somewhere else
-        await deposit
-          .connect(await getImpersonatedSigner(pcvControllerAddress))
-          .withdrawERC20(bal.address, userAddress, '10000');
+        await deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdrawERC20(bal.address, userAddress, '10000');
 
         expect(await bal.balanceOf(deposit.address)).to.be.equal('10000');
         expect(await bal.balanceOf(userAddress)).to.be.equal('10000');
@@ -157,9 +152,9 @@ describe('BalancerPCVDepositWeightedPool', function () {
       });
 
       it('reverts if not PCVController', async function () {
-        await expect(
-          deposit.connect(await getImpersonatedSigner(userAddress)).exitPool(userAddress)
-        ).to.be.revertedWith('CoreRef: Caller is not a PCV controller');
+        await expect(deposit.connect(await getImpersonatedSigner(userAddress)).exitPool(userAddress)).to.be.revertedWith(
+          'CoreRef: Caller is not a PCV controller'
+        );
       });
 
       it('succeeds and holds all underlying tokens', async function () {
@@ -233,10 +228,7 @@ describe('BalancerPCVDepositWeightedPool', function () {
       bal = await new MockERC20__factory(await getImpersonatedSigner(userAddress)).deploy();
       oracleFei = await new MockOracle__factory(await getImpersonatedSigner(userAddress)).deploy('1');
       oracleWeth = await new MockOracle__factory(await getImpersonatedSigner(userAddress)).deploy('4000');
-      vault = await new MockVault__factory(await getImpersonatedSigner(userAddress)).deploy(
-        [weth.address, fei.address],
-        userAddress
-      );
+      vault = await new MockVault__factory(await getImpersonatedSigner(userAddress)).deploy([weth.address, fei.address], userAddress);
       poolAddress = await vault._pool();
       await vault.setMockDoTransfers(true);
       rewards = await new MockMerkleOrchard__factory(await getImpersonatedSigner(userAddress)).deploy(bal.address);
@@ -273,9 +265,7 @@ describe('BalancerPCVDepositWeightedPool', function () {
       it('Should burn the FEI', async function () {
         await weth.mint(deposit.address, toBN('1000'));
         await deposit.deposit();
-        await deposit
-          .connect(await getImpersonatedSigner(pcvControllerAddress))
-          .withdraw(deposit.address, toBN('1000'));
+        await deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdraw(deposit.address, toBN('1000'));
         expect(await deposit.balance()).to.be.equal('0');
         expect(await fei.balanceOf(poolAddress)).to.be.equal('0');
         expect(await weth.balanceOf(poolAddress)).to.be.equal('0');

@@ -98,8 +98,7 @@ const proposal: TemplatedProposalDescription = {
         addresses.tribalCouncilSafe, // to
         '10000' // basisPoints, 100%
       ],
-      description:
-        'Withdraw all DPI from the Compound DAI PCV deposit (~$200k) to the TribalCouncil multisig, where it will be liquidated'
+      description: 'Withdraw all DPI from the Compound DAI PCV deposit (~$200k) to the TribalCouncil multisig, where it will be liquidated'
     },
     {
       target: 'compoundDaiPCVDeposit',

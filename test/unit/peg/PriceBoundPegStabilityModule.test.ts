@@ -1,13 +1,6 @@
 import { Core, Fei, MockERC20, MockOracle, MockPCVDepositV2, PriceBoundPSM } from '@custom-types/contracts';
 import { NamedAddresses } from '@custom-types/types';
-import {
-  deployDevelopmentWeth,
-  expectRevert,
-  getAddresses,
-  getCore,
-  getImpersonatedSigner,
-  ZERO_ADDRESS
-} from '@test/helpers';
+import { deployDevelopmentWeth, expectRevert, getAddresses, getCore, getImpersonatedSigner, ZERO_ADDRESS } from '@test/helpers';
 import { expect } from 'chai';
 import { Signer, utils } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -495,10 +488,7 @@ describe('PriceBoundPegStabilityModule', function () {
         await psm.connect(impersonatedSigners[governorAddress]).pause();
         expect(await psm.paused()).to.be.true;
 
-        await expectRevert(
-          psm.connect(impersonatedSigners[userAddress]).mint(userAddress, mintAmount, 0),
-          'Pausable: paused'
-        );
+        await expectRevert(psm.connect(impersonatedSigners[userAddress]).mint(userAddress, mintAmount, 0), 'Pausable: paused');
 
         await psm.connect(impersonatedSigners[governorAddress]).unpause();
       });
@@ -515,10 +505,7 @@ describe('PriceBoundPegStabilityModule', function () {
         await psm.connect(impersonatedSigners[governorAddress]).pause();
         expect(await psm.paused()).to.be.true;
 
-        await expectRevert(
-          psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, mintAmount, 0),
-          'Pausable: paused'
-        );
+        await expectRevert(psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, mintAmount, 0), 'Pausable: paused');
       });
 
       it('exchanges 1000 FEI for 975 DAI as fee is 250 bips and exchange rate is 1:1', async () => {
@@ -958,10 +945,7 @@ describe('PriceBoundPegStabilityModule', function () {
 
     describe('setReservesThreshold', function () {
       it('fails when caller is not governor or admin', async () => {
-        await expectRevert(
-          psm.setReservesThreshold(reservesThreshold.mul(1000)),
-          'CoreRef: Caller is not a governor or contract admin'
-        );
+        await expectRevert(psm.setReservesThreshold(reservesThreshold.mul(1000)), 'CoreRef: Caller is not a governor or contract admin');
       });
 
       it('fails when caller is governor and new reserves threshold is 0', async () => {

@@ -82,9 +82,9 @@ describe('ERC20TokemakPCVDeposit', function () {
     });
 
     it('reverts if not PCVController', async function () {
-      await expect(
-        deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, depositAmount)
-      ).to.be.revertedWith('CoreRef: Caller is not a PCV controller');
+      await expect(deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, depositAmount)).to.be.revertedWith(
+        'CoreRef: Caller is not a PCV controller'
+      );
     });
 
     it('reverts if requestWithdrawal has not been called', async function () {
@@ -121,9 +121,7 @@ describe('ERC20TokemakPCVDeposit', function () {
   describe('Withdraw ERC20', function () {
     it('reverts if not PCVController', async function () {
       await expect(
-        deposit
-          .connect(await getImpersonatedSigner(userAddress))
-          .withdrawERC20(token.address, userAddress, depositAmount)
+        deposit.connect(await getImpersonatedSigner(userAddress)).withdrawERC20(token.address, userAddress, depositAmount)
       ).to.be.revertedWith('CoreRef: Caller is not a PCV controller');
     });
 

@@ -82,9 +82,7 @@ describe('Pod executor', function () {
     const daiWhaleSigner = await getImpersonatedSigner(daiWhale); // Compound cDAI
     await forceEth(daiWhale);
 
-    await contracts.dai
-      .connect(daiWhaleSigner)
-      .transfer(contractAddresses.tribalCouncilTimelock, ethers.constants.WeiPerEther.mul(1000));
+    await contracts.dai.connect(daiWhaleSigner).transfer(contractAddresses.tribalCouncilTimelock, ethers.constants.WeiPerEther.mul(1000));
   });
 
   ///////////////   DAO management of Tribal Council  //////////////
@@ -111,17 +109,10 @@ describe('Pod executor', function () {
   it('should be able to executeBatch batch scheduled transactions', async () => {
     const minDelay = await tribalCouncilTimelock.getMinDelay();
 
-    const { targets, values, payloads, predecessor, salt } = dummyBatchProposal(
-      contracts.dai as ERC20,
-      receiverB,
-      receiverC,
-      daiAmount
-    );
+    const { targets, values, payloads, predecessor, salt } = dummyBatchProposal(contracts.dai as ERC20, receiverB, receiverC, daiAmount);
 
     // 1. Batch schedule a transaction
-    await tribalCouncilTimelock
-      .connect(tcMultisigSigner)
-      .scheduleBatch(targets, values, payloads, predecessor, salt, minDelay);
+    await tribalCouncilTimelock.connect(tcMultisigSigner).scheduleBatch(targets, values, payloads, predecessor, salt, minDelay);
 
     const proposalId = await tribalCouncilTimelock.hashOperationBatch(targets, values, payloads, predecessor, salt);
 

@@ -36,8 +36,7 @@ const fip_99: ProposalDescription = {
       values: '0',
       method: 'setSafeAddresses(address[])',
       arguments: [['{rariPool9RaiPCVDeposit}', '{aaveRaiPCVDeposit}', '{raiPriceBoundPSM}']],
-      description:
-        'Whitelist the fuse pool 9 rai pcv deposit and the aave rai pcv deposit on the pcv guardian, as well as the new rai psm'
+      description: 'Whitelist the fuse pool 9 rai pcv deposit and the aave rai pcv deposit on the pcv guardian, as well as the new rai psm'
     },
     {
       target: 'collateralizationOracle',

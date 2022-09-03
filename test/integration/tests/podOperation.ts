@@ -115,9 +115,7 @@ describe('Pod operation and veto', function () {
     safeSDK = await initialiseGnosisSDK(podMemberSigner, safeAddress);
 
     // 3. TribalCouncil authorises pod with POD_METADATA_REGISTER_ROLE role
-    await contracts.core
-      .connect(tribalCouncilTimelockSigner)
-      .grantRole(ethers.utils.id('POD_METADATA_REGISTER_ROLE'), timelockAddress);
+    await contracts.core.connect(tribalCouncilTimelockSigner).grantRole(ethers.utils.id('POD_METADATA_REGISTER_ROLE'), timelockAddress);
 
     // 3.0 Create transaction on Safe. Threshold set to 1 on pod
     //     - create a proposal that targets the Safe's timelock
@@ -175,11 +173,7 @@ describe('Pod operation and veto', function () {
     await executeTx.wait();
 
     // 6.0 Validate that proposal was executed, verify mock proposal registered
-    const isRegistered = await contracts.governanceMetadataRegistry.isProposalRegistered(
-      podId,
-      proposalId,
-      proposalMetadata
-    );
+    const isRegistered = await contracts.governanceMetadataRegistry.isProposalRegistered(podId, proposalId, proposalMetadata);
     expect(isRegistered).to.equal(true);
   });
 
@@ -322,9 +316,7 @@ describe('Pod operation and veto', function () {
     // User proposes on NopeDAO
     const nopeDAO = contracts.nopeDAO;
     const description = 'Veto proposal';
-    const calldatas = [
-      contracts.podAdminGateway.interface.encodeFunctionData('veto', [TRIBAL_COUNCIL_POD_ID, timelockProposalId])
-    ];
+    const calldatas = [contracts.podAdminGateway.interface.encodeFunctionData('veto', [TRIBAL_COUNCIL_POD_ID, timelockProposalId])];
     const targets = [contractAddresses.podAdminGateway];
     const values = [0];
 

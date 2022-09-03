@@ -66,9 +66,7 @@ describe('e2e-metagov', function () {
       const daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
       await contracts.core.connect(daoSigner).grantRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
       await manager.lock();
-      await contracts.core
-        .connect(daoSigner)
-        .revokeRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
+      await contracts.core.connect(daoSigner).revokeRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
     });
 
     describe('without METAGOVERNANCE_GAUGE_ADMIN role', function () {
@@ -146,9 +144,7 @@ describe('e2e-metagov', function () {
         // revoke roles
         await forceEth(contracts.feiDAOTimelock.address);
         const daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
-        await contracts.core
-          .connect(daoSigner)
-          .revokeRole(ethers.utils.id('METAGOVERNANCE_GAUGE_ADMIN'), deployAddress);
+        await contracts.core.connect(daoSigner).revokeRole(ethers.utils.id('METAGOVERNANCE_GAUGE_ADMIN'), deployAddress);
         await contracts.core.connect(daoSigner).revokeRole(ethers.utils.id('METAGOVERNANCE_VOTE_ADMIN'), deployAddress);
       });
 
@@ -161,41 +157,25 @@ describe('e2e-metagov', function () {
       });
 
       it('setTokenToGauge()', async function () {
-        expect(await manager.tokenToGauge(contracts.angleAgEurFeiPool.address)).to.be.equal(
-          ethers.constants.AddressZero
-        );
-        await manager.setTokenToGauge(
-          contracts.angleAgEurFeiPool.address,
-          contracts.angleGaugeUniswapV2FeiAgEur.address
-        );
-        expect(await manager.tokenToGauge(contracts.angleAgEurFeiPool.address)).to.be.equal(
-          contracts.angleGaugeUniswapV2FeiAgEur.address
-        );
+        expect(await manager.tokenToGauge(contracts.angleAgEurFeiPool.address)).to.be.equal(ethers.constants.AddressZero);
+        await manager.setTokenToGauge(contracts.angleAgEurFeiPool.address, contracts.angleGaugeUniswapV2FeiAgEur.address);
+        expect(await manager.tokenToGauge(contracts.angleAgEurFeiPool.address)).to.be.equal(contracts.angleGaugeUniswapV2FeiAgEur.address);
       });
 
       it('voteForGaugeWeight()', async function () {
         expect(
-          await contracts.angleGaugeController.last_user_vote(
-            manager.address,
-            contracts.angleGaugeUniswapV2FeiAgEur.address
-          )
+          await contracts.angleGaugeController.last_user_vote(manager.address, contracts.angleGaugeUniswapV2FeiAgEur.address)
         ).to.be.equal('0'); // timestamp of last vote = 0, never voted
 
         // set token/gauge map
-        await manager.setTokenToGauge(
-          contracts.angleAgEurFeiPool.address,
-          contracts.angleGaugeUniswapV2FeiAgEur.address
-        );
+        await manager.setTokenToGauge(contracts.angleAgEurFeiPool.address, contracts.angleGaugeUniswapV2FeiAgEur.address);
 
         // vote
         // this sometimes runds out of gas, why ???
         await manager.voteForGaugeWeight(contracts.angleAgEurFeiPool.address, '10000');
 
         expect(
-          await contracts.angleGaugeController.last_user_vote(
-            manager.address,
-            contracts.angleGaugeUniswapV2FeiAgEur.address
-          )
+          await contracts.angleGaugeController.last_user_vote(manager.address, contracts.angleGaugeUniswapV2FeiAgEur.address)
         ).to.be.at.least('1'); // timestamp of last vote
       });
 
@@ -253,10 +233,7 @@ describe('e2e-metagov', function () {
       });
 
       it('should revert for gauges that are not configured', async function () {
-        await expectRevert(
-          manager.claimGaugeRewards(contracts.angle.address),
-          'LiquidityGaugeManager: token has no gauge configured'
-        );
+        await expectRevert(manager.claimGaugeRewards(contracts.angle.address), 'LiquidityGaugeManager: token has no gauge configured');
       });
     });
   });

@@ -46,10 +46,7 @@ describe('BPTLens', function () {
     pool = await ethers.getContractAt('MockWeightedPool', await vault._pool());
 
     // set weights to 25%, 75%
-    await pool.updateWeightsGradually(0, 0, [
-      ethers.constants.WeiPerEther.div(4),
-      ethers.constants.WeiPerEther.div(4).mul(3)
-    ]);
+    await pool.updateWeightsGradually(0, 0, [ethers.constants.WeiPerEther.div(4), ethers.constants.WeiPerEther.div(4).mul(3)]);
 
     oracle1 = await (await ethers.getContractFactory('MockOracle')).deploy('1');
 

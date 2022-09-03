@@ -53,22 +53,13 @@ describe('AutoRewardsDistributor', function () {
     isBorrowIncentivized = false;
 
     core = (await getCore()) as Core;
-    tribalChief = await (
-      await ethers.getContractFactory('MockTribalChief')
-    ).deploy(tribePerBlock, totalAllocPoint, poolAllocPoints);
+    tribalChief = await (await ethers.getContractFactory('MockTribalChief')).deploy(tribePerBlock, totalAllocPoint, poolAllocPoints);
     tribe = await ethers.getContractAt('Tribe', await core.tribe());
     rewardsDistributor = await (await ethers.getContractFactory('MockRewardsDistributor')).deploy();
 
     autoRewardsDistributor = await (
       await ethers.getContractFactory('AutoRewardsDistributor')
-    ).deploy(
-      core.address,
-      rewardsDistributor.address,
-      tribalChief.address,
-      poolIndex,
-      tribe.address,
-      isBorrowIncentivized
-    );
+    ).deploy(core.address, rewardsDistributor.address, tribalChief.address, poolIndex, tribe.address, isBorrowIncentivized);
 
     await rewardsDistributor.transferOwnership(autoRewardsDistributor.address);
   });
@@ -127,10 +118,7 @@ describe('AutoRewardsDistributor', function () {
 
         expect(updateNeeded).to.be.false;
         expect(compSpeed).to.be.equal(expectedNewCompSpeed);
-        await expectRevert(
-          autoRewardsDistributor.setAutoRewardsDistribution(),
-          'AutoRewardsDistributor: update not needed'
-        );
+        await expectRevert(autoRewardsDistributor.setAutoRewardsDistribution(), 'AutoRewardsDistributor: update not needed');
       });
     });
 
@@ -139,22 +127,13 @@ describe('AutoRewardsDistributor', function () {
         isBorrowIncentivized = true;
 
         core = (await getCore()) as Core;
-        tribalChief = await (
-          await ethers.getContractFactory('MockTribalChief')
-        ).deploy(tribePerBlock, totalAllocPoint, poolAllocPoints);
+        tribalChief = await (await ethers.getContractFactory('MockTribalChief')).deploy(tribePerBlock, totalAllocPoint, poolAllocPoints);
         tribe = await ethers.getContractAt('Tribe', await core.tribe());
         rewardsDistributor = await (await ethers.getContractFactory('MockRewardsDistributor')).deploy();
 
         autoRewardsDistributor = await (
           await ethers.getContractFactory('AutoRewardsDistributor')
-        ).deploy(
-          core.address,
-          rewardsDistributor.address,
-          tribalChief.address,
-          poolIndex,
-          tribe.address,
-          isBorrowIncentivized
-        );
+        ).deploy(core.address, rewardsDistributor.address, tribalChief.address, poolIndex, tribe.address, isBorrowIncentivized);
 
         await rewardsDistributor.transferOwnership(autoRewardsDistributor.address);
       });
@@ -180,10 +159,7 @@ describe('AutoRewardsDistributor', function () {
         expect(await rewardsDistributor.compBorrowSpeed()).to.be.equal(toBN('0'));
 
         const [newCompSpeed, updateNeeded] = await autoRewardsDistributor.getNewRewardSpeed();
-        const expectedNewCompSpeed = toBN('75')
-          .mul(toBN(e18))
-          .mul(toBN(newPoolAllocPoints))
-          .div(toBN(newTotalAllocPoints));
+        const expectedNewCompSpeed = toBN('75').mul(toBN(e18)).mul(toBN(newPoolAllocPoints)).div(toBN(newTotalAllocPoints));
 
         expect(newCompSpeed).to.be.equal(expectedNewCompSpeed);
         expect(updateNeeded).to.be.true;
@@ -200,10 +176,7 @@ describe('AutoRewardsDistributor', function () {
         expect(await rewardsDistributor.compBorrowSpeed()).to.be.equal(toBN('0'));
 
         const [newCompSpeed, updateNeeded] = await autoRewardsDistributor.getNewRewardSpeed();
-        const expectedNewCompSpeed = toBN('75')
-          .mul(toBN(e18))
-          .mul(toBN(newPoolAllocPoints))
-          .div(toBN(newTotalAllocPoints));
+        const expectedNewCompSpeed = toBN('75').mul(toBN(e18)).mul(toBN(newPoolAllocPoints)).div(toBN(newTotalAllocPoints));
 
         expect(newCompSpeed).to.be.equal(expectedNewCompSpeed);
         expect(updateNeeded).to.be.true;
@@ -220,10 +193,7 @@ describe('AutoRewardsDistributor', function () {
         expect(await rewardsDistributor.compBorrowSpeed()).to.be.equal(toBN('0'));
 
         const [newCompSpeed, updateNeeded] = await autoRewardsDistributor.getNewRewardSpeed();
-        const expectedNewCompSpeed = toBN('75')
-          .mul(toBN(e18))
-          .mul(toBN(newPoolAllocPoints))
-          .div(toBN(newTotalAllocPoints));
+        const expectedNewCompSpeed = toBN('75').mul(toBN(e18)).mul(toBN(newPoolAllocPoints)).div(toBN(newTotalAllocPoints));
 
         expect(newCompSpeed).to.be.equal(expectedNewCompSpeed);
         expect(updateNeeded).to.be.true;
@@ -239,10 +209,7 @@ describe('AutoRewardsDistributor', function () {
         expect(updateNeeded).to.be.false;
         expect(compSpeed).to.be.equal(expectedNewCompSpeed);
 
-        await expectRevert(
-          autoRewardsDistributor.setAutoRewardsDistribution(),
-          'AutoRewardsDistributor: update not needed'
-        );
+        await expectRevert(autoRewardsDistributor.setAutoRewardsDistribution(), 'AutoRewardsDistributor: update not needed');
       });
     });
   });
@@ -302,11 +269,7 @@ describe('AutoRewardsDistributor', function () {
 
       it('succeeds when caller is governor', async function () {
         expect(await autoRewardsDistributor.rewardsDistributorAdmin()).to.be.equal(rewardsDistributor.address);
-        await expect(
-          await autoRewardsDistributor
-            .connect(impersonatedSigners[governorAddress])
-            .setRewardsDistributorAdmin(tribe.address)
-        )
+        await expect(await autoRewardsDistributor.connect(impersonatedSigners[governorAddress]).setRewardsDistributorAdmin(tribe.address))
           .to.emit(autoRewardsDistributor, 'RewardsDistributorAdminChanged')
           .withArgs(rewardsDistributor.address, tribe.address);
         expect(await autoRewardsDistributor.rewardsDistributorAdmin()).to.be.equal(tribe.address);

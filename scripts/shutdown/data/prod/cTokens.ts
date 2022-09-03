@@ -1,4 +1,4 @@
-export const cTokens = [
+export const checkSummedcTokens = [
   '0xd8553552f8868C1Ef160eEdf031cF0BCf9686945',
   '0xbB025D470162CC5eA24daF7d4566064EE7f5F111',
   '0x7e9cE3CAa9910cc048590801e64174957Ed41d43',
@@ -27,3 +27,5 @@ export const cTokens = [
   '0x88d3557eB6280CC084cA36e425d6BC52d0A04429',
   '0xe92a3db67e4b6AC86114149F522644b34264f858'
 ];
+
+export const cTokens = checkSummedcTokens.map((address) => address.toLowerCase());

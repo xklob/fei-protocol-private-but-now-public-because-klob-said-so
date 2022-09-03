@@ -67,14 +67,8 @@ console.log(
 );
 */
 
-const leafZero = solidityKeccak256(
-  ['address', 'uint256'],
-  ['0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab', '993589106605953983']
-);
-const leafOne = solidityKeccak256(
-  ['address', 'uint256'],
-  ['0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab', '690998780903']
-);
+const leafZero = solidityKeccak256(['address', 'uint256'], ['0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab', '993589106605953983']);
+const leafOne = solidityKeccak256(['address', 'uint256'], ['0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab', '690998780903']);
 
 const proofZero = trees[0].getHexProof(leafZero);
 const proofOne = trees[1].getHexProof(leafOne);
@@ -84,7 +78,5 @@ console.log(
   `User 0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab, ctoken 0xd8553552f8868c1ef160eedf031cf0bcf9686945, amount 993589106605953983}`
 );
 console.log(JSON.stringify(proofZero, null, 2));
-console.log(
-  `User 0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab, ctoken 0xbb025d470162cc5ea24daf7d4566064ee7f5f111, amount 690998780903`
-);
+console.log(`User 0x3ee505ba316879d246a8fd2b3d7ee63b51b44fab, ctoken 0xbb025d470162cc5ea24daf7d4566064ee7f5f111, amount 690998780903`);
 console.log(JSON.stringify(proofOne, null, 2));

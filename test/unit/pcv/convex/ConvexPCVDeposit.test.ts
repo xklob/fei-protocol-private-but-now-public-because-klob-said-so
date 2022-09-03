@@ -130,15 +130,15 @@ describe('ConvexPCVDeposit', function () {
   describe('withdraw()', function () {
     it('reverts if paused', async function () {
       await deposit.connect(await getImpersonatedSigner(governorAddress)).pause();
-      await expect(
-        deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdraw(userAddress, '1000')
-      ).to.be.revertedWith('Pausable: paused');
+      await expect(deposit.connect(await getImpersonatedSigner(pcvControllerAddress)).withdraw(userAddress, '1000')).to.be.revertedWith(
+        'Pausable: paused'
+      );
     });
 
     it('reverts if not PCVController', async function () {
-      await expect(
-        deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, '1000')
-      ).to.be.revertedWith('CoreRef: Caller is not a PCV controller');
+      await expect(deposit.connect(await getImpersonatedSigner(userAddress)).withdraw(userAddress, '1000')).to.be.revertedWith(
+        'CoreRef: Caller is not a PCV controller'
+      );
     });
 
     it('should succeed if not paused', async function () {

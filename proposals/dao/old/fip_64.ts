@@ -1,13 +1,7 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import {
-  DeployUpgradeFunc,
-  NamedContracts,
-  SetupUpgradeFunc,
-  TeardownUpgradeFunc,
-  ValidateUpgradeFunc
-} from '@custom-types/types';
+import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
 import { deploy as deploySTW } from '@scripts/deploy/deployStakingTokenWrapper';
 
 chai.use(CBN(ethers.BigNumber));
@@ -60,9 +54,7 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
 
   // supply cap
   expect(await rariPool8Comptroller.supplyCaps(feiUsdcCToken)).to.be.equal(ethers.constants.WeiPerEther.mul(200_000)); // 100 M
-  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCtoken)).to.be.equal(
-    ethers.constants.WeiPerEther.mul(100_000_000)
-  ); // 100 M
+  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCtoken)).to.be.equal(ethers.constants.WeiPerEther.mul(100_000_000)); // 100 M
   expect(await rariPool8Comptroller.supplyCaps(wstEthCToken)).to.be.equal(ethers.constants.WeiPerEther.mul(30_000)); // 100 M
   expect(await rariPool8Comptroller.supplyCaps(d3Ctoken)).to.be.equal(ethers.constants.WeiPerEther.mul(100_000_000)); // 100 M
 
