@@ -8,7 +8,7 @@ async function main() {
   if (process.argv[2] === 'help') {
     console.log(`
       Usage: 
-        npx ts-node scripts/shutdown/createMerkleTree [dataJSONFilename] [additionalDataJSONFilename] [outputPath] [debug]
+        npx ts-node scripts/shutdown/createMerkleTree [dataJSONFilename] [outputPath] [debug] [additionalDataJSONFilename] 
       
       Args:
         dataJSONFilename = string (default: "./scripts/shutdown/data/sample/snapshot.json")
@@ -18,8 +18,8 @@ async function main() {
       
       Examples: 
         npx ts-node scripts/shutdown/createMerkleTree
-        npx ts-node scripts/shutdown/createMerkleTree prod/snapshot.json
-        npx ts-node scripts/shutdown/createMerkleTree sample/snapshot.json sample/testingSnapshot.json prod/roots.json true
+        npx ts-node scripts/shutdown/createMerkleTree scripts/shutdown/prod/snapshot.json
+        npx ts-node scripts/shutdown/createMerkleTree scripts/shutdown/sample/snapshot.json scripts/shutdown/prod/roots.json true scripts/shutdown/sample/testingSnapshot.json
     `);
     return;
   }
@@ -34,15 +34,15 @@ async function main() {
   }
 
   if (process.argv[3] !== undefined) {
-    extraDataJSONFilename = process.argv[3];
+    outputFilename = process.argv[3];
   }
 
   if (process.argv[4] !== undefined) {
-    outputFilename = process.argv[4];
+    debug = process.argv[4] === 'true';
   }
 
   if (process.argv[5] !== undefined) {
-    debug = process.argv[5] === 'true';
+    extraDataJSONFilename = process.argv[5];
   }
 
   const balances: { [key: string]: { [key: string]: string } } = JSON.parse(fs.readFileSync(dataJSONFilename).toString());

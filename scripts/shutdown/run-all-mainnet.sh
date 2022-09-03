@@ -1,0 +1,2 @@
+npx ts-node scripts/shutdown/createMerkleTrees scripts/shutdown/data/prod/balances.json scripts/shutdown/data/prod/roots.json true
+npx ts-node scripts/shutdown/deployMerkleRedeemer scripts/shutdown/data/prod/rates.json scripts/shutdown/data/prod/roots.json false true

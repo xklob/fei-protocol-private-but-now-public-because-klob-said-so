@@ -48,7 +48,7 @@ async function main() {
     await (await vm['createSelectFork(string,uint256)']('http://127.0.0.1:8545', Number(forkBlock))).wait();
   }
 
-  if (debug) console.log(`Fork reset!`);
+  console.log(`Fork reset.`);
 }
 
 main();

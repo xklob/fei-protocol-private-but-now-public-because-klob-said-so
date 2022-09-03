@@ -14,25 +14,25 @@ async function main() {
         npx ts-node scripts/shutdown/deployMerkleRedeemer [ratesJSONFileName] [rootsJSONFileName] [forkMode] [debug]
       
       Args:
-        ratesJSONFileName = relative or absolute file locator string (default: "./data/sample/rates.json")
-        rootsJSONFileName = relative or absolute file locator string (default: "./data/sample/roots.json")
+        ratesJSONFileName = relative or absolute file locator string (default: "./scripts/shutdown/data/sample/rates.json")
+        rootsJSONFileName = relative or absolute file locator string (default: "./scripts/shutodwn/data/sample/roots.json")
         forkMode = true | false (default: true)
         debug = true | false (default: false)
 
       Examples: 
         npx ts-node scripts/shutdown/deployMerkleRedeemer
-        npx ts-node scripts/shutdown/deployMerkleRedeemer ./data/actual/rates.json
-        npx ts-node scripts/shutdown/deployMerkleRedeemer ./data/actual/rates.json ./data/actual/roots.json
-        npx ts-node scripts/shutdown/deployMerkleRedeemer ./data/actual/rates.json ./data/actual/roots.json true true
+        npx ts-node scripts/shutdown/deployMerkleRedeemer ./scripts/shutdown/data/actual/rates.json
+        npx ts-node scripts/shutdown/deployMerkleRedeemer ./scripts/shutdown/data/actual/rates.json ./scripts/shutdown/data/actual/roots.json
+        npx ts-node scripts/shutdown/deployMerkleRedeemer ./scripts/shutdown/data/actual/rates.json ./scripts/shutdown/data/actual/roots.json true true
     `);
     return;
   }
 
   // defaults
-  const ratesFilename = process.argv[2] ? process.argv[2] : './data/sample/rates.json';
-  const rootsFilename = process.argv[3] ? process.argv[3] : './data/sample/roots.json';
+  const ratesFilename = process.argv[2] ? process.argv[2] : './scripts/shutdown/data/sample/rates.json';
+  const rootsFilename = process.argv[3] ? process.argv[3] : './scripts/shutdown/data/sample/roots.json';
   const enableForking = process.argv[4] ? Boolean(process.argv[4]) : true;
-  const debug = process.argv[5] ? Boolean(process.argv[5]) : true;
+  const debug = process.argv[5] ? Boolean(process.argv[5]) : false;
 
   // sanity check rates & roots
   const rates: { [key: string]: string } = JSON.parse(fs.readFileSync(ratesFilename).toString());
