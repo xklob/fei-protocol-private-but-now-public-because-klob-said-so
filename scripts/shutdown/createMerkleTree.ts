@@ -8,21 +8,24 @@ async function main() {
   if (process.argv[2] === 'help') {
     console.log(`
       Usage: 
-        npx ts-node scripts/shutdown/createMerkleTree [dataJSONFilename] [outputPath] [debug]
+        npx ts-node scripts/shutdown/createMerkleTree [dataJSONFilename] [additionalDataJSONFilename] [outputPath] [debug]
       
       Args:
         dataJSONFilename = string (default: "./scripts/shutdown/data/sample/snapshot.json")
+        additionalDataJSONFilename = string (default: "./scripts/shutdown/data/sample/fakeSnapshot.json")
         outputFilename = string (default: "./scripts/shutdown/data/sample/merkleRoots.json")
         debug = true | false (default: false)
       
       Examples: 
         npx ts-node scripts/shutdown/createMerkleTree
-        npx ts-node scripts/shutdown/createMerkleTree prod/snapshot.json prod/roots.json true
+        npx ts-node scripts/shutdown/createMerkleTree prod/snapshot.json
+        npx ts-node scripts/shutdown/createMerkleTree sample/snapshot.json sample/testingSnapshot.json prod/roots.json true
     `);
     return;
   }
 
   let dataJSONFilename = './scripts/shutdown/data/sample/snapshot.json';
+  let extraDataJSONFilename = undefined;
   let outputFilename = './scripts/shutdown/data/sample/merkleRoots.json';
   let debug = false;
 
@@ -31,14 +34,27 @@ async function main() {
   }
 
   if (process.argv[3] !== undefined) {
-    outputFilename = process.argv[3];
+    extraDataJSONFilename = process.argv[3];
   }
 
-  if (process.argv[3] !== undefined) {
-    debug = process.argv[3] === 'true';
+  if (process.argv[4] !== undefined) {
+    outputFilename = process.argv[4];
+  }
+
+  if (process.argv[5] !== undefined) {
+    debug = process.argv[5] === 'true';
   }
 
   const balances: { [key: string]: { [key: string]: string } } = JSON.parse(fs.readFileSync(dataJSONFilename).toString());
+
+  if (extraDataJSONFilename !== undefined) {
+    const extraBalances: { [key: string]: { [key: string]: string } } = JSON.parse(fs.readFileSync(extraDataJSONFilename).toString());
+
+    // merge the data in each
+    Object.keys(extraBalances).forEach((key) => {
+      balances[key] = { ...balances[key], ...extraBalances[key] };
+    });
+  }
 
   /*
 
