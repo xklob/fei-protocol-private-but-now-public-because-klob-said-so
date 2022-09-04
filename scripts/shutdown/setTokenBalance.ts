@@ -189,7 +189,7 @@ async function main() {
   const unsignedTx = await cTokenContract.populateTransaction.transfer(giveToAddress, amount);
   unsignedTx.from = topHolder;
   const oldBalance = await cTokenContract.balanceOf(wallet.address);
-  provider.send('eth_sendUnsignedTransaction', [unsignedTx]);
+  await provider.send('eth_sendUnsignedTransaction', [unsignedTx]);
   const newBalance = await cTokenContract.balanceOf(wallet.address);
 
   console.log(`Transfer complete.`);
