@@ -12,9 +12,9 @@ async function main() {
       
       Args:
         dataJSONFilename = string (default: "./scripts/shutdown/data/sample/snapshot.json")
-        additionalDataJSONFilename = string (default: "./scripts/shutdown/data/sample/fakeSnapshot.json")
         outputFilename = string (default: "./scripts/shutdown/data/sample/merkleRoots.json")
         debug = true | false (default: false)
+        additionalDataJSONFilename = string (default: undefined)
       
       Examples: 
         npx ts-node scripts/shutdown/createMerkleTree
@@ -52,6 +52,12 @@ async function main() {
 
     // merge the data in each
     Object.keys(extraBalances).forEach((key) => {
+      if (debug)
+        console.log(
+          `Merging entries for token ${key}; ${Object.keys(balances[key]).length} in original data & ${
+            Object.keys(extraBalances[key]).length
+          } in appended data.`
+        );
       balances[key] = { ...balances[key], ...extraBalances[key] };
     });
   }
@@ -93,7 +99,7 @@ async function main() {
 
     trees.push(tree);
 
-    if (debug) console.log(`Tree generated. ${tree.getLeaves().length} leaves.`);
+    if (debug) console.log(`Tree generated for token ${cTokenAddress}. ${tree.getLeaves().length} leaves.`);
 
     const root = tree.getRoot();
     const hexRoot = tree.getHexRoot();
