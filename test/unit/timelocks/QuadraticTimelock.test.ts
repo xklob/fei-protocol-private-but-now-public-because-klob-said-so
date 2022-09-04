@@ -92,7 +92,11 @@ describe('QuadraticTimelockedDelegator', function () {
         alreadyClaimed = toBN(0); // 0
         available = totalTribe.div(toBN(16)); // (1*1)/(4*4)
         remainingBalance = totalTribe.sub(available);
-        expectEvent(delegator.release(userAddress, available), delegator, 'Release', [userAddress, userAddress, available]);
+        expectEvent(delegator.release(userAddress, available), delegator, 'Release', [
+          userAddress,
+          userAddress,
+          available
+        ]);
       });
       it('releases tokens', async function () {
         expect(await delegator.totalToken()).to.be.bignumber.equal(remainingBalance);
@@ -157,7 +161,11 @@ describe('QuadraticTimelockedDelegator', function () {
 
       describe('Total Release', function () {
         beforeEach(async function () {
-          expectEvent(delegator.release(userAddress, totalTribe), delegator, 'Release', [userAddress, userAddress, totalTribe]);
+          expectEvent(delegator.release(userAddress, totalTribe), delegator, 'Release', [
+            userAddress,
+            userAddress,
+            totalTribe
+          ]);
         });
 
         it('releases tokens', async function () {
@@ -173,7 +181,11 @@ describe('QuadraticTimelockedDelegator', function () {
 
       describe('Release To', function () {
         beforeEach(async function () {
-          expectEvent(delegator.release(userAddress, totalTribe), delegator, 'Release', [userAddress, userAddress, totalTribe]);
+          expectEvent(delegator.release(userAddress, totalTribe), delegator, 'Release', [
+            userAddress,
+            userAddress,
+            totalTribe
+          ]);
         });
 
         it('releases tokens', async function () {
@@ -192,7 +204,11 @@ describe('QuadraticTimelockedDelegator', function () {
 
         beforeEach(async function () {
           halfAmount = totalTribe.div(toBN(2));
-          expectEvent(delegator.release(userAddress, halfAmount), delegator, 'Release', [userAddress, userAddress, halfAmount]);
+          expectEvent(delegator.release(userAddress, halfAmount), delegator, 'Release', [
+            userAddress,
+            userAddress,
+            halfAmount
+          ]);
         });
 
         it('releases tokens', async function () {
@@ -235,9 +251,12 @@ describe('QuadraticTimelockedDelegator', function () {
       describe('Accept Beneficiary', function () {
         it('Pending Beneficiary succeeds', async function () {
           await delegator.setPendingBeneficiary(userAddress);
-          expectEvent(delegator.connect(impersonatedSigners[userAddress]).acceptBeneficiary(), delegator, 'BeneficiaryUpdate', [
-            userAddress
-          ]);
+          expectEvent(
+            delegator.connect(impersonatedSigners[userAddress]).acceptBeneficiary(),
+            delegator,
+            'BeneficiaryUpdate',
+            [userAddress]
+          );
           expect(await delegator.beneficiary()).to.be.equal(userAddress);
         });
 

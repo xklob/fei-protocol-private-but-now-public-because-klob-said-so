@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '../../types/types';
+import {
+  DeployUpgradeFunc,
+  NamedContracts,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '../../types/types';
 import { expectApproxAbs, getImpersonatedSigner } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -32,7 +38,10 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
 
   // Create Chainlink Oracle Wrapper for EUR/USD feed
   const chainlinkOracleWrapperFactory = await ethers.getContractFactory('ChainlinkOracleWrapper');
-  const chainlinkEurUsdOracleWrapper = await chainlinkOracleWrapperFactory.deploy(addresses.core, addresses.chainlinkEurUsdOracle);
+  const chainlinkEurUsdOracleWrapper = await chainlinkOracleWrapperFactory.deploy(
+    addresses.core,
+    addresses.chainlinkEurUsdOracle
+  );
   await chainlinkEurUsdOracleWrapper.deployTransaction.wait();
 
   logging && console.log('Chainlink EUR/USD Oracle Wrapper:', chainlinkEurUsdOracleWrapper.address);
@@ -107,6 +116,10 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect(angleBalance.toString() > 0).to.be.true;
 
   // CR Oracle updates
-  expect(await collateralizationOracle.tokenToOracle(addresses.agEUR)).to.be.equal(chainlinkEurUsdOracleWrapper.address);
-  expect(await collateralizationOracle.depositToToken(contracts.agEurAngleUniswapPCVDeposit.address)).to.be.equal(addresses.agEUR);
+  expect(await collateralizationOracle.tokenToOracle(addresses.agEUR)).to.be.equal(
+    chainlinkEurUsdOracleWrapper.address
+  );
+  expect(await collateralizationOracle.depositToToken(contracts.agEurAngleUniswapPCVDeposit.address)).to.be.equal(
+    addresses.agEUR
+  );
 };

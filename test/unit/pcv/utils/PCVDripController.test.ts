@@ -43,14 +43,23 @@ describe('PCVDripController', function () {
     this.core = await getCore();
     this.fei = await ethers.getContractAt('Fei', await this.core.fei());
 
-    this.sourcePCVDeposit = await (await ethers.getContractFactory('MockEthUniswapPCVDeposit')).deploy(beneficiaryAddress1);
+    this.sourcePCVDeposit = await (
+      await ethers.getContractFactory('MockEthUniswapPCVDeposit')
+    ).deploy(beneficiaryAddress1);
     this.pcvDeposit = await (await ethers.getContractFactory('MockEthUniswapPCVDeposit')).deploy(beneficiaryAddress1);
     this.dripAmount = toBN('500000000000000000');
     this.incentiveAmount = toBN('100000000000000000');
 
     this.pcvDripper = await (
       await ethers.getContractFactory('PCVDripController')
-    ).deploy(this.core.address, this.sourcePCVDeposit.address, this.pcvDeposit.address, '1000', this.dripAmount, this.incentiveAmount);
+    ).deploy(
+      this.core.address,
+      this.sourcePCVDeposit.address,
+      this.pcvDeposit.address,
+      '1000',
+      this.dripAmount,
+      this.incentiveAmount
+    );
     await this.core.connect(impersonatedSigners[governorAddress]).grantMinter(this.pcvDripper.address, {});
 
     await impersonatedSigners[userAddress].sendTransaction({
@@ -87,7 +96,9 @@ describe('PCVDripController', function () {
           const beneficiaryBalanceAfter = await balance.current(this.pcvDeposit.address);
 
           expect(dripperBalanceBefore.sub(dripperBalanceAfter).toString()).to.be.equal(this.dripAmount.toString());
-          expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(this.dripAmount.toString());
+          expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(
+            this.dripAmount.toString()
+          );
 
           // timer reset
           expect(await this.pcvDripper.isTimeEnded()).to.be.equal(false);
@@ -101,7 +112,9 @@ describe('PCVDripController', function () {
             const beneficiaryBalanceAfter = await balance.current(this.pcvDeposit.address);
 
             expect(sourceBalanceBefore.sub(sourceBalanceAfter).toString()).to.be.equal(this.dripAmount.toString());
-            expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(this.dripAmount.toString());
+            expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(
+              this.dripAmount.toString()
+            );
 
             // timer reset
             expect(await this.pcvDripper.isTimeEnded()).to.be.equal(false);
@@ -149,7 +162,9 @@ describe('PCVDripController', function () {
             const beneficiaryBalanceAfter = await balance.current(this.pcvDeposit.address);
 
             expect(sourceBalanceBefore.sub(sourceBalanceAfter).toString()).to.be.equal(this.dripAmount.toString());
-            expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(this.dripAmount.toString());
+            expect(beneficiaryBalanceAfter.sub(beneficiaryBalanceBefore).toString()).to.be.equal(
+              this.dripAmount.toString()
+            );
 
             // timer reset
             expect(await this.pcvDripper.isTimeEnded()).to.be.equal(false);

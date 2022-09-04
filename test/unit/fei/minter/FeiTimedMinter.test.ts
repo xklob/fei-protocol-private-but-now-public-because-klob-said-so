@@ -128,7 +128,10 @@ describe('FeiTimedMinter', function () {
     });
 
     it('below min reverts', async function () {
-      await expectRevert(this.feiMinter.connect(impersonatedSigners[governorAddress]).setFrequency('500'), 'FeiTimedMinter: frequency low');
+      await expectRevert(
+        this.feiMinter.connect(impersonatedSigners[governorAddress]).setFrequency('500'),
+        'FeiTimedMinter: frequency low'
+      );
     });
 
     it('above max reverts', async function () {

@@ -34,7 +34,9 @@ describe('ERC20PCVDepositWrapper', function () {
   });
 
   it('normal PCV deposit', async function () {
-    const pcvDepositWrapper = await (await ethers.getContractFactory('ERC20PCVDepositWrapper')).deploy(userAddress, token.address, false);
+    const pcvDepositWrapper = await (
+      await ethers.getContractFactory('ERC20PCVDepositWrapper')
+    ).deploy(userAddress, token.address, false);
 
     expect(await pcvDepositWrapper.balanceReportedIn()).to.be.equal(token.address);
     expect(await pcvDepositWrapper.balance()).to.be.equal(balance);
@@ -45,7 +47,9 @@ describe('ERC20PCVDepositWrapper', function () {
   });
 
   it('Protocol owned FEI PCV deposit', async function () {
-    const pcvDepositWrapper = await (await ethers.getContractFactory('ERC20PCVDepositWrapper')).deploy(userAddress, token.address, true);
+    const pcvDepositWrapper = await (
+      await ethers.getContractFactory('ERC20PCVDepositWrapper')
+    ).deploy(userAddress, token.address, true);
 
     expect(await pcvDepositWrapper.balanceReportedIn()).to.be.equal(token.address);
     expect(await pcvDepositWrapper.balance()).to.be.equal(balance);

@@ -161,7 +161,10 @@ const tip_121a: TemplatedProposalDescription = {
       target: 'fuseWithdrawalGuard',
       values: '0',
       method: 'setWithdrawInfo(address,(address,address,uint96))',
-      arguments: (addresses) => [addresses.rariPool8FeiPCVDeposit, [addresses.daiFixedPricePSM, addresses.fei, '150000000000000000000000']],
+      arguments: (addresses) => [
+        addresses.rariPool8FeiPCVDeposit,
+        [addresses.daiFixedPricePSM, addresses.fei, '150000000000000000000000']
+      ],
       description: 'Update Fuse Withdrawal Guard'
     },
     {

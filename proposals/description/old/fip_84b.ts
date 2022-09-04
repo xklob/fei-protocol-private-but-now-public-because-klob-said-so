@@ -22,7 +22,8 @@ const fip_84b: ProposalDescription = {
       values: '0',
       method: 'setPendingAdmin(address)',
       arguments: ['{feiDAOTimelock}'],
-      description: 'Set the pending admin on the oldTimeLock to be the newTimelock. Will later need accepting by newTimelock'
+      description:
+        'Set the pending admin on the oldTimeLock to be the newTimelock. Will later need accepting by newTimelock'
     },
     {
       target: 'feiDAO',

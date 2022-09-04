@@ -1,5 +1,12 @@
 import { Core, Fei, MockOracle, MockPCVDepositV2, PegStabilityModule, WETH9 } from '@custom-types/contracts';
-import { deployDevelopmentWeth, expectRevert, getAddresses, getCore, getImpersonatedSigner, ZERO_ADDRESS } from '@test/helpers';
+import {
+  deployDevelopmentWeth,
+  expectRevert,
+  getAddresses,
+  getCore,
+  getImpersonatedSigner,
+  ZERO_ADDRESS
+} from '@test/helpers';
 import { expect } from 'chai';
 import { Signer, utils } from 'ethers';
 import { keccak256 } from 'ethers/lib/utils';
@@ -195,7 +202,10 @@ describe('PegStabilityModule', function () {
     it('governor can pause, mint fails', async () => {
       await psm.connect(impersonatedSigners[governorAddress]).pauseMint();
       expect(await psm.mintPaused()).to.be.true;
-      await expectRevert(psm.connect(impersonatedSigners[userAddress]).mint(userAddress, 0, 0), 'PegStabilityModule: Minting paused');
+      await expectRevert(
+        psm.connect(impersonatedSigners[userAddress]).mint(userAddress, 0, 0),
+        'PegStabilityModule: Minting paused'
+      );
     });
 
     it('governor can pause globally, mint fails', async () => {
@@ -219,7 +229,10 @@ describe('PegStabilityModule', function () {
     it('governor can pause redeem, redemption fails', async () => {
       await psm.connect(impersonatedSigners[governorAddress]).pauseRedeem();
       expect(await psm.redeemPaused()).to.be.true;
-      await expectRevert(psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, 0, 0), 'PegStabilityModule: Redeem paused');
+      await expectRevert(
+        psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, 0, 0),
+        'PegStabilityModule: Redeem paused'
+      );
     });
 
     it('governor can pause globally, redemption fails', async () => {
@@ -377,7 +390,9 @@ describe('PegStabilityModule', function () {
         expect(mintAmountOut).to.be.equal(expectedMintAmountOut);
 
         await expectRevert(
-          psm.connect(impersonatedSigners[userAddress]).mint(userAddress, fourThousandEth, expectedMintAmountOut.add(1)),
+          psm
+            .connect(impersonatedSigners[userAddress])
+            .mint(userAddress, fourThousandEth, expectedMintAmountOut.add(1)),
           'PegStabilityModule: Mint not enough out'
         );
       });
@@ -421,7 +436,10 @@ describe('PegStabilityModule', function () {
         await psm.connect(impersonatedSigners[governorAddress]).pause();
         expect(await psm.paused()).to.be.true;
 
-        await expectRevert(psm.connect(impersonatedSigners[userAddress]).mint(userAddress, 10000, 0), 'Pausable: paused');
+        await expectRevert(
+          psm.connect(impersonatedSigners[userAddress]).mint(userAddress, 10000, 0),
+          'Pausable: paused'
+        );
       });
     });
   });
@@ -533,7 +551,10 @@ describe('PegStabilityModule', function () {
 
       it('redeem fails when token is not approved to be spent by the PSM', async () => {
         await fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 10_000_000);
-        await expectRevert(psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, 1, 0), 'ERC20: insufficient allowance');
+        await expectRevert(
+          psm.connect(impersonatedSigners[userAddress]).redeem(userAddress, 1, 0),
+          'ERC20: insufficient allowance'
+        );
       });
     });
   });
@@ -626,7 +647,10 @@ describe('PegStabilityModule', function () {
 
     describe('setReservesThreshold', function () {
       it('fails when caller is not governor or admin', async () => {
-        await expectRevert(psm.setReservesThreshold(reservesThreshold.mul(1000)), 'CoreRef: Caller is not a governor or contract admin');
+        await expectRevert(
+          psm.setReservesThreshold(reservesThreshold.mul(1000)),
+          'CoreRef: Caller is not a governor or contract admin'
+        );
       });
 
       it('fails when caller is governor and new reserves threshold is 0', async () => {

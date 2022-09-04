@@ -33,8 +33,12 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect(await core.isMinter(feiDAOTimelock)).to.be.true;
   expect(await core.isMinter(timelock)).to.be.false;
 
-  expect((await kashiFeiDPI.balanceOf(optimisticTimelock)).toString()).to.be.equal(ethers.constants.WeiPerEther.mul(1_000_000).toString());
-  expect((await kashiFeiEth.balanceOf(optimisticTimelock)).toString()).to.be.equal(ethers.constants.WeiPerEther.mul(2_500_000).toString());
+  expect((await kashiFeiDPI.balanceOf(optimisticTimelock)).toString()).to.be.equal(
+    ethers.constants.WeiPerEther.mul(1_000_000).toString()
+  );
+  expect((await kashiFeiEth.balanceOf(optimisticTimelock)).toString()).to.be.equal(
+    ethers.constants.WeiPerEther.mul(2_500_000).toString()
+  );
   expect((await kashiFeiTribe.balanceOf(optimisticTimelock)).toString()).to.be.equal(
     ethers.constants.WeiPerEther.mul(2_500_000).toString()
   );

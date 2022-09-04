@@ -1,6 +1,12 @@
 import hre, { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { getImpersonatedSigner, time } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -64,12 +70,18 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const tribalChief = contracts.tribalChief;
 
   // 0. Validate TC timelock has TRIBAL_CHIEF_ADMIN_ROLE role
-  expect(await contracts.core.hasRole(ethers.utils.id('TRIBAL_CHIEF_ADMIN_ROLE'), addresses.tribalCouncilTimelock)).to.equal(true);
+  expect(
+    await contracts.core.hasRole(ethers.utils.id('TRIBAL_CHIEF_ADMIN_ROLE'), addresses.tribalCouncilTimelock)
+  ).to.equal(true);
 
-  expect(await contracts.core.hasRole(ethers.utils.id('TRIBAL_CHIEF_ADMIN_ROLE'), addresses.tribalChiefSyncV2)).to.equal(false);
+  expect(
+    await contracts.core.hasRole(ethers.utils.id('TRIBAL_CHIEF_ADMIN_ROLE'), addresses.tribalChiefSyncV2)
+  ).to.equal(false);
 
   expect(await contracts.core.hasRole(ethers.utils.id('FUSE_ADMIN'), addresses.tribalChiefSyncV2)).to.equal(false);
-  expect(await contracts.core.hasRole(ethers.utils.id('VOTIUM_ADMIN_ROLE'), addresses.opsOptimisticTimelock)).to.equal(false);
+  expect(await contracts.core.hasRole(ethers.utils.id('VOTIUM_ADMIN_ROLE'), addresses.opsOptimisticTimelock)).to.equal(
+    false
+  );
 
   // 1. Verify TribalChief block rewards are effectively 0
   expect(await tribalChief.tribePerBlock()).to.equal(NEW_TRIBE_BLOCK_REWARD);
@@ -94,23 +106,38 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 4. Verify rewardsDistributorAdmin internal ACL revoked
   const rewardsDistributorAdmin = contracts.rewardsDistributorAdmin;
   expect(
-    await rewardsDistributorAdmin.hasRole(ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'), addresses.feiDaiAutoRewardsDistributor)
+    await rewardsDistributorAdmin.hasRole(
+      ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'),
+      addresses.feiDaiAutoRewardsDistributor
+    )
   ).to.equal(false);
 
   expect(
-    await rewardsDistributorAdmin.hasRole(ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'), addresses.feiUsdcAutoRewardsDistributor)
+    await rewardsDistributorAdmin.hasRole(
+      ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'),
+      addresses.feiUsdcAutoRewardsDistributor
+    )
   ).to.equal(false);
 
   expect(
-    await rewardsDistributorAdmin.hasRole(ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'), addresses.autoRewardsDistributor)
+    await rewardsDistributorAdmin.hasRole(
+      ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'),
+      addresses.autoRewardsDistributor
+    )
   ).to.equal(false);
 
   expect(
-    await rewardsDistributorAdmin.hasRole(ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'), addresses.d3AutoRewardsDistributor)
+    await rewardsDistributorAdmin.hasRole(
+      ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'),
+      addresses.d3AutoRewardsDistributor
+    )
   ).to.equal(false);
 
   expect(
-    await rewardsDistributorAdmin.hasRole(ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'), addresses.fei3CrvAutoRewardsDistributor)
+    await rewardsDistributorAdmin.hasRole(
+      ethers.utils.id('AUTO_REWARDS_DISTRIBUTOR_ROLE'),
+      addresses.fei3CrvAutoRewardsDistributor
+    )
   ).to.equal(false);
 
   // 5. Verify total AP points is 1

@@ -2,7 +2,10 @@ import { Timelock__factory } from '@custom-types/contracts';
 import { MainnetContracts, NamedAddresses, TemplatedProposalDescription } from '@custom-types/types';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { errors, PACKAGE_NAME } from '@idle-finance/hardhat-proposals-plugin/dist/src/constants';
-import { AlphaProposal, AlphaProposalBuilder } from '@idle-finance/hardhat-proposals-plugin/dist/src/proposals/compound-alpha';
+import {
+  AlphaProposal,
+  AlphaProposalBuilder
+} from '@idle-finance/hardhat-proposals-plugin/dist/src/proposals/compound-alpha';
 import { InternalProposalState } from '@idle-finance/hardhat-proposals-plugin/dist/src/proposals/proposal';
 import { getImpersonatedSigner, time } from '@test/helpers';
 import { BigNumber, ContractReceipt, ContractTransaction, utils } from 'ethers';
@@ -82,35 +85,37 @@ export class SigmaProposal extends AlphaProposal {
     console.time('executetxs');
     for (let i = 0; i < this.targets.length; i++) {
       //console.time(`executetx-${i}`);
-      await timelock.executeTransaction(this.targets[i], this.values[i], this.signatures[i], this.calldatas[i], eta).then(
-        (receipt) => {
-          receipts.push(receipt);
-        },
-        async (timelockError) => {
-          // analyse error
-          const timelockErrorMessage = timelockError.error.message.match(/^[\w\s:]+'(.*)'$/m)[1];
-          let contractErrorMesage;
+      await timelock
+        .executeTransaction(this.targets[i], this.values[i], this.signatures[i], this.calldatas[i], eta)
+        .then(
+          (receipt) => {
+            receipts.push(receipt);
+          },
+          async (timelockError) => {
+            // analyse error
+            const timelockErrorMessage = timelockError.error.message.match(/^[\w\s:]+'(.*)'$/m)[1];
+            let contractErrorMesage;
 
-          // call the method on the contract as if it was the timelock
-          // this will produce a more relavent message as to the failure of the action
-          const contract = await this.contracts[i]?.connect(timelockSigner);
-          if (contract) {
-            await contract.callStatic[this.signatures[i]](...this.args[i]).catch((contractError) => {
-              contractErrorMesage = contractError.message.match(/^[\w\s:]+'(.*)'$/m)[1];
-            });
-          }
+            // call the method on the contract as if it was the timelock
+            // this will produce a more relavent message as to the failure of the action
+            const contract = await this.contracts[i]?.connect(timelockSigner);
+            if (contract) {
+              await contract.callStatic[this.signatures[i]](...this.args[i]).catch((contractError) => {
+                contractErrorMesage = contractError.message.match(/^[\w\s:]+'(.*)'$/m)[1];
+              });
+            }
 
-          throw new HardhatPluginError(
-            PACKAGE_NAME,
-            `Proposal action ${i} failed.
+            throw new HardhatPluginError(
+              PACKAGE_NAME,
+              `Proposal action ${i} failed.
           Target: ${this.targets[i]}
           Signature: ${this.signatures[i]}
           Args: ${this.args[i]}\n
           Timelock revert message: ${timelockErrorMessage}
           Contract revert message: ${contractErrorMesage}`
-          );
-        }
-      );
+            );
+          }
+        );
       //console.timeEnd(`executetx-${i}`);
     }
     await this.mineBlock();
@@ -163,7 +168,11 @@ export default async function constructProposal(
 
   const proposalDescription = proposalInfo.description;
 
-  const proposalBuilder = new SigmaProposalBuilder(hre, hre.config.proposals.governor, hre.config.proposals.votingToken);
+  const proposalBuilder = new SigmaProposalBuilder(
+    hre,
+    hre.config.proposals.governor,
+    hre.config.proposals.votingToken
+  );
   proposalBuilder.maxActions = 50;
 
   for (let i = 0; i < proposalInfo.commands.length; i += 1) {

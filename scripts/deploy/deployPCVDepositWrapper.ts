@@ -12,7 +12,11 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
   }
 
   const erc20PCVDepositWrapperFactory = await ethers.getContractFactory('ERC20PCVDepositWrapper');
-  const erc20PCVDepositWrapper = await erc20PCVDepositWrapperFactory.deploy(TOKEN_DEPOSIT, TOKEN, IS_PROTOCOL_FEI_DEPOSIT);
+  const erc20PCVDepositWrapper = await erc20PCVDepositWrapperFactory.deploy(
+    TOKEN_DEPOSIT,
+    TOKEN,
+    IS_PROTOCOL_FEI_DEPOSIT
+  );
 
   logging && console.log('ERC20PCVDepositWrapper impl deployed to: ', erc20PCVDepositWrapper.address);
 

@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { forceEth } from '@test/integration/setup/utils';
 import { BigNumber } from 'ethers';
 
@@ -53,23 +59,39 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const [convexResistantBalanceAfter, convexFeiBalanceAfter] = await convexPCVDeposit.resistantBalanceAndFei();
 
   // ~20M in resistantBalance (value of LP tokens?) has been withdrawn
-  expect(convexResistantBalanceAfter).to.bignumber.at.least(convexResistantBalanceBefore.sub(ethers.constants.WeiPerEther.mul(20_100_000)));
-  expect(convexResistantBalanceAfter).to.bignumber.at.most(convexResistantBalanceBefore.sub(ethers.constants.WeiPerEther.mul(19_900_000)));
+  expect(convexResistantBalanceAfter).to.bignumber.at.least(
+    convexResistantBalanceBefore.sub(ethers.constants.WeiPerEther.mul(20_100_000))
+  );
+  expect(convexResistantBalanceAfter).to.bignumber.at.most(
+    convexResistantBalanceBefore.sub(ethers.constants.WeiPerEther.mul(19_900_000))
+  );
 
   // ~10M Fei has been withdrawn - would only expect LP tokens to be withdrawn?
-  expect(convexFeiBalanceAfter).to.bignumber.at.least(convexFeiBalanceBefore.sub(ethers.constants.WeiPerEther.mul(10_100_000)));
-  expect(convexFeiBalanceAfter).to.bignumber.at.most(convexFeiBalanceBefore.sub(ethers.constants.WeiPerEther.mul(9_900_000)));
+  expect(convexFeiBalanceAfter).to.bignumber.at.least(
+    convexFeiBalanceBefore.sub(ethers.constants.WeiPerEther.mul(10_100_000))
+  );
+  expect(convexFeiBalanceAfter).to.bignumber.at.most(
+    convexFeiBalanceBefore.sub(ethers.constants.WeiPerEther.mul(9_900_000))
+  );
 
   // 3. Validate curvePCVDeposit - have transferred 30M LP tokens here, but then withdrawn 10M. Net 20M inflow
   const [curveResistantBalanceAfter, curveFeiBalanceAfter] = await curvePCVDeposit.resistantBalanceAndFei();
 
   // ~13.6M in resistantBalance net inflow
-  expect(curveResistantBalanceAfter).to.bignumber.at.most(curveResistantBalanceBefore.add(ethers.constants.WeiPerEther.mul(13_400_000)));
-  expect(curveResistantBalanceAfter).to.bignumber.at.least(curveResistantBalanceBefore.add(ethers.constants.WeiPerEther.mul(13_200_000)));
+  expect(curveResistantBalanceAfter).to.bignumber.at.most(
+    curveResistantBalanceBefore.add(ethers.constants.WeiPerEther.mul(13_400_000))
+  );
+  expect(curveResistantBalanceAfter).to.bignumber.at.least(
+    curveResistantBalanceBefore.add(ethers.constants.WeiPerEther.mul(13_200_000))
+  );
 
   // ~6.3M Fei net inflow
-  expect(curveFeiBalanceAfter).to.bignumber.at.most(curveFeiBalanceBefore.add(ethers.constants.WeiPerEther.mul(6_700_000)));
-  expect(curveFeiBalanceAfter).to.bignumber.at.least(curveFeiBalanceBefore.add(ethers.constants.WeiPerEther.mul(6_500_000)));
+  expect(curveFeiBalanceAfter).to.bignumber.at.most(
+    curveFeiBalanceBefore.add(ethers.constants.WeiPerEther.mul(6_700_000))
+  );
+  expect(curveFeiBalanceAfter).to.bignumber.at.least(
+    curveFeiBalanceBefore.add(ethers.constants.WeiPerEther.mul(6_500_000))
+  );
 
   // 10M net flow into DAI PSM
   const daiPSMFeiBalance = await daiFixedPricePSM.feiBalance();

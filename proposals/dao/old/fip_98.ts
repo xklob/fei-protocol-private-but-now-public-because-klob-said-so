@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { getImpersonatedSigner } from '@test/helpers';
 
 /*
@@ -44,8 +50,16 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  const { feiDAOTimelock, fei, volt, voltFusePCVDeposit, collateralizationOracle, voltDepositWrapper, pcvGuardian, turboFusePCVDeposit } =
-    contracts;
+  const {
+    feiDAOTimelock,
+    fei,
+    volt,
+    voltFusePCVDeposit,
+    collateralizationOracle,
+    voltDepositWrapper,
+    pcvGuardian,
+    turboFusePCVDeposit
+  } = contracts;
 
   // Validate 10M volt was received by fei Dao timelock
   // Validate 10.17M fei was received by volt fuse pcv deposit

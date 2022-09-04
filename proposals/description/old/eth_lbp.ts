@@ -15,14 +15,26 @@ const eth_lbp: TemplatedProposalDescription = {
       target: 'pcvGuardianNew',
       values: '0',
       method: 'withdrawToSafeAddress(address,address,uint256,bool,bool)',
-      arguments: (addresses) => [addresses.aaveEthPCVDeposit, addresses.ethToDaiLBPSwapper, '20000000000000000000000', false, false],
+      arguments: (addresses) => [
+        addresses.aaveEthPCVDeposit,
+        addresses.ethToDaiLBPSwapper,
+        '20000000000000000000000',
+        false,
+        false
+      ],
       description: 'Transfer WETH from Aave to the LBP swapper'
     },
     {
       target: 'pcvGuardianNew',
       values: '0',
       method: 'withdrawToSafeAddress(address,address,uint256,bool,bool)',
-      arguments: (addresses) => [addresses.compoundDaiPCVDeposit, addresses.ethToDaiLBPSwapper, '3000000000000000000000000', false, false],
+      arguments: (addresses) => [
+        addresses.compoundDaiPCVDeposit,
+        addresses.ethToDaiLBPSwapper,
+        '3000000000000000000000000',
+        false,
+        false
+      ],
       description: 'Withdraw 3M DAI from the CompoundPCVDeposit and transfer to the LBP pool'
     },
     // Swap and update CR oracle

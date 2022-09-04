@@ -1,7 +1,15 @@
 import { BalancerLBPSwapper, Core, Fei, Tribe } from '@custom-types/contracts';
 import { MockVault } from '@custom-types/contracts/MockVault';
 import { MockWeightedPool } from '@custom-types/contracts/MockWeightedPool';
-import { expectRevert, getAddresses, getCore, getImpersonatedSigner, increaseTime, latestTime, ZERO_ADDRESS } from '@test/helpers';
+import {
+  expectRevert,
+  getAddresses,
+  getCore,
+  getImpersonatedSigner,
+  increaseTime,
+  latestTime,
+  ZERO_ADDRESS
+} from '@test/helpers';
 import { expect } from 'chai';
 import { Signer } from 'ethers';
 import { ethers } from 'hardhat';
@@ -42,7 +50,8 @@ describe('BalancerLBPSwapper', function () {
   });
 
   beforeEach(async function () {
-    ({ userAddress, pcvControllerAddress, governorAddress, minterAddress, burnerAddress, guardianAddress } = await getAddresses());
+    ({ userAddress, pcvControllerAddress, governorAddress, minterAddress, burnerAddress, guardianAddress } =
+      await getAddresses());
 
     core = await getCore();
 
@@ -79,11 +88,15 @@ describe('BalancerLBPSwapper', function () {
   describe('Init', function () {
     describe('Before Init', function () {
       it('SMALL_PERCENT', async function () {
-        expect(await balancerLBPSwapper.SMALL_PERCENT()).to.be.equal(ethers.constants.WeiPerEther.mul(toBN(5)).div(toBN(100)));
+        expect(await balancerLBPSwapper.SMALL_PERCENT()).to.be.equal(
+          ethers.constants.WeiPerEther.mul(toBN(5)).div(toBN(100))
+        );
       });
 
       it('LARGE_PERCENT', async function () {
-        expect(await balancerLBPSwapper.LARGE_PERCENT()).to.be.equal(ethers.constants.WeiPerEther.mul(toBN(95)).div(toBN(100)));
+        expect(await balancerLBPSwapper.LARGE_PERCENT()).to.be.equal(
+          ethers.constants.WeiPerEther.mul(toBN(95)).div(toBN(100))
+        );
       });
 
       it('tokenSpent', async function () {
@@ -179,17 +192,24 @@ describe('BalancerLBPSwapper', function () {
 
     describe('before time', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
       });
 
       it('reverts', async function () {
-        await expectRevert(balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).swap(), 'Timed: time not ended');
+        await expectRevert(
+          balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).swap(),
+          'Timed: time not ended'
+        );
       });
     });
 
     describe('paused', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
         await increaseTime(await balancerLBPSwapper.remainingTime());
         await balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).pause();
       });
@@ -201,7 +221,9 @@ describe('BalancerLBPSwapper', function () {
 
     describe('Non-Governor or Admin', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
         await increaseTime(await balancerLBPSwapper.remainingTime());
       });
 
@@ -228,8 +250,12 @@ describe('BalancerLBPSwapper', function () {
 
     describe('Successful', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
-        await core.connect(impersonatedSigners[governorAddress]).allocateTribe(balancerLBPSwapper.address, ethers.constants.WeiPerEther);
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await core
+          .connect(impersonatedSigners[governorAddress])
+          .allocateTribe(balancerLBPSwapper.address, ethers.constants.WeiPerEther);
 
         await increaseTime(await balancerLBPSwapper.remainingTime());
         await balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).swap();
@@ -251,7 +277,9 @@ describe('BalancerLBPSwapper', function () {
       describe('Subsequent Swaps', function () {
         describe('Weight update in progress', function () {
           beforeEach(async function () {
-            await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+            await fei
+              .connect(impersonatedSigners[minterAddress])
+              .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
             await increaseTime(await balancerLBPSwapper.remainingTime());
 
             const weight = ethers.constants.WeiPerEther.div(10);
@@ -268,7 +296,9 @@ describe('BalancerLBPSwapper', function () {
 
         describe('Not enough tokenSpent', function () {
           beforeEach(async function () {
-            await fei.connect(impersonatedSigners[burnerAddress]).burnFrom(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+            await fei
+              .connect(impersonatedSigners[burnerAddress])
+              .burnFrom(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
             await increaseTime(await balancerLBPSwapper.remainingTime());
           });
 
@@ -290,9 +320,13 @@ describe('BalancerLBPSwapper', function () {
 
     describe('before time', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
 
-        await core.connect(impersonatedSigners[governorAddress]).allocateTribe(balancerLBPSwapper.address, ethers.constants.WeiPerEther);
+        await core
+          .connect(impersonatedSigners[governorAddress])
+          .allocateTribe(balancerLBPSwapper.address, ethers.constants.WeiPerEther);
       });
 
       it('should succeed, no time restriction', async function () {
@@ -314,7 +348,9 @@ describe('BalancerLBPSwapper', function () {
 
     describe('paused', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
         await increaseTime(await balancerLBPSwapper.remainingTime());
         await balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).pause();
       });
@@ -326,12 +362,17 @@ describe('BalancerLBPSwapper', function () {
 
     describe('Non-Governor', function () {
       beforeEach(async function () {
-        await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+        await fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
         await increaseTime(await balancerLBPSwapper.remainingTime());
       });
 
       it('reverts', async function () {
-        await expectRevert(balancerLBPSwapper.connect(impersonatedSigners[userAddress]).swap(), 'CoreRef: Caller is not a governor');
+        await expectRevert(
+          balancerLBPSwapper.connect(impersonatedSigners[userAddress]).swap(),
+          'CoreRef: Caller is not a governor'
+        );
       });
     });
   });
@@ -340,7 +381,9 @@ describe('BalancerLBPSwapper', function () {
     beforeEach(async function () {
       await balancerLBPSwapper.init(pool.address);
 
-      await fei.connect(impersonatedSigners[minterAddress]).mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
+      await fei
+        .connect(impersonatedSigners[minterAddress])
+        .mint(balancerLBPSwapper.address, ethers.constants.WeiPerEther.mul(2));
       await increaseTime(await balancerLBPSwapper.remainingTime());
       await balancerLBPSwapper.connect(impersonatedSigners[governorAddress]).swap();
     });
@@ -350,11 +393,16 @@ describe('BalancerLBPSwapper', function () {
         expect(await pool.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(await vault.LIQUIDITY_AMOUNT());
         await balancerLBPSwapper.connect(impersonatedSigners[guardianAddress]).exitPoolToSelf();
         expect(await pool.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(toBN(0));
-        expect(await fei.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(ethers.constants.WeiPerEther.mul(toBN(2)));
+        expect(await fei.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(
+          ethers.constants.WeiPerEther.mul(toBN(2))
+        );
       });
 
       it('non-authorized reverts', async function () {
-        await expectRevert(balancerLBPSwapper.connect(impersonatedSigners[userAddress]).exitPoolToSelf(), 'UNAUTHORIZED');
+        await expectRevert(
+          balancerLBPSwapper.connect(impersonatedSigners[userAddress]).exitPoolToSelf(),
+          'UNAUTHORIZED'
+        );
       });
     });
     it('succeeds', async function () {
@@ -446,7 +494,9 @@ describe('BalancerLBPSwapper', function () {
 
       it('succeeds', async function () {
         expect(await fei.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(toBN(100));
-        await balancerLBPSwapper.connect(impersonatedSigners[pcvControllerAddress]).withdrawERC20(fei.address, userAddress, 100);
+        await balancerLBPSwapper
+          .connect(impersonatedSigners[pcvControllerAddress])
+          .withdrawERC20(fei.address, userAddress, 100);
 
         expect(await fei.balanceOf(balancerLBPSwapper.address)).to.be.bignumber.equal(toBN(0));
         expect(await fei.balanceOf(userAddress)).to.be.bignumber.equal(toBN(100));

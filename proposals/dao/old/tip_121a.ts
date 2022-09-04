@@ -47,7 +47,10 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   logging && console.log('LUSD to DAI swapper deployed to:', lusdToDaiSwapper.address);
 
   // Create a liquidity bootstrapping pool between LUSD and DAI
-  const lbpFactory = await ethers.getContractAt('ILiquidityBootstrappingPoolFactory', addresses.balancerLBPoolFactoryNoFee);
+  const lbpFactory = await ethers.getContractAt(
+    'ILiquidityBootstrappingPoolFactory',
+    addresses.balancerLBPoolFactoryNoFee
+  );
 
   const tx: TransactionResponse = await lbpFactory.create(
     'LUSD->DAI Auction Pool', // pool name
@@ -200,7 +203,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(lusdPoolTokens.balances[0]).to.be.at.least(e18('18500000')); // 18.5M LUSD
   expect(lusdPoolTokens.balances[1]).to.be.at.least(e18('350000')); // 350k DAI
   // WETH -> DAI pool balances
-  const wethPoolTokens = await contracts.balancerVault.getPoolTokens('0x34809aedf93066b49f638562c42a9751edb36df5000200000000000000000223');
+  const wethPoolTokens = await contracts.balancerVault.getPoolTokens(
+    '0x34809aedf93066b49f638562c42a9751edb36df5000200000000000000000223'
+  );
   expect(wethPoolTokens.balances[0]).to.be.at.least(e18('1800000')); // 1.8M DAI
   expect(wethPoolTokens.balances[1]).to.be.at.least(e18('22000')); // 22k WETH
   // buybacks protocol-owned fei

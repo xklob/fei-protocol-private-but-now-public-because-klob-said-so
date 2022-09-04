@@ -58,7 +58,9 @@ describe('EthCompoundPCVDeposit', function () {
 
     describe('Not Paused', function () {
       beforeEach(async function () {
-        await (await ethers.getSigner(userAddress)).sendTransaction({ to: this.compoundPCVDeposit.address, value: this.depositAmount });
+        await (
+          await ethers.getSigner(userAddress)
+        ).sendTransaction({ to: this.compoundPCVDeposit.address, value: this.depositAmount });
       });
 
       it('succeeds', async function () {
@@ -78,7 +80,9 @@ describe('EthCompoundPCVDeposit', function () {
       it('reverts', async function () {
         await this.compoundPCVDeposit.connect(impersonatedSigners[governorAddress]).pause({});
         await expectRevert(
-          this.compoundPCVDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, this.depositAmount, {}),
+          this.compoundPCVDeposit
+            .connect(impersonatedSigners[pcvControllerAddress])
+            .withdraw(userAddress, this.depositAmount, {}),
           'Pausable: paused'
         );
       });
@@ -87,7 +91,9 @@ describe('EthCompoundPCVDeposit', function () {
     describe('Not PCVController', function () {
       it('reverts', async function () {
         await expectRevert(
-          this.compoundPCVDeposit.connect(impersonatedSigners[userAddress]).withdraw(userAddress, this.depositAmount, {}),
+          this.compoundPCVDeposit
+            .connect(impersonatedSigners[userAddress])
+            .withdraw(userAddress, this.depositAmount, {}),
           'CoreRef: Caller is not a PCV controller'
         );
       });
@@ -95,7 +101,9 @@ describe('EthCompoundPCVDeposit', function () {
 
     describe('Not Paused', function () {
       beforeEach(async function () {
-        await (await ethers.getSigner(userAddress)).sendTransaction({ to: this.compoundPCVDeposit.address, value: this.depositAmount });
+        await (
+          await ethers.getSigner(userAddress)
+        ).sendTransaction({ to: this.compoundPCVDeposit.address, value: this.depositAmount });
         await this.compoundPCVDeposit.deposit();
       });
 
@@ -104,7 +112,9 @@ describe('EthCompoundPCVDeposit', function () {
 
         // withdrawing should take balance back to 0
         expect(await this.compoundPCVDeposit.balance()).to.be.equal(this.depositAmount);
-        await this.compoundPCVDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, this.depositAmount, {});
+        await this.compoundPCVDeposit
+          .connect(impersonatedSigners[pcvControllerAddress])
+          .withdraw(userAddress, this.depositAmount, {});
         expect(Number((await this.compoundPCVDeposit.balance()).toString())).to.be.equal(0);
 
         const userBalanceAfter = await balance.current(userAddress);

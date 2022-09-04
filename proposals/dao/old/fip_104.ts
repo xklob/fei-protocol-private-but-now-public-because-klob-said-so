@@ -42,7 +42,11 @@ const aaveWETHTransferAmount = '14999999999999999992057'; // almost 15,000 WETH
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
   /////////  1. Deploy a Fei Skimmer for the DAI PSM
   const daiPSMFeiSkimmerFactory = await ethers.getContractFactory('FeiSkimmer');
-  const daiFixedPricePSMFeiSkimmer = await daiPSMFeiSkimmerFactory.deploy(addresses.core, addresses.daiFixedPricePSM, skimThreshold);
+  const daiFixedPricePSMFeiSkimmer = await daiPSMFeiSkimmerFactory.deploy(
+    addresses.core,
+    addresses.daiFixedPricePSM,
+    skimThreshold
+  );
   await daiFixedPricePSMFeiSkimmer.deployed();
   logging && console.log('DAI PSM Fei Skimmer deployed at', daiFixedPricePSMFeiSkimmer.address);
 
@@ -75,7 +79,10 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   logging && console.log('DPI to DAI swapper deployed to: ', dpiToDaiSwapper.address);
 
   // 2. Create a liquidity bootstrapping pool between DPI and DAI
-  const lbpFactory = await ethers.getContractAt('ILiquidityBootstrappingPoolFactory', addresses.balancerLBPoolFactoryNoFee);
+  const lbpFactory = await ethers.getContractAt(
+    'ILiquidityBootstrappingPoolFactory',
+    addresses.balancerLBPoolFactoryNoFee
+  );
 
   const tx: TransactionResponse = await lbpFactory.create(
     'DPI->DAI Auction Pool', // pool name
@@ -203,7 +210,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   ///////  5. Fund TribalCouncil with 10 Eth //////////
   const ethersSigner = (await ethers.getSigners())[0];
-  expect(await ethersSigner.provider.getBalance(addresses.tribalCouncilSafe)).to.be.equal(ethers.utils.parseEther('10'));
+  expect(await ethersSigner.provider.getBalance(addresses.tribalCouncilSafe)).to.be.equal(
+    ethers.utils.parseEther('10')
+  );
 
   /////// 6. Transfer WETH to the aaveETHPCVDeposit //////
   const finalAavePCVBalance = await contracts.aaveEthPCVDepositWrapper.balance();

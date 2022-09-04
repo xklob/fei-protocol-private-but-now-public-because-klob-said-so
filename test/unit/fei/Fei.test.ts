@@ -45,7 +45,10 @@ describe('Fei', function () {
     describe('Paused', function () {
       it('reverts', async function () {
         await this.fei.connect(impersonatedSigners[governorAddress]).pause();
-        await expectRevert(this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 100), 'Pausable: paused');
+        await expectRevert(
+          this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 100),
+          'Pausable: paused'
+        );
       });
     });
     describe('not from minter', function () {
@@ -77,7 +80,10 @@ describe('Fei', function () {
     describe('Paused', function () {
       it('reverts', async function () {
         await this.fei.connect(impersonatedSigners[governorAddress]).pause();
-        await expectRevert(this.fei.connect(impersonatedSigners[burnerAddress]).burnFrom(userAddress, 100), 'Pausable: paused');
+        await expectRevert(
+          this.fei.connect(impersonatedSigners[burnerAddress]).burnFrom(userAddress, 100),
+          'Pausable: paused'
+        );
       });
     });
     describe('not from burner', function () {
@@ -122,7 +128,9 @@ describe('Fei', function () {
       await this.core.connect(impersonatedSigners[governorAddress]).grantMinter(this.incentive.address);
       /*await expect(*/
       await (
-        await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.incentivizedAddress, this.incentive.address)
+        await this.fei
+          .connect(impersonatedSigners[governorAddress])
+          .setIncentiveContract(this.incentivizedAddress, this.incentive.address)
       ).wait();
       /*'IncentiveContractUpdate',
         {
@@ -156,7 +164,9 @@ describe('Fei', function () {
       describe('on receiver', function () {
         beforeEach(async function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 200);
-          const { logs } = await this.fei.connect(impersonatedSigners[userAddress]).transfer(this.incentivizedAddress, 200);
+          const { logs } = await this.fei
+            .connect(impersonatedSigners[userAddress])
+            .transfer(this.incentivizedAddress, 200);
           this.logs = logs;
         });
 
@@ -172,11 +182,17 @@ describe('Fei', function () {
         beforeEach(async function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 200);
           // Set all incentive
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
           // unset incentive
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
 
-          const { logs } = await this.fei.connect(impersonatedSigners[userAddress]).transfer(this.incentivizedAddress, 200);
+          const { logs } = await this.fei
+            .connect(impersonatedSigners[userAddress])
+            .transfer(this.incentivizedAddress, 200);
           this.logs = logs;
         });
 
@@ -203,9 +219,13 @@ describe('Fei', function () {
         beforeEach(async function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 200);
           // Set incentive on zero address
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
 
-          const { logs } = await this.fei.connect(impersonatedSigners[userAddress]).transfer(this.incentivizedAddress, 200);
+          const { logs } = await this.fei
+            .connect(impersonatedSigners[userAddress])
+            .transfer(this.incentivizedAddress, 200);
           this.logs = logs;
         });
 
@@ -229,9 +249,13 @@ describe('Fei', function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 200);
           await this.fei.connect(impersonatedSigners[userAddress]).approve(this.operatorAddress, 200);
           // Set incentive on operator
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.operatorAddress, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.operatorAddress, this.incentive.address);
           // Unset incentive on this.incentivizedAddress
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
 
           const { logs } = await this.operator.sendFeiFrom(userAddress, this.incentivizedAddress, 200);
 
@@ -255,7 +279,9 @@ describe('Fei', function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(this.incentivizedAddress, 200);
           this.incentivizedContract.approve(this.operatorAddress);
           // Set incentive on operator
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.operatorAddress, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.operatorAddress, this.incentive.address);
 
           const { logs } = await this.operator.sendFeiFrom(this.incentivizedAddress, userAddress, 200);
 
@@ -276,11 +302,17 @@ describe('Fei', function () {
           await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 200);
           await this.fei.connect(impersonatedSigners[userAddress]).approve(this.operatorAddress, 200);
           // Set incentive on operator
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.operatorAddress, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.operatorAddress, this.incentive.address);
           // Unset incentive on this.incentivizedAddress
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(this.incentivizedAddress, ZERO_ADDRESS);
           // Set incentive on all
-          await this.fei.connect(impersonatedSigners[governorAddress]).setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
+          await this.fei
+            .connect(impersonatedSigners[governorAddress])
+            .setIncentiveContract(ZERO_ADDRESS, this.incentive.address);
 
           const { logs } = await this.operator.sendFeiFrom(userAddress, this.incentivizedAddress, 200);
           this.logs = logs;

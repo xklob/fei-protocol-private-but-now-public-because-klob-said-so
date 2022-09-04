@@ -58,7 +58,9 @@ describe('FeiDAO', function () {
       method: 'hardhat_impersonateAccount',
       params: [timelock.address]
     });
-    await (await ethers.getSigner(userAddress)).sendTransaction({ to: timelock.address, value: toBN('10000000000000000000') });
+    await (
+      await ethers.getSigner(userAddress)
+    ).sendTransaction({ to: timelock.address, value: toBN('10000000000000000000') });
     await timelock.connect(await ethers.getSigner(timelock.address)).setPendingAdmin(feiDAO.address);
     await feiDAO.__acceptAdmin();
 
@@ -84,7 +86,9 @@ describe('FeiDAO', function () {
     });
 
     it('proposalThreshold', async function () {
-      expect((await feiDAO.proposalThreshold()).toString()).to.be.equal(ethers.constants.WeiPerEther.mul(2_500_000).toString());
+      expect((await feiDAO.proposalThreshold()).toString()).to.be.equal(
+        ethers.constants.WeiPerEther.mul(2_500_000).toString()
+      );
     });
 
     it('token', async function () {
@@ -144,8 +148,12 @@ describe('FeiDAO', function () {
 
         expect(response).to.emit(feiDAO, 'VotingDelayUpdated').withArgs('1', '10');
         expect(response).to.emit(feiDAO, 'VotingPeriodUpdated').withArgs('13000', '11');
-        expect(response).to.emit(feiDAO, 'QuorumUpdated').withArgs(ethers.constants.WeiPerEther.mul(25_000_000).toString(), '12');
-        expect(response).to.emit(feiDAO, 'ProposalThresholdUpdated').withArgs(ethers.constants.WeiPerEther.mul(2_500_000).toString(), '13');
+        expect(response)
+          .to.emit(feiDAO, 'QuorumUpdated')
+          .withArgs(ethers.constants.WeiPerEther.mul(25_000_000).toString(), '12');
+        expect(response)
+          .to.emit(feiDAO, 'ProposalThresholdUpdated')
+          .withArgs(ethers.constants.WeiPerEther.mul(2_500_000).toString(), '13');
       });
 
       it('succeeds', async function () {

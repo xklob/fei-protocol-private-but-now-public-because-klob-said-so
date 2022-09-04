@@ -143,7 +143,9 @@ describe('OracleRef', () => {
     describe('Invalid Oracle', () => {
       it('falls back to backup', async function () {
         await this.oracle.setValid(false);
-        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal('1980198019801980');
+        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal(
+          '1980198019801980'
+        );
       });
     });
 
@@ -151,13 +153,18 @@ describe('OracleRef', () => {
       it('reverts', async function () {
         await this.oracle.setValid(false);
         await this.backupOracle.setValid(false);
-        await expectRevert(this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle(), 'OracleRef: oracle invalid');
+        await expectRevert(
+          this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle(),
+          'OracleRef: oracle invalid'
+        );
       });
     });
 
     describe('Valid Oracle', () => {
       it('succeeds', async function () {
-        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal('2000000000000000');
+        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal(
+          '2000000000000000'
+        );
       });
 
       it('positive decimal normalizer scales up', async function () {
@@ -168,7 +175,9 @@ describe('OracleRef', () => {
         // 2e15 * 1e4 = 2e19 = 20000000000000000000
         await this.oracleRef.connect(impersonatedSigners[governorAddress]).setDecimalsNormalizer(4);
 
-        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal('20000000000000000000');
+        expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal(
+          '20000000000000000000'
+        );
       });
 
       it('negative decimal normalizer scales down', async function () {
@@ -178,7 +187,9 @@ describe('OracleRef', () => {
         // Scaling factor is set to -1e4. After applying scaling factor
         // 2e15 / 1e4 = 2e11 = 200000000000
         await this.oracleRef.connect(impersonatedSigners[governorAddress]).setDecimalsNormalizer(-4),
-          expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal('200000000000');
+          expect((await this.oracleRef.connect(impersonatedSigners[userAddress]).readOracle())[0]).to.be.equal(
+            '200000000000'
+          );
       });
     });
   });

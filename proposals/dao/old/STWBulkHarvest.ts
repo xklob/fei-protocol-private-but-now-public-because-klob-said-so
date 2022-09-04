@@ -1,5 +1,11 @@
 import { ethers } from 'hardhat';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 const fipNumber = 'STWBulkHarvest';
 

@@ -170,7 +170,11 @@ export enum AddressCategory {
 
 export type NamedContracts = { [key: string]: ethers.Contract };
 export type NamedAddresses = { [key: string]: string };
-export type DeployUpgradeFunc = (deployAddress: string, address: NamedAddresses, logging: boolean) => Promise<NamedContracts>;
+export type DeployUpgradeFunc = (
+  deployAddress: string,
+  address: NamedAddresses,
+  logging: boolean
+) => Promise<NamedContracts>;
 export type SetupUpgradeFunc = (
   addresses: NamedAddresses,
   oldContracts: NamedContracts,

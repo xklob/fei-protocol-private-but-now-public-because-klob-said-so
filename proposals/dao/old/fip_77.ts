@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 /*
 FIP-77:
@@ -30,7 +36,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // supply cap
   const fei3CrvCToken = await rariPool8Comptroller.cTokensByUnderlying(addresses.curve3Metapool);
 
-  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCToken)).to.be.equal(ethers.constants.WeiPerEther.mul(250_000_000)); // 250m
+  expect(await rariPool8Comptroller.supplyCaps(fei3CrvCToken)).to.be.equal(
+    ethers.constants.WeiPerEther.mul(250_000_000)
+  ); // 250m
 
   // TribalChief
   expect(await tribalChief.stakedToken(1)).to.be.equal(addresses.curve3Metapool);

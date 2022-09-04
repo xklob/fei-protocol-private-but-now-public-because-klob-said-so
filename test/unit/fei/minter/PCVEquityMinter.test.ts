@@ -35,7 +35,9 @@ describe('PCVEquityMinter', function () {
     ({ userAddress, secondUserAddress, governorAddress } = await getAddresses());
 
     this.core = await getCore();
-    this.collateralizationOracle = await (await ethers.getContractFactory('MockCollateralizationOracle')).deploy(this.core.address, '1');
+    this.collateralizationOracle = await (
+      await ethers.getContractFactory('MockCollateralizationOracle')
+    ).deploy(this.core.address, '1');
 
     this.fei = await ethers.getContractAt('Fei', await this.core.fei());
 
@@ -149,7 +151,10 @@ describe('PCVEquityMinter', function () {
     });
 
     it('zero reverts', async function () {
-      await expectRevert(this.feiMinter.connect(impersonatedSigners[governorAddress]).setAPRBasisPoints('0'), 'PCVEquityMinter: zero APR');
+      await expectRevert(
+        this.feiMinter.connect(impersonatedSigners[governorAddress]).setAPRBasisPoints('0'),
+        'PCVEquityMinter: zero APR'
+      );
     });
 
     it('above max reverts', async function () {

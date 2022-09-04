@@ -1,5 +1,11 @@
 import { ERC20PCVDepositWrapper__factory } from '@custom-types/contracts';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import chai, { expect } from 'chai';
 import hre from 'hardhat';
 import { time } from '@test/helpers';
@@ -46,7 +52,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.rariTimelockFeiOldLens.balanceReportedIn()).to.be.equal(addresses.fei);
   expect(await contracts.tribalCouncilTimelockFeiLens.balanceReportedIn()).to.be.equal(addresses.fei);
   expect(await contracts.namedStaticPCVDepositWrapper.numDeposits()).to.be.equal('0');
-  expect(await contracts.ethToDaiLBPSwapper.swapEndTime()).to.be.gt(ethers.BigNumber.from((await time.latest()).toString()));
+  expect(await contracts.ethToDaiLBPSwapper.swapEndTime()).to.be.gt(
+    ethers.BigNumber.from((await time.latest()).toString())
+  );
 };
 
 export { deploy, setup, teardown, validate };

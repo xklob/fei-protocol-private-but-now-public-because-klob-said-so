@@ -52,7 +52,10 @@ const fip_37: ProposalDescription = {
       target: 'core',
       values: '0',
       method: 'grantRole(bytes32,address)',
-      arguments: ['0xc307c44629779eb8fc0b85f224c3d22f5876a6c84de0ee42d481eb7814f0d3a8', '{collateralizationOracleGuardian}'],
+      arguments: [
+        '0xc307c44629779eb8fc0b85f224c3d22f5876a6c84de0ee42d481eb7814f0d3a8',
+        '{collateralizationOracleGuardian}'
+      ],
       description: 'Grant Oracle Admin role to Collateralization Oracle Guardian'
     },
     {

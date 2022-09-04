@@ -50,7 +50,8 @@ const clawback: TemplatedProposalDescription = {
       values: '0',
       method: 'approve(address,uint256)',
       arguments: (addresses) => [addresses.tribalCouncilTimelock, '20000000000000000000000000'],
-      description: 'Approve the Tribal Council Timelock for 20M TRIBE. It will later transfer the TRIBE to the Core Treasury'
+      description:
+        'Approve the Tribal Council Timelock for 20M TRIBE. It will later transfer the TRIBE to the Core Treasury'
     }
   ],
   description: `

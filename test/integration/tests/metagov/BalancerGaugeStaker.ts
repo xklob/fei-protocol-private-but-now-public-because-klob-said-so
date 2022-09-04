@@ -41,7 +41,11 @@ describe('e2e-metagov', function () {
     before(async function () {
       // Create the contract
       const factory = await ethers.getContractFactory('BalancerGaugeStaker');
-      staker = await factory.deploy(contracts.core.address, contracts.balancerGaugeController.address, contracts.balancerMinter.address);
+      staker = await factory.deploy(
+        contracts.core.address,
+        contracts.balancerGaugeController.address,
+        contracts.balancerMinter.address
+      );
       await staker.deployTransaction.wait();
 
       // get signer for a random address
@@ -63,7 +67,9 @@ describe('e2e-metagov', function () {
       // grant role to dao and initialize dao signer
       await forceEth(contracts.feiDAOTimelock.address);
       daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
-      await contracts.core.connect(daoSigner).grantRole(ethers.utils.id('METAGOVERNANCE_GAUGE_ADMIN'), daoSigner.address);
+      await contracts.core
+        .connect(daoSigner)
+        .grantRole(ethers.utils.id('METAGOVERNANCE_GAUGE_ADMIN'), daoSigner.address);
     });
 
     it('init', async function () {
@@ -89,7 +95,10 @@ describe('e2e-metagov', function () {
 
     describe('withdraw()', function () {
       it('should revert if user has no role', async function () {
-        await expectRevert(staker.connect(randomSigner).withdraw(daoSigner.address, '10'), 'CoreRef: Caller is not a PCV controller');
+        await expectRevert(
+          staker.connect(randomSigner).withdraw(daoSigner.address, '10'),
+          'CoreRef: Caller is not a PCV controller'
+        );
       });
 
       it('should revert if contract is paused', async function () {
@@ -109,12 +118,17 @@ describe('e2e-metagov', function () {
 
     describe('mintGaugeRewards()', function () {
       it('should revert for gauges that are not configured', async function () {
-        await expectRevert(staker.mintGaugeRewards(contracts.bal.address), 'BalancerGaugeStaker: token has no gauge configured');
+        await expectRevert(
+          staker.mintGaugeRewards(contracts.bal.address),
+          'BalancerGaugeStaker: token has no gauge configured'
+        );
       });
 
       it('should be able to mint BAL', async function () {
         // set gauge and stake a bunch of tokens
-        await staker.connect(daoSigner).setTokenToGauge(contracts.bpt30Fei70Weth.address, contracts.balancerGaugeBpt30Fei70Weth.address);
+        await staker
+          .connect(daoSigner)
+          .setTokenToGauge(contracts.bpt30Fei70Weth.address, contracts.balancerGaugeBpt30Fei70Weth.address);
         await staker.connect(daoSigner).stakeAllInGauge(contracts.bpt30Fei70Weth.address);
 
         staker.mintGaugeRewards(contracts.bpt30Fei70Weth.address);
@@ -126,7 +140,10 @@ describe('e2e-metagov', function () {
 
     describe('withdrawERC20()', function () {
       it('should revert if user has no role', async function () {
-        await expectRevert(staker.connect(randomSigner).withdraw(daoSigner.address, '10'), 'CoreRef: Caller is not a PCV controller');
+        await expectRevert(
+          staker.connect(randomSigner).withdraw(daoSigner.address, '10'),
+          'CoreRef: Caller is not a PCV controller'
+        );
       });
 
       it('should revert if contract is paused', async function () {

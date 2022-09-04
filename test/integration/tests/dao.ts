@@ -80,7 +80,9 @@ describe('e2e-dao', function () {
       // Propose
       // note ethers.js requires using this notation when two overloaded methods exist)
       // https://docs.ethers.io/v5/migration/web3/#migration-from-web3-js--contracts--overloaded-functions
-      await feiDAO.connect(signer)['propose(address[],uint256[],bytes[],string)'](targets, values, calldatas, description);
+      await feiDAO
+        .connect(signer)
+        ['propose(address[],uint256[],bytes[],string)'](targets, values, calldatas, description);
 
       const pid = await feiDAO.hashProposal(targets, values, calldatas, ethers.utils.keccak256(description));
 
@@ -94,12 +96,22 @@ describe('e2e-dao', function () {
       await time.advanceBlockTo(endBlock.toNumber());
 
       // queue
-      await feiDAO['queue(address[],uint256[],bytes[],bytes32)'](targets, values, calldatas, ethers.utils.keccak256(description));
+      await feiDAO['queue(address[],uint256[],bytes[],bytes32)'](
+        targets,
+        values,
+        calldatas,
+        ethers.utils.keccak256(description)
+      );
 
       await time.increase('1000000');
 
       // execute
-      await feiDAO['execute(address[],uint256[],bytes[],bytes32)'](targets, values, calldatas, ethers.utils.keccak256(description));
+      await feiDAO['execute(address[],uint256[],bytes[],bytes32)'](
+        targets,
+        values,
+        calldatas,
+        ethers.utils.keccak256(description)
+      );
 
       expect((await feiDAO.votingDelay()).toString()).to.be.equal('10');
     });
@@ -145,7 +157,10 @@ describe('e2e-dao', function () {
           const hasRole = await core.hasRole(id, contractAddress);
           expect(hasRole).to.be.equal(
             true,
-            'expect contract ' + accessControl[element as keyof ContractAccessRights][i] + ' expected to have role ' + element
+            'expect contract ' +
+              accessControl[element as keyof ContractAccessRights][i] +
+              ' expected to have role ' +
+              element
           );
         }
       }

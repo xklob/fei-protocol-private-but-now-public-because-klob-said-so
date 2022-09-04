@@ -14,7 +14,8 @@ const run: RunUpgradeFunc = async (addresses, oldContracts, contracts, logging =
 
 const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   const { optimisticTimelock } = addresses;
-  const { rariPool8Comptroller, rariPool8Dai, rariPool8Tribe, rariPool8Eth, rariPool8Fei, rariPool22FeiPCVDeposit } = contracts;
+  const { rariPool8Comptroller, rariPool8Dai, rariPool8Tribe, rariPool8Eth, rariPool8Fei, rariPool22FeiPCVDeposit } =
+    contracts;
 
   await hre.network.provider.request({
     method: 'hardhat_impersonateAccount',
@@ -40,8 +41,16 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 };
 
 const validate = async (addresses, oldContracts, contracts) => {
-  const { rariPool8Comptroller, fei, rariPool8Dai, rariPool8Tribe, rariPool8Eth, rariPool8Fei, rariPool22FeiPCVDeposit, tribalChief } =
-    contracts;
+  const {
+    rariPool8Comptroller,
+    fei,
+    rariPool8Dai,
+    rariPool8Tribe,
+    rariPool8Eth,
+    rariPool8Fei,
+    rariPool22FeiPCVDeposit,
+    tribalChief
+  } = contracts;
 
   const { optimisticTimelock, tribalChiefOptimisticTimelock } = addresses;
 

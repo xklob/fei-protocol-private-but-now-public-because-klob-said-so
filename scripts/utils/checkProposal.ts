@@ -47,7 +47,11 @@ async function checkProposal(proposalName: string, doSetup?: string) {
 
     // persist chainlink ETH/USD reading for BAMM deposit to not revert with 'chainlink is down'
     const chainlinkEthUsd = await contracts.chainlinkEthUsdOracleWrapper.read();
-    await overwriteChainlinkAggregator(contractAddresses.chainlinkEthUsdOracle, Math.round(chainlinkEthUsd[0] / 1e10).toString(), '8');
+    await overwriteChainlinkAggregator(
+      contractAddresses.chainlinkEthUsdOracle,
+      Math.round(chainlinkEthUsd[0] / 1e10).toString(),
+      '8'
+    );
   }
 
   const { feiDAO } = contracts;
@@ -57,17 +61,29 @@ async function checkProposal(proposalName: string, doSetup?: string) {
   await execProposal(voterAddress, feiDAO.address, proposals[proposalName].totalValue.toString(), proposalNo);
 
   console.log('Teardown');
-  await proposalFuncs.teardown(contractAddresses, contracts as unknown as NamedContracts, contracts as unknown as NamedContracts, true);
+  await proposalFuncs.teardown(
+    contractAddresses,
+    contracts as unknown as NamedContracts,
+    contracts as unknown as NamedContracts,
+    true
+  );
 
   console.log('Validate');
-  await proposalFuncs.validate(contractAddresses, contracts as unknown as NamedContracts, contracts as unknown as NamedContracts, true);
+  await proposalFuncs.validate(
+    contractAddresses,
+    contracts as unknown as NamedContracts,
+    contracts as unknown as NamedContracts,
+    true
+  );
 
   if (checkCrOracle) {
     console.log('Reading CR oracle after proposal execution');
     const crOracleReadingAfter = await contracts.collateralizationOracle.pcvStats();
     const pcvChange =
-      crOracleReadingAfter.protocolControlledValue.toString() / 1 - crOracleReadingBefore.protocolControlledValue.toString() / 1;
-    const feiChange = crOracleReadingAfter.userCirculatingFei.toString() / 1 - crOracleReadingBefore.userCirculatingFei.toString() / 1;
+      crOracleReadingAfter.protocolControlledValue.toString() / 1 -
+      crOracleReadingBefore.protocolControlledValue.toString() / 1;
+    const feiChange =
+      crOracleReadingAfter.userCirculatingFei.toString() / 1 - crOracleReadingBefore.userCirculatingFei.toString() / 1;
     console.log('PCV Change :', formatNumber(pcvChange));
     console.log('FEI Circulating Change :', formatNumber(feiChange));
   }

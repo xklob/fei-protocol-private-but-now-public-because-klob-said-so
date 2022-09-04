@@ -92,7 +92,10 @@ describe('FeiSkimmer', function () {
     });
 
     it('not from governor fails', async function () {
-      await expectRevert(skimmer.connect(impersonatedSigners[userAddress]).setSource(userAddress), 'CoreRef: Caller is not a governor');
+      await expectRevert(
+        skimmer.connect(impersonatedSigners[userAddress]).setSource(userAddress),
+        'CoreRef: Caller is not a governor'
+      );
     });
   });
 });

@@ -1,6 +1,12 @@
 import hre, { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 /*
 
@@ -56,8 +62,16 @@ const toBN = ethers.BigNumber.from;
 // Do any deployments
 // This should exclusively include new contract deployments
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
-  const { core, fei, dai, weth, chainlinkDaiUsdOracleWrapper, chainlinkEthUsdOracleWrapper, compoundDaiPCVDeposit, aaveEthPCVDeposit } =
-    addresses;
+  const {
+    core,
+    fei,
+    dai,
+    weth,
+    chainlinkDaiUsdOracleWrapper,
+    chainlinkEthUsdOracleWrapper,
+    compoundDaiPCVDeposit,
+    aaveEthPCVDeposit
+  } = addresses;
 
   if (!core) {
     throw new Error('Core address not set.');

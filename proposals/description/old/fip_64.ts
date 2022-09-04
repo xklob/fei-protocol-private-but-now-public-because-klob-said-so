@@ -33,7 +33,12 @@ const fip_60b: ProposalDescription = {
       method: '_setMarketSupplyCapsByUnderlying(address[],uint256[])',
       arguments: [
         ['{curveD3pool}', '{curve3Metapool}', '{wstEth}', '{gUniFeiUsdcLP}'],
-        ['100000000000000000000000000', '100000000000000000000000000', '30000000000000000000000', '200000000000000000000000']
+        [
+          '100000000000000000000000000',
+          '100000000000000000000000000',
+          '30000000000000000000000',
+          '200000000000000000000000'
+        ]
       ],
       description: 'Set Fuse supply caps'
     }

@@ -140,14 +140,20 @@ const fip_60b: ProposalDescription = {
       target: 'rewardsDistributorAdmin',
       values: '0',
       method: 'grantRole(bytes32,address)',
-      arguments: ['0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb', '{feiDaiAutoRewardsDistributor}'],
+      arguments: [
+        '0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb',
+        '{feiDaiAutoRewardsDistributor}'
+      ],
       description: 'Grant ARD role to FEI-DAI AutoRewardsDistributor'
     },
     {
       target: 'rewardsDistributorAdmin',
       values: '0',
       method: 'grantRole(bytes32,address)',
-      arguments: ['0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb', '{feiUsdcAutoRewardsDistributor}'],
+      arguments: [
+        '0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb',
+        '{feiUsdcAutoRewardsDistributor}'
+      ],
       description: 'Grant ARD role to FEI-USDC AutoRewardsDistributor'
     }
   ],

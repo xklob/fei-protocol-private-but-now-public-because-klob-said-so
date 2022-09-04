@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '../../types/types';
+import {
+  DeployUpgradeFunc,
+  NamedContracts,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '../../types/types';
 import { PCVGuardian } from '@custom-types/contracts';
 
 chai.use(CBN(ethers.BigNumber));

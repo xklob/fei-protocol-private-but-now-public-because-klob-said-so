@@ -40,8 +40,14 @@ describe('ChainlinkOracleWrapper', function () {
   beforeEach(async function () {
     this.core = await getCore();
 
-    const mockChainlinkOracleFactory = await ethers.getContractFactory(MockChainlinkOracle.abi, MockChainlinkOracle.bytecode);
-    const chainlinkOracleWrapperFactory = await ethers.getContractFactory(ChainlinkOracleWrapper.abi, ChainlinkOracleWrapper.bytecode);
+    const mockChainlinkOracleFactory = await ethers.getContractFactory(
+      MockChainlinkOracle.abi,
+      MockChainlinkOracle.bytecode
+    );
+    const chainlinkOracleWrapperFactory = await ethers.getContractFactory(
+      ChainlinkOracleWrapper.abi,
+      ChainlinkOracleWrapper.bytecode
+    );
 
     this.mockChainlinkOracle = await mockChainlinkOracleFactory.deploy(`500${e8}`, 8); // 8 decimals, val = 500
     this.mockChainlinkOracle2 = await mockChainlinkOracleFactory.deploy(`600${e18}`, 18); // 18 decimals, val = 600

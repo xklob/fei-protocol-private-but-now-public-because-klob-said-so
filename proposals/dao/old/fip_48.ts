@@ -77,13 +77,21 @@ export const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses
 
   // 4. Bal-usd composite oracle
   const compositeOracleFactory = await ethers.getContractFactory('CompositeOracle');
-  const balUsdCompositeOracle = await compositeOracleFactory.deploy(core, chainlinkBALEthOracle.address, chainlinkEthUsdOracleWrapper);
+  const balUsdCompositeOracle = await compositeOracleFactory.deploy(
+    core,
+    chainlinkBALEthOracle.address,
+    chainlinkEthUsdOracleWrapper
+  );
 
   await balUsdCompositeOracle.deployed();
   logging && console.log('BAL-USD Composite Oracle deployed to: ', balUsdCompositeOracle.address);
 
   // 5. Cream-usd composite oracle
-  const creamUsdCompositeOracle = await compositeOracleFactory.deploy(core, chainlinkCREAMEthOracle.address, chainlinkEthUsdOracleWrapper);
+  const creamUsdCompositeOracle = await compositeOracleFactory.deploy(
+    core,
+    chainlinkCREAMEthOracle.address,
+    chainlinkEthUsdOracleWrapper
+  );
 
   await creamUsdCompositeOracle.deployed();
   logging && console.log('CREAM-USD Composite Oracle deployed to: ', creamUsdCompositeOracle.address);
@@ -203,7 +211,9 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   // Check existence of new deposits
   expect(await collateralizationOracle.depositToToken(addresses.feiLusdLens)).to.be.equal(addresses.lusd);
   expect(await collateralizationOracle.depositToToken(addresses.rariPool7LusdPCVDeposit)).to.be.equal(addresses.lusd);
-  expect(await collateralizationOracle.depositToToken(addresses.liquityFusePoolLusdPCVDeposit)).to.be.equal(addresses.lusd);
+  expect(await collateralizationOracle.depositToToken(addresses.liquityFusePoolLusdPCVDeposit)).to.be.equal(
+    addresses.lusd
+  );
   expect(await collateralizationOracle.depositToToken(addresses.aaveFeiPCVDepositWrapper)).to.be.equal(addresses.fei);
   expect(await collateralizationOracle.depositToToken(addresses.feiBuybackLens)).to.be.equal(addresses.fei);
   expect(await collateralizationOracle.depositToToken(addresses.rariPool90FeiPCVDeposit)).to.be.equal(addresses.fei);

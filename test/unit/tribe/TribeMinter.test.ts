@@ -70,7 +70,9 @@ describe('TribeMinter', function () {
     });
 
     it('rateLimitPerSecond', async function () {
-      expect(await tribeMinter.rateLimitPerSecond()).to.be.bignumber.equal(ethers.constants.WeiPerEther.mul(100_000_000).div(31_557_600));
+      expect(await tribeMinter.rateLimitPerSecond()).to.be.bignumber.equal(
+        ethers.constants.WeiPerEther.mul(100_000_000).div(31_557_600)
+      );
     });
 
     it('tribeCirculatingSupply', async function () {
@@ -108,7 +110,9 @@ describe('TribeMinter', function () {
         expect(tx)
           .to.emit(tribeMinter, 'RateLimitPerSecondUpdate')
           .withArgs(bufferCapBefore.div(31_557_600), bufferCapBefore.add(inflationIncrement).div(31_557_600));
-        expect(tx).to.emit(tribeMinter, 'BufferCapUpdate').withArgs(bufferCapBefore, bufferCapBefore.add(inflationIncrement));
+        expect(tx)
+          .to.emit(tribeMinter, 'BufferCapUpdate')
+          .withArgs(bufferCapBefore, bufferCapBefore.add(inflationIncrement));
 
         expect(await tribeMinter.isPokeNeeded()).to.be.false;
       });
@@ -132,7 +136,9 @@ describe('TribeMinter', function () {
         expect(tx)
           .to.emit(tribeMinter, 'RateLimitPerSecondUpdate')
           .withArgs(bufferCapBefore.div(31_557_600), bufferCapBefore.sub(inflationIncrement).div(31_557_600));
-        expect(tx).to.emit(tribeMinter, 'BufferCapUpdate').withArgs(bufferCapBefore, bufferCapBefore.sub(inflationIncrement));
+        expect(tx)
+          .to.emit(tribeMinter, 'BufferCapUpdate')
+          .withArgs(bufferCapBefore, bufferCapBefore.sub(inflationIncrement));
 
         expect(await tribeMinter.isPokeNeeded()).to.be.false;
       });
@@ -207,7 +213,10 @@ describe('TribeMinter', function () {
     });
 
     it('non-governor reverts', async function () {
-      await expectRevert(tribeMinter.connect(impersonatedSigners[userAddress]).setMinter(userAddress), 'Ownable: caller is not the owner');
+      await expectRevert(
+        tribeMinter.connect(impersonatedSigners[userAddress]).setMinter(userAddress),
+        'Ownable: caller is not the owner'
+      );
     });
   });
 

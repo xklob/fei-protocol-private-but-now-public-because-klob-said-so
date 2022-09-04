@@ -1,6 +1,12 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 /*
 
@@ -64,13 +70,17 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.rariPool8LusdPCVDeposit.balance()).to.be.at.least(ethers.constants.WeiPerEther.mul(4_999_999));
   expect(await contracts.rariPool8DaiPCVDeposit.balance()).to.be.at.least(ethers.constants.WeiPerEther.mul(4_999_999));
   // Migration to Balancer is over
-  expect(await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)).to.be.false;
+  expect(
+    await contracts.core.hasRole(ethers.utils.id('PCV_CONTROLLER_ROLE'), contracts.delayedPCVMoverWethUniToBal.address)
+  ).to.be.false;
   expect(await contracts.balancerDepositFeiWeth.balance()).to.be.at.least(ethers.constants.WeiPerEther.mul(14000));
   // Uniswap has some liquidity
   expect(await contracts.uniswapPCVDeposit.balance()).to.be.at.least(ethers.constants.WeiPerEther.mul(390));
   // DPI has moved
   expect(await contracts.dpiUniswapPCVDeposit.balance()).to.be.equal(0);
-  expect(await contracts.dpi.balanceOf(contracts.feiDAOTimelock.address)).to.be.at.least(ethers.constants.WeiPerEther.mul(34490));
+  expect(await contracts.dpi.balanceOf(contracts.feiDAOTimelock.address)).to.be.at.least(
+    ethers.constants.WeiPerEther.mul(34490)
+  );
 };
 
 export { deploy, setup, teardown, validate };

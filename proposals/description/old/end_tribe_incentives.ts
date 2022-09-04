@@ -8,7 +8,10 @@ const end_tribe_incentives: TemplatedProposalDescription = {
       target: 'core',
       values: '0',
       method: 'grantRole(bytes32,address)',
-      arguments: (addresses) => ['0x23970cab3799b6876df4319661e6c03cc45bd59628799d92e988dd8cbdc90e31', addresses.tribalCouncilTimelock],
+      arguments: (addresses) => [
+        '0x23970cab3799b6876df4319661e6c03cc45bd59628799d92e988dd8cbdc90e31',
+        addresses.tribalCouncilTimelock
+      ],
       description: 'Grant TRIBAL_CHIEF_ADMIN_ROLE to Tribal Council timelock'
     },
 
@@ -216,7 +219,8 @@ const end_tribe_incentives: TemplatedProposalDescription = {
       values: '0',
       method: 'becomeAdmin()',
       arguments: (addresses) => [],
-      description: 'Grant the TC timelock the DEFAULT_ADMIN_ROLE, to it can dismantle the RewardDistributorAdmin permissions'
+      description:
+        'Grant the TC timelock the DEFAULT_ADMIN_ROLE, to it can dismantle the RewardDistributorAdmin permissions'
     },
     {
       target: 'rewardsDistributorAdmin',

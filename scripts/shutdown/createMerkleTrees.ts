@@ -44,10 +44,14 @@ async function main() {
     extraDataJSONFilename = process.argv[5];
   }
 
-  const balances: { [key: string]: { [key: string]: string } } = JSON.parse(fs.readFileSync(dataJSONFilename).toString());
+  const balances: { [key: string]: { [key: string]: string } } = JSON.parse(
+    fs.readFileSync(dataJSONFilename).toString()
+  );
 
   if (extraDataJSONFilename !== undefined) {
-    const extraBalances: { [key: string]: { [key: string]: string } } = JSON.parse(fs.readFileSync(extraDataJSONFilename).toString());
+    const extraBalances: { [key: string]: { [key: string]: string } } = JSON.parse(
+      fs.readFileSync(extraDataJSONFilename).toString()
+    );
 
     // merge the data in each
     Object.keys(extraBalances).forEach((key) => {
@@ -77,7 +81,8 @@ async function main() {
   // should have 27 keys, one for each ctoken, and all of the 27 ctoken addresses exactly
   if (Object.keys(balances).length !== 27)
     throw new Error(`Snapshot data should have 27 keys, one for each ctoken. Actual: ${Object.keys(balances).length}`);
-  if (Object.keys(balances).some((key) => !cTokens.includes(key))) throw new Error(`Snapshot data has invalid ctoken address`);
+  if (Object.keys(balances).some((key) => !cTokens.includes(key)))
+    throw new Error(`Snapshot data has invalid ctoken address`);
 
   // @todo perhaps further validation if we need it
 

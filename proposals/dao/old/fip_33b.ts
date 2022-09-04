@@ -76,7 +76,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(balBalance).to.be.at.most('260000000000000000000000');
 
   // CR Oracle updates for the BAL
-  expect(await contracts.collateralizationOracle.depositToToken(contracts.balancerDepositBalWeth.address)).to.be.equal(addresses.bal);
+  expect(await contracts.collateralizationOracle.depositToToken(contracts.balancerDepositBalWeth.address)).to.be.equal(
+    addresses.bal
+  );
 };
 
 export { deploy, setup, teardown, validate };

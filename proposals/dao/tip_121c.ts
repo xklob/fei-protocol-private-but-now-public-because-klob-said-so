@@ -64,9 +64,19 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   console.log('----------------------------------------------------');
 
   // check pcv movements
-  console.log('daiFixedPricePSM resistant balance', (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[0] / 1e18);
-  console.log('daiFixedPricePSM resistant fei    ', (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[1] / 1e18);
-  console.log('simpleFeiDaiPSM DAI balance', (await contracts.dai.balanceOf(addresses.simpleFeiDaiPSM)) / 1e24, '(millions)');
+  console.log(
+    'daiFixedPricePSM resistant balance',
+    (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[0] / 1e18
+  );
+  console.log(
+    'daiFixedPricePSM resistant fei    ',
+    (await contracts.daiFixedPricePSM.resistantBalanceAndFei())[1] / 1e18
+  );
+  console.log(
+    'simpleFeiDaiPSM DAI balance',
+    (await contracts.dai.balanceOf(addresses.simpleFeiDaiPSM)) / 1e24,
+    '(millions)'
+  );
   console.log('simpleFeiDaiPSM FEI balance', (await contracts.fei.balanceOf(addresses.simpleFeiDaiPSM)) / 1e18);
 };
 

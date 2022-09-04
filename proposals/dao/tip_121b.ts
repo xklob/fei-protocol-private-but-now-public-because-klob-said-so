@@ -1,5 +1,11 @@
 import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { cTokens } from '@proposals/data/hack_repayment/cTokens';
 import { rates } from '@proposals/data/hack_repayment/rates';
 import { roots } from '@proposals/data/hack_repayment/roots';

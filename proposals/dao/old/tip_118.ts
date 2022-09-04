@@ -253,7 +253,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // ------------------------------------------------------------
   // check ANGLE token movement
   expect(await contracts.angle.balanceOf(addresses.angleDelegatorPCVDeposit)).to.be.equal('0');
-  expect(await contracts.angle.balanceOf(addresses.tribalCouncilSafe)).to.be.at.least(ethers.utils.parseEther('200000'));
+  expect(await contracts.angle.balanceOf(addresses.tribalCouncilSafe)).to.be.at.least(
+    ethers.utils.parseEther('200000')
+  );
   // check deposit is empty
   expect(await contracts.agEurUniswapPCVDeposit.balance()).to.be.equal('0');
   expect(await contracts.fei.balanceOf(addresses.agEurUniswapPCVDeposit)).to.be.equal('0');
@@ -338,7 +340,9 @@ const validateIncentivesSystemDeprecation = async (contracts: NamedContracts, ad
   // Validate remaining balance of TribalChief is small
   const finalTribalChiefBalance = await tribe.balanceOf(addresses.tribalChief);
   console.log('Final TribalChief balance:', finalTribalChiefBalance.toString());
-  expect(finalTribalChiefBalance).to.be.bignumber.lessThan(MAX_REMAINING_EXCESS_CHIEF_BALANCE.add(REMAINING_TRIBE_LP_REWARDS));
+  expect(finalTribalChiefBalance).to.be.bignumber.lessThan(
+    MAX_REMAINING_EXCESS_CHIEF_BALANCE.add(REMAINING_TRIBE_LP_REWARDS)
+  );
 
   // 3. Validate excess TRIBE was pulled from Rari rewards delegate
   const finalRariDelegatorBalance = await tribe.balanceOf(addresses.rariRewardsDistributorDelegator);
@@ -352,13 +356,15 @@ const validateIncentivesSystemDeprecation = async (contracts: NamedContracts, ad
   expect(tribeRecovered).to.be.bignumber.at.least(MIN_EXPECTED_TRIBE_RECOVERY);
 
   // 5. Validate Aave incentives controller proxy admin was changed
-  const aaveLendingPoolAddressesProviderSigner = await getImpersonatedSigner(addresses.aaveLendingPoolAddressesProvider);
+  const aaveLendingPoolAddressesProviderSigner = await getImpersonatedSigner(
+    addresses.aaveLendingPoolAddressesProvider
+  );
   const proxyABI = ['function admin() returns (address)'];
   const aaveTribeIncentivesControllerAsProxy = new ethers.Contract(addresses.aaveTribeIncentivesController, proxyABI);
   await forceEth(addresses.aaveTribeIncentivesController);
-  expect(await aaveTribeIncentivesControllerAsProxy.connect(aaveLendingPoolAddressesProviderSigner).callStatic.admin()).to.be.equal(
-    addresses.aaveLendingPoolAddressesProvider
-  );
+  expect(
+    await aaveTribeIncentivesControllerAsProxy.connect(aaveLendingPoolAddressesProviderSigner).callStatic.admin()
+  ).to.be.equal(addresses.aaveLendingPoolAddressesProvider);
 
   // 6. Validate TRIBAL_CHIEF_ADMIN_ROLE is revoked
   expect(await core.hasRole(ethers.utils.id('TRIBAL_CHIEF_ADMIN_ROLE'), addresses.tribalCouncilTimelock)).to.be.false;

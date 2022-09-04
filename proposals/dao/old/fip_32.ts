@@ -447,7 +447,9 @@ export const run: RunUpgradeFunc = async (addresses, oldContracts, contracts, lo
 
   logging && console.log(`2/18 Setting allocation on old eth bonding curve.`);
   logging &&
-    console.log(`aavePassthroughETH: ${addresses.aavePassthroughETH}, compoundPassthroughETH: ${addresses.compoundPassthroughETH}`);
+    console.log(
+      `aavePassthroughETH: ${addresses.aavePassthroughETH}, compoundPassthroughETH: ${addresses.compoundPassthroughETH}`
+    );
   await oldEthBondingCurve.setAllocation([addresses.compoundPassthroughETH], [10000]);
 
   logging && console.log(`Sending ETH to timelock...`);
@@ -481,9 +483,15 @@ export const run: RunUpgradeFunc = async (addresses, oldContracts, contracts, lo
   await newEthBondingCurve.setMintCap(ethers.constants.MaxUint256);
 
   logging && console.log(`10/18 Setting allocation for dpi bonding curve......`);
-  await dpiBondingCurve.setAllocation([dpiUniswapPCVDeposit.address, rariPool19DpiPCVDeposit.address], ['9000', '1000']);
+  await dpiBondingCurve.setAllocation(
+    [dpiUniswapPCVDeposit.address, rariPool19DpiPCVDeposit.address],
+    ['9000', '1000']
+  );
 
-  logging && console.log(`10.5/18 DEBUG STEP ONLY IN SIMULATION: Setting max basis points from peg lp to 10k on dpiUniswapPCVDeposit`);
+  logging &&
+    console.log(
+      `10.5/18 DEBUG STEP ONLY IN SIMULATION: Setting max basis points from peg lp to 10k on dpiUniswapPCVDeposit`
+    );
   await dpiUniswapPCVDeposit.setMaxBasisPointsFromPegLP(10000);
 
   logging && console.log(`11/18 Withdrawing 100% ratio from old uniswap pcv deposit to new.`);
@@ -496,7 +504,11 @@ export const run: RunUpgradeFunc = async (addresses, oldContracts, contracts, lo
     .withdrawRatio(oldContracts.uniswapPCVDeposit.address, uniswapPCVDeposit.address, '10000'); // move 100% of PCV from old -> new
 
   logging && console.log(`12/18 Withdrawing 100% ratio from old dpi uniswap pcv deposit to new.`);
-  await ratioPCVController.withdrawRatio(oldContracts.dpiUniswapPCVDeposit.address, dpiUniswapPCVDeposit.address, '10000'); // move 100% of PCV from old -> new
+  await ratioPCVController.withdrawRatio(
+    oldContracts.dpiUniswapPCVDeposit.address,
+    dpiUniswapPCVDeposit.address,
+    '10000'
+  ); // move 100% of PCV from old -> new
 
   // Revoke controller permissions
 
@@ -537,7 +549,8 @@ export const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, con
 };
 
 export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging = false) => {
-  const { oldEthBondingCurve, compoundEthPCVDeposit, aaveEthPCVDeposit, uniswapPCVDeposit, dpiUniswapPCVDeposit } = contracts;
+  const { oldEthBondingCurve, compoundEthPCVDeposit, aaveEthPCVDeposit, uniswapPCVDeposit, dpiUniswapPCVDeposit } =
+    contracts;
 
   expect((await ethers.provider.getBalance(oldEthBondingCurve.address)).toString()).to.be.equal('0');
   console.log({

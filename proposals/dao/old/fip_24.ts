@@ -36,7 +36,10 @@ async function run(addresses, oldContracts, contracts, logging) {
   const { fei, tribalChiefOptimisticTimelock, oldEthReserveStabilizer, ethReserveStabilizer } = contracts;
 
   await fei.mint(tribalChiefOptimisticTimelock.address, ethers.constants.WeiPerEther.mul(1_000_000).toString());
-  await oldEthReserveStabilizer.withdraw(tribalChiefOptimisticMultisigAddress, ethers.constants.WeiPerEther.mul(50).toString());
+  await oldEthReserveStabilizer.withdraw(
+    tribalChiefOptimisticMultisigAddress,
+    ethers.constants.WeiPerEther.mul(50).toString()
+  );
   await oldEthReserveStabilizer.withdraw(ethReserveStabilizer.address, '3934910050296751636951');
 }
 

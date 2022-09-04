@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { BigNumber } from 'ethers';
 
 /*
@@ -63,7 +69,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.newRariInfraTribeTimelock)).to.be.equal(0);
 
   // 3. Validate FEI and TRIBE approvals given to DAO timelock
-  expect(await contracts.fei.allowance(addresses.tribalCouncilTimelock, addresses.feiDAOTimelock)).to.be.equal(CLAWED_BACK_FEI_UPPER_BOUND);
+  expect(await contracts.fei.allowance(addresses.tribalCouncilTimelock, addresses.feiDAOTimelock)).to.be.equal(
+    CLAWED_BACK_FEI_UPPER_BOUND
+  );
   expect(await contracts.tribe.allowance(addresses.tribalCouncilTimelock, addresses.feiDAOTimelock)).to.be.equal(
     CLAWED_BACK_TRIBE_UPPER_BOUND
   );

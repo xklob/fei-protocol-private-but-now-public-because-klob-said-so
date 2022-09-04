@@ -72,7 +72,9 @@ describe('ERC20CompoundPCVDeposit', function () {
       it('reverts', async function () {
         await this.compoundPCVDeposit.connect(impersonatedSigners[governorAddress]).pause();
         await expectRevert(
-          this.compoundPCVDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, this.depositAmount),
+          this.compoundPCVDeposit
+            .connect(impersonatedSigners[pcvControllerAddress])
+            .withdraw(userAddress, this.depositAmount),
           'Pausable: paused'
         );
       });
@@ -98,7 +100,9 @@ describe('ERC20CompoundPCVDeposit', function () {
 
         // withdrawing should take balance back to 0
         expect(await this.compoundPCVDeposit.balance()).to.be.equal(this.depositAmount);
-        await this.compoundPCVDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, this.depositAmount);
+        await this.compoundPCVDeposit
+          .connect(impersonatedSigners[pcvControllerAddress])
+          .withdraw(userAddress, this.depositAmount);
         expect(await this.compoundPCVDeposit.balance()).to.be.equal(toBN('0'));
 
         const userBalanceAfter = await this.token.balanceOf(userAddress);

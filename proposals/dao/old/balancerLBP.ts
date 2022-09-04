@@ -8,8 +8,15 @@ async function setup(addresses, oldContracts, contracts, logging) {}
 
 // The DAO steps for creating a balancer LBP swapper + manager
 async function run(addresses, oldContracts, contracts, logging = false) {
-  const { core, fei, tribe, chainlinkTribeEthOracleWrapper, chainlinkTribeUsdCompositeOracle, balancerVault, balancerLBPSwapper } =
-    contracts;
+  const {
+    core,
+    fei,
+    tribe,
+    chainlinkTribeEthOracleWrapper,
+    chainlinkTribeUsdCompositeOracle,
+    balancerVault,
+    balancerLBPSwapper
+  } = contracts;
 
   const accounts = await ethers.getSigners();
   const { timelockAddress } = addresses;

@@ -55,7 +55,9 @@ describe('ReserveStabilizer', function () {
     this.initialBalance = toBN('1000000000000000000');
     await this.token.mint(this.reserveStabilizer.address, this.initialBalance);
 
-    await this.fei.connect(impersonatedSigners[userAddress]).approve(this.reserveStabilizer.address, ethers.constants.MaxUint256);
+    await this.fei
+      .connect(impersonatedSigners[userAddress])
+      .approve(this.reserveStabilizer.address, ethers.constants.MaxUint256);
     await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, 40000000, {});
   });
 
@@ -117,9 +119,13 @@ describe('ReserveStabilizer', function () {
 
     describe('Not Enough token', function () {
       it('reverts', async function () {
-        await this.fei.connect(impersonatedSigners[minterAddress]).mint(userAddress, toBN('4000000000000000000000000000'), {});
+        await this.fei
+          .connect(impersonatedSigners[minterAddress])
+          .mint(userAddress, toBN('4000000000000000000000000000'), {});
         await expectRevert(
-          this.reserveStabilizer.connect(impersonatedSigners[userAddress]).exchangeFei(toBN('4000000000000000000000000000'), {}),
+          this.reserveStabilizer
+            .connect(impersonatedSigners[userAddress])
+            .exchangeFei(toBN('4000000000000000000000000000'), {}),
           'revert'
         );
       });
@@ -141,7 +147,9 @@ describe('ReserveStabilizer', function () {
       const reserveBalanceBefore = await this.token.balanceOf(this.reserveStabilizer.address);
       const userBalanceBefore = await this.token.balanceOf(userAddress);
 
-      await this.reserveStabilizer.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, '10000', {});
+      await this.reserveStabilizer
+        .connect(impersonatedSigners[pcvControllerAddress])
+        .withdraw(userAddress, '10000', {});
       const reserveBalanceAfter = await this.token.balanceOf(this.reserveStabilizer.address);
       const userBalanceAfter = await this.token.balanceOf(userAddress);
 
@@ -151,7 +159,9 @@ describe('ReserveStabilizer', function () {
 
     it('not enough token reverts', async function () {
       await expectRevert(
-        this.reserveStabilizer.connect(impersonatedSigners[pcvControllerAddress]).withdraw(userAddress, '10000000000000000000', {}),
+        this.reserveStabilizer
+          .connect(impersonatedSigners[pcvControllerAddress])
+          .withdraw(userAddress, '10000000000000000000', {}),
         'revert'
       );
     });

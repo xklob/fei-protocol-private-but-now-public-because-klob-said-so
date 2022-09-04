@@ -19,7 +19,15 @@ export async function simulateTCProposal(
     id: TRIBAL_COUNCIL_POD_ID,
     timelockAddress: contractAddresses.tribalCouncilTimelock
   };
-  await simulatePodProposal(timelockTC, multisigAddressTC, proposalInfo, contracts, contractAddresses, logging, podConfig);
+  await simulatePodProposal(
+    timelockTC,
+    multisigAddressTC,
+    proposalInfo,
+    contracts,
+    contractAddresses,
+    logging,
+    podConfig
+  );
 }
 
 export async function simulatePodProposal(

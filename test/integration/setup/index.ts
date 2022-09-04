@@ -72,7 +72,11 @@ export class TestEndtoEndCoordinator implements TestCoordinator {
     if (this.proposals) {
       const proposalNames = Object.keys(this.proposals);
       for (let i = 0; i < proposalNames.length; i++) {
-        existingContracts = await this.applyUpgrade(existingContracts, proposalNames[i], this.proposals[proposalNames[i]]);
+        existingContracts = await this.applyUpgrade(
+          existingContracts,
+          proposalNames[i],
+          this.proposals[proposalNames[i]]
+        );
       }
     }
 
@@ -91,7 +95,11 @@ export class TestEndtoEndCoordinator implements TestCoordinator {
    * Following this, it will perform any `teardown()` behaviour and call the proposal `validate()` function.
    * This `validate()` function verifies basic state and properties about the upgrade are satisfied.
    */
-  async applyUpgrade(existingContracts: NamedContracts, proposalName: string, config: TemplatedProposalConfig): Promise<NamedContracts> {
+  async applyUpgrade(
+    existingContracts: NamedContracts,
+    proposalName: string,
+    config: TemplatedProposalConfig
+  ): Promise<NamedContracts> {
     let deployedUpgradedContracts = {};
 
     if (config.proposalId) {
@@ -117,7 +125,11 @@ export class TestEndtoEndCoordinator implements TestCoordinator {
     if (config.deploy) {
       this.config.logging && console.log(`Applying upgrade for proposal: ${proposalName}`);
       const deployTyped = deploy as DeployUpgradeFunc;
-      deployedUpgradedContracts = await deployTyped(this.config.deployAddress, contractAddressesBefore, this.config.logging);
+      deployedUpgradedContracts = await deployTyped(
+        this.config.deployAddress,
+        contractAddressesBefore,
+        this.config.logging
+      );
       console.log(`Deployment complete.`);
     }
 
@@ -153,7 +165,12 @@ export class TestEndtoEndCoordinator implements TestCoordinator {
 
     if (config.category === ProposalCategory.TC) {
       this.config.logging && console.log(`Simulating Tribal Council proposal...`);
-      await simulateTCProposal(config.proposal!, contracts as unknown as MainnetContracts, contractAddresses, this.config.logging);
+      await simulateTCProposal(
+        config.proposal!,
+        contracts as unknown as MainnetContracts,
+        contractAddresses,
+        this.config.logging
+      );
     }
 
     if (config.category === ProposalCategory.DEBUG) {

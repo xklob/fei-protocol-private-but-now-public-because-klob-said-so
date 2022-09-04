@@ -1,5 +1,11 @@
 import { FuseFixer__factory, PCVGuardian } from '@custom-types/contracts';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import hre from 'hardhat';
 
 const fipNumber = 'tip_112';

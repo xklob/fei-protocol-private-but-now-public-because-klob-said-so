@@ -1,4 +1,12 @@
-import { BalanceGuard, Core, MultiActionGuard, NoOpGuard, PCVSentinel, RecoverEthGuard, ReEntrancyGuard } from '@custom-types/contracts';
+import {
+  BalanceGuard,
+  Core,
+  MultiActionGuard,
+  NoOpGuard,
+  PCVSentinel,
+  RecoverEthGuard,
+  ReEntrancyGuard
+} from '@custom-types/contracts';
 import { getAddresses, getCore, getImpersonatedSigner } from '@test/helpers';
 import { forceSpecificEth } from '@test/integration/setup/utils';
 import chai, { expect } from 'chai';
@@ -132,12 +140,16 @@ describe('PCV Sentinel', function () {
 
   describe('sentinel access control', async () => {
     it('prevents normal user from adding guards', async () => {
-      await expect(pcvSentinel.connect(impersonatedSigners[userAddress]).knight(noOpGuard.address)).to.be.revertedWith('UNAUTHORIZED');
+      await expect(pcvSentinel.connect(impersonatedSigners[userAddress]).knight(noOpGuard.address)).to.be.revertedWith(
+        'UNAUTHORIZED'
+      );
     });
 
     it('prevents normal user from removing guards', async () => {
       await pcvSentinel.connect(impersonatedSigners[guardianAddress]).knight(noOpGuard.address);
-      await expect(pcvSentinel.connect(impersonatedSigners[userAddress]).slay(noOpGuard.address)).to.be.revertedWith('UNAUTHORIZED');
+      await expect(pcvSentinel.connect(impersonatedSigners[userAddress]).slay(noOpGuard.address)).to.be.revertedWith(
+        'UNAUTHORIZED'
+      );
     });
 
     it('prevents re-entrancy/calling self', async () => {

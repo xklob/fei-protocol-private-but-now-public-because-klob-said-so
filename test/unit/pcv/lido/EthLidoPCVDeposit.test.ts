@@ -141,7 +141,9 @@ describe('EthLidoPCVDeposit', function () {
         expect(await this.steth.balanceOf(this.pcvDeposit.address)).to.be.equal('1100000000000000000'); // got 1.1 stETH
       });
       it('should directly stake if slippage is positive', async function () {
-        await (await ethers.getSigner(userAddress)).sendTransaction({ to: this.pcvDeposit.address, value: toBN(`1${e18}`) });
+        await (
+          await ethers.getSigner(userAddress)
+        ).sendTransaction({ to: this.pcvDeposit.address, value: toBN(`1${e18}`) });
         expect((await this.steth.balanceOf(this.pcvDeposit.address)).toString()).to.be.equal('0');
         await this.stableswap.setSlippage(1000, false); // 10% positive slippage (disadvantage) for ETH -> stETH
         await this.pcvDeposit.deposit();
@@ -156,7 +158,9 @@ describe('EthLidoPCVDeposit', function () {
         const balanceBeforeWithdraw = toBN(await ethers.provider.getBalance(secondUserAddress));
         expect(await this.steth.balanceOf(this.pcvDeposit.address)).to.be.equal(`100000${e18}`);
         await await expect(
-          await this.pcvDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdraw(secondUserAddress, `1${e18}`, {})
+          await this.pcvDeposit
+            .connect(impersonatedSigners[pcvControllerAddress])
+            .withdraw(secondUserAddress, `1${e18}`, {})
         )
           .to.emit(this.pcvDeposit, 'Withdrawal')
           .withArgs(pcvControllerAddress, secondUserAddress, `1${e18}`);
@@ -203,7 +207,10 @@ describe('EthLidoPCVDeposit', function () {
         expect(await this.steth.balanceOf(this.pcvDeposit.address)).to.be.equal(`99999${e18}`);
       });
       it('should revert if not PCVController', async function () {
-        await expectRevert(this.pcvDeposit.withdrawERC20(this.fei.address, userAddress, 1), 'CoreRef: Caller is not a PCV controller');
+        await expectRevert(
+          this.pcvDeposit.withdrawERC20(this.fei.address, userAddress, 1),
+          'CoreRef: Caller is not a PCV controller'
+        );
       });
     });
   });
@@ -211,8 +218,14 @@ describe('EthLidoPCVDeposit', function () {
   describe('withdrawETH()', function () {
     it('should emit WithdrawETH', async function () {
       const balanceBeforeWithdraw = toBN((await ethers.provider.getBalance(secondUserAddress)).toString());
-      await (await ethers.getSigner(userAddress)).sendTransaction({ to: this.pcvDeposit.address, value: toBN(`1${e18}`) });
-      await await expect(await this.pcvDeposit.connect(impersonatedSigners[pcvControllerAddress]).withdrawETH(secondUserAddress, `1${e18}`))
+      await (
+        await ethers.getSigner(userAddress)
+      ).sendTransaction({ to: this.pcvDeposit.address, value: toBN(`1${e18}`) });
+      await await expect(
+        await this.pcvDeposit
+          .connect(impersonatedSigners[pcvControllerAddress])
+          .withdrawETH(secondUserAddress, `1${e18}`)
+      )
         .to.emit(this.pcvDeposit, 'WithdrawETH')
         .withArgs(pcvControllerAddress, secondUserAddress, `1${e18}`);
 

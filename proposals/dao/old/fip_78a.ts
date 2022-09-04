@@ -1,6 +1,12 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { getImpersonatedSigner, time } from '@test/helpers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -31,7 +37,10 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   logging && console.log('New agEUR/FEI Uniswap PCVDeposit:', agEurUniswapPCVDeposit.address);
 
   const gaugeLensFactory = await ethers.getContractFactory('GaugeLens');
-  const gaugeLensAgEurUniswapGauge = await gaugeLensFactory.deploy(addresses.angleGaugeUniswapV2FeiAgEur, angleDelegatorPCVDeposit.address);
+  const gaugeLensAgEurUniswapGauge = await gaugeLensFactory.deploy(
+    addresses.angleGaugeUniswapV2FeiAgEur,
+    angleDelegatorPCVDeposit.address
+  );
   await gaugeLensAgEurUniswapGauge.deployTransaction.wait();
   logging && console.log('gaugeLensAgEurUniswapGauge:', gaugeLensAgEurUniswapGauge.address);
 
@@ -92,10 +101,14 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.angleDelegatorPCVDeposit.delegate()).to.be.equal(DELEGATE_ANGLE);
 
   // Check that liquidity was correctly migrated to the gauge
-  expect(await contracts.angleGaugeUniswapV2FeiAgEur.balanceOf(contracts.angleDelegatorPCVDeposit.address)).to.be.at.least(e18(9_000_000)); // should have the same balance as currently
+  expect(
+    await contracts.angleGaugeUniswapV2FeiAgEur.balanceOf(contracts.angleDelegatorPCVDeposit.address)
+  ).to.be.at.least(e18(9_000_000)); // should have the same balance as currently
 
   // Check that gauge vote is properly set to agEUR/FEI Uniswap-v2 pool
-  expect(await contracts.angleGaugeController.vote_user_power(contracts.angleDelegatorPCVDeposit.address)).to.be.equal('10000'); // 100% voting power engaged
+  expect(await contracts.angleGaugeController.vote_user_power(contracts.angleDelegatorPCVDeposit.address)).to.be.equal(
+    '10000'
+  ); // 100% voting power engaged
   expect(
     await contracts.angleGaugeController.last_user_vote(
       contracts.angleDelegatorPCVDeposit.address,

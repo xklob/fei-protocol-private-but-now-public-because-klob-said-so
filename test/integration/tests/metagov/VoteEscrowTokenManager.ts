@@ -85,14 +85,18 @@ describe('e2e-metagov', function () {
         // grant role
         await forceEth(contracts.feiDAOTimelock.address);
         const daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
-        await contracts.core.connect(daoSigner).grantRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
+        await contracts.core
+          .connect(daoSigner)
+          .grantRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
       });
 
       after(async function () {
         // revoke role
         await forceEth(contracts.feiDAOTimelock.address);
         const daoSigner = await getImpersonatedSigner(contracts.feiDAOTimelock.address);
-        await contracts.core.connect(daoSigner).revokeRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
+        await contracts.core
+          .connect(daoSigner)
+          .revokeRole(ethers.utils.id('METAGOVERNANCE_TOKEN_STAKING'), deployAddress);
       });
 
       it('setLockDuration() should change lock duration', async function () {

@@ -58,14 +58,26 @@ const tip_115: TemplatedProposalDescription = {
       target: 'pcvGuardianNew',
       values: '0',
       method: 'withdrawToSafeAddress(address,address,uint256,bool,bool)',
-      arguments: (addresses) => [addresses.daiFixedPricePSM, addresses.ethToDaiLBPSwapper, '1000000000000000000000000', false, false],
+      arguments: (addresses) => [
+        addresses.daiFixedPricePSM,
+        addresses.ethToDaiLBPSwapper,
+        '1000000000000000000000000',
+        false,
+        false
+      ],
       description: 'Withdraw 1M DAI to LBP Swapper'
     },
     {
       target: 'pcvGuardianNew',
       values: '0',
       method: 'withdrawToSafeAddress(address,address,uint256,bool,bool)',
-      arguments: (addresses) => [addresses.ethPSM, addresses.ethToDaiLBPSwapper, '10000000000000000000000', false, false],
+      arguments: (addresses) => [
+        addresses.ethPSM,
+        addresses.ethToDaiLBPSwapper,
+        '10000000000000000000000',
+        false,
+        false
+      ],
       description: 'Withdraw 10k ETH to LBP Swapper'
     },
     {

@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { AutoRewardsDistributor, OptimisticTimelock, TribalChief } from '@custom-types/contracts';
 import { TribalChiefSync } from '@custom-types/contracts/TribalChiefSync';
 import { increaseTime } from '@test/helpers';

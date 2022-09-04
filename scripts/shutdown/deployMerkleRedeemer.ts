@@ -45,7 +45,8 @@ async function main() {
 
   // rates should be an object with 27 keys (one for each token address), with values being strings
   // each value is a string representing how much fei you'd get for 1e18 of the ctoken
-  if (Object.entries(rates).length != 27) throw new Error(`Rates should be an object with 27 entries. Actual: ${rates.length}`);
+  if (Object.entries(rates).length != 27)
+    throw new Error(`Rates should be an object with 27 entries. Actual: ${rates.length}`);
 
   if (
     Object.entries(rates).some((entry) => {
@@ -67,7 +68,8 @@ async function main() {
 
   // roots should be an object with 27 keys (one for each token address), with values being strings
   // each value is a string (a merkle root)
-  if (Object.entries(roots).length != 27) throw new Error(`Roots should be an object with 27 entries. Actual: ${roots.length}`);
+  if (Object.entries(roots).length != 27)
+    throw new Error(`Roots should be an object with 27 entries. Actual: ${roots.length}`);
 
   if (
     Object.entries(rates).some((entry) => {
@@ -123,7 +125,12 @@ async function main() {
 
   const rariMerkleRedeemerFactory = new RariMerkleRedeemer__factory(wallet);
 
-  const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(MainnetContractsConfig.fei.address, cTokens, ratesArray, rootsArray);
+  const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(
+    MainnetContractsConfig.fei.address,
+    cTokens,
+    ratesArray,
+    rootsArray
+  );
 
   console.log(`Rari Merkle Redeemer deployed to ${rariMerkleRedeemer.address}`);
 

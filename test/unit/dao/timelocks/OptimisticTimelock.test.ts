@@ -41,7 +41,9 @@ describe('TimelockedDelegator', function () {
     this.core = await getCore();
 
     this.delay = toBN(1000);
-    this.timelock = await (await ethers.getContractFactory('OptimisticTimelock')).deploy(this.core.address, this.delay, [], []);
+    this.timelock = await (
+      await ethers.getContractFactory('OptimisticTimelock')
+    ).deploy(this.core.address, this.delay, [], []);
   });
 
   describe('Become Admin', async function () {

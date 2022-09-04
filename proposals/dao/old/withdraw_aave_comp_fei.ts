@@ -1,6 +1,12 @@
 import hre, { ethers, artifacts } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { BigNumber } from 'ethers';
 import { forceEth } from '@test/integration/setup/utils';
 
@@ -46,15 +52,23 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // 1. Validate Aave PCV deposit
   const aavePCVBalanceAfter = await contracts.aaveFeiPCVDeposit.balance();
-  expect(aavePCVBalanceAfter).to.bignumber.at.least(aavePCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(6_500_000)));
+  expect(aavePCVBalanceAfter).to.bignumber.at.least(
+    aavePCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(6_500_000))
+  );
 
-  expect(aavePCVBalanceAfter).to.bignumber.at.most(aavePCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(6_300_000)));
+  expect(aavePCVBalanceAfter).to.bignumber.at.most(
+    aavePCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(6_300_000))
+  );
 
   // 2. Validate Compound PCV deposit
   const compoundPCVBalanceAfter = await contracts.compoundFeiPCVDepositWrapper.balance();
-  expect(compoundPCVBalanceAfter).to.bignumber.at.least(compoundPCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(3_100_000)));
+  expect(compoundPCVBalanceAfter).to.bignumber.at.least(
+    compoundPCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(3_100_000))
+  );
 
-  expect(compoundPCVBalanceAfter).to.bignumber.at.most(compoundPCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(2_900_000)));
+  expect(compoundPCVBalanceAfter).to.bignumber.at.most(
+    compoundPCVBalanceBefore.sub(ethers.constants.WeiPerEther.mul(2_900_000))
+  );
 
   // 3. Validate funds received by DAI PSM
   const daiFixedPricePSMBalance = await contracts.daiFixedPricePSM.feiBalance();

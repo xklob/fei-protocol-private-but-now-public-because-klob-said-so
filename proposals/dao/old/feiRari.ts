@@ -27,7 +27,8 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts)
   /// check that the contracts were wired together properly
   expect(await rewardsDistributorDelegator.pendingAdmin()).to.be.equal(ZERO_ADDRESS);
   expect(await rewardsDistributorDelegator.admin()).to.be.equal(rewardsDistributorAdmin.address);
-  expect(await rewardsDistributorAdmin.hasRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, autoRewardsDistributor.address)).to.be.true;
+  expect(await rewardsDistributorAdmin.hasRole(AUTO_REWARDS_DISTRIBUTOR_ROLE, autoRewardsDistributor.address)).to.be
+    .true;
   expect(await autoRewardsDistributor.rewardsDistributorAdmin()).to.be.equal(rewardsDistributorAdmin.address);
   expect(await rewardsDistributorAdmin.isContractAdmin(contracts.optimisticTimelock.address)).to.be.true;
   expect(await rewardsDistributorAdmin.rewardsDistributorContract()).to.be.equal(rariRewardsDistributorDelegator);

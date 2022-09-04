@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '../../types/types';
+import {
+  DeployUpgradeFunc,
+  NamedContracts,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '../../types/types';
 import { TransactionResponse } from '@ethersproject/providers';
 import { expectApprox } from '@test/helpers';
 
@@ -50,12 +56,20 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
 
   logging && console.log(`1/2 Deploying ETH Tokemak deposit...`);
   const ethTokemakPCVDepositFactory = await ethers.getContractFactory('EthTokemakPCVDeposit');
-  const ethTokemakPCVDeposit = await ethTokemakPCVDepositFactory.deploy(core, TOKEMAK_WETH_POOL_ADDRESS, TOKEMAK_REWARDS_ADDRESS);
+  const ethTokemakPCVDeposit = await ethTokemakPCVDepositFactory.deploy(
+    core,
+    TOKEMAK_WETH_POOL_ADDRESS,
+    TOKEMAK_REWARDS_ADDRESS
+  );
   logging && console.log('  EthTokemakPCVDeposit deployed to:', ethTokemakPCVDeposit.address);
 
   logging && console.log(`2/2 Deploying TOKE Tokemak deposit...`);
   const tokeTokemakPCVDepositFactory = await ethers.getContractFactory('ERC20TokemakPCVDeposit');
-  const tokeTokemakPCVDeposit = await tokeTokemakPCVDepositFactory.deploy(core, TOKEMAK_TOKE_POOL_ADDRESS, TOKEMAK_REWARDS_ADDRESS);
+  const tokeTokemakPCVDeposit = await tokeTokemakPCVDepositFactory.deploy(
+    core,
+    TOKEMAK_TOKE_POOL_ADDRESS,
+    TOKEMAK_REWARDS_ADDRESS
+  );
   logging && console.log('  ERC20TokemakPCVDeposit deployed to:', tokeTokemakPCVDeposit.address);
 
   return {
@@ -87,8 +101,12 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect((await tribe.balanceOf(optimisticTimelock)).toString()).to.be.equal(ethers.utils.parseEther('6000000'));
 
   // Deposit ETH in Tokemak
-  expect((await ethers.provider.getBalance(ethTokemakPCVDeposit.address)).toString()).to.be.equal(ethers.utils.parseEther('0'));
-  expect((await tWETH.balanceOf(ethTokemakPCVDeposit.address)).toString()).to.be.equal(ethers.utils.parseEther('10000'));
+  expect((await ethers.provider.getBalance(ethTokemakPCVDeposit.address)).toString()).to.be.equal(
+    ethers.utils.parseEther('0')
+  );
+  expect((await tWETH.balanceOf(ethTokemakPCVDeposit.address)).toString()).to.be.equal(
+    ethers.utils.parseEther('10000')
+  );
   expect((await tToke.balanceOf(tokeTokemakPCVDeposit.address)).toString()).to.be.equal(ethers.utils.parseEther('0'));
 
   // Role creation & assignment

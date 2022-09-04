@@ -162,7 +162,12 @@ const tip_118: TemplatedProposalDescription = {
       values: '0',
       method: 'addDeposits(address[])',
       arguments: (addresses) => [
-        [addresses.wethHoldingPCVDeposit, addresses.lusdHoldingPCVDeposit, addresses.daiHoldingPCVDeposit, addresses.voltHoldingPCVDeposit]
+        [
+          addresses.wethHoldingPCVDeposit,
+          addresses.lusdHoldingPCVDeposit,
+          addresses.daiHoldingPCVDeposit,
+          addresses.voltHoldingPCVDeposit
+        ]
       ],
       description: `
       Add the holding ERC20 deposits to the Collaterization Oracle.
@@ -440,7 +445,10 @@ const tip_118: TemplatedProposalDescription = {
       target: 'proxyAdmin',
       values: '0',
       method: 'upgrade(address,address)',
-      arguments: (addresses) => [addresses.vlAuraDelegatorPCVDeposit, addresses.vlAuraDelegatorPCVDepositImplementation],
+      arguments: (addresses) => [
+        addresses.vlAuraDelegatorPCVDeposit,
+        addresses.vlAuraDelegatorPCVDepositImplementation
+      ],
       description: `Upgrade implementation of the vlAuraDelegatorPCVDeposit`
     },
     {

@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 const fipNumber = '73b';
 
@@ -75,7 +81,9 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   console.log('Balance After:');
   console.log(await contracts.fei.balanceOf(addresses.optimisticTimelock));
-  expect(await contracts.namedStaticPCVDepositWrapper.feiReportBalance()).to.be.equal(ethers.constants.WeiPerEther.mul(50_000_000));
+  expect(await contracts.namedStaticPCVDepositWrapper.feiReportBalance()).to.be.equal(
+    ethers.constants.WeiPerEther.mul(50_000_000)
+  );
   expect(await contracts.namedStaticPCVDepositWrapper.numDeposits()).to.be.equal(2); // INDEX and LaaS
 };
 

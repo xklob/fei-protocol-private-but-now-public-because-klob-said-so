@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '../../types/types';
+import {
+  DeployUpgradeFunc,
+  NamedContracts,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '../../types/types';
 import { TransactionResponse } from '@ethersproject/providers';
 import { expectApprox } from '@test/helpers';
 
@@ -41,7 +47,11 @@ export const deploy: DeployUpgradeFunc = async (deployAddress, addresses, loggin
 
   // Create Compound deposit for LUSD in Fuse pool xyz
   const erc20CompoundPCVDepositFactory = await ethers.getContractFactory('ERC20CompoundPCVDeposit');
-  const liquityFusePoolLusdPCVDeposit = await erc20CompoundPCVDepositFactory.deploy(core, addresses.liquityFusePoolLusd, addresses.lusd);
+  const liquityFusePoolLusdPCVDeposit = await erc20CompoundPCVDepositFactory.deploy(
+    core,
+    addresses.liquityFusePoolLusd,
+    addresses.lusd
+  );
   await liquityFusePoolLusdPCVDeposit.deployTransaction.wait();
 
   logging && console.log('Fuse LUSD Deposit deployed to:', liquityFusePoolLusdPCVDeposit.address);

@@ -135,7 +135,10 @@ const fip_60: ProposalDescription = {
       target: 'rewardsDistributorAdmin',
       values: '0',
       method: 'grantRole(bytes32,address)',
-      arguments: ['0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb', '{fei3CrvAutoRewardsDistributor}'],
+      arguments: [
+        '0x19cca239eaee0f28c6ba4c8c860332b8a23b35008b89b0507b96138ca5691cbb',
+        '{fei3CrvAutoRewardsDistributor}'
+      ],
       description: 'Grant ARD role to FEI-3Crv AutoRewardsDistributor'
     }
   ],

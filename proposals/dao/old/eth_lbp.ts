@@ -58,7 +58,10 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
   logging && console.log('WETH to DAI swapper deployed to: ', ethToDaiLBPSwapper.address);
 
   // 2. Create a liquidity bootstrapping pool between WETH and DAI
-  const lbpFactory = await ethers.getContractAt('ILiquidityBootstrappingPoolFactory', addresses.balancerLBPoolFactoryNoFee);
+  const lbpFactory = await ethers.getContractAt(
+    'ILiquidityBootstrappingPoolFactory',
+    addresses.balancerLBPoolFactoryNoFee
+  );
 
   const tx: TransactionResponse = await lbpFactory.create(
     'WETH->DAI Auction Pool', // pool name

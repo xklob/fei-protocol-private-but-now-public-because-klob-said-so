@@ -1,7 +1,13 @@
 import { ethers } from 'hardhat';
 import chai, { expect } from 'chai';
 import CBN from 'chai-bn';
-import { DeployUpgradeFunc, NamedContracts, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedContracts,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 import { deploy as deploySTW } from '@scripts/deploy/deployStakingTokenWrapper';
 
 chai.use(CBN(ethers.BigNumber));
@@ -136,7 +142,9 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   console.log('Ctoken configs');
 
   // supply cap
-  expect(await rariPool8Comptroller.supplyCaps(feiDaiCToken)).to.be.equal(ethers.constants.WeiPerEther.mul(2_500_000_000)); // 2.5BN
+  expect(await rariPool8Comptroller.supplyCaps(feiDaiCToken)).to.be.equal(
+    ethers.constants.WeiPerEther.mul(2_500_000_000)
+  ); // 2.5BN
   expect(await rariPool8Comptroller.supplyCaps(feiUsdcCToken)).to.be.equal(ethers.constants.WeiPerEther.mul(50_000)); // 25 M
 
   console.log('Borrow Pause');
@@ -159,7 +167,9 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   console.log('Rewards');
 
   expect(feiDaiCToken).to.be.equal(await feiDaiAutoRewardsDistributor.cTokenAddress());
-  expect(await feiDaiStakingTokenWrapper.pid()).to.be.equal(await feiDaiAutoRewardsDistributor.tribalChiefRewardIndex());
+  expect(await feiDaiStakingTokenWrapper.pid()).to.be.equal(
+    await feiDaiAutoRewardsDistributor.tribalChiefRewardIndex()
+  );
   expect((await tribalChief.poolInfo(await feiDaiStakingTokenWrapper.pid())).allocPoint).to.be.equal(100);
   const feiDaiRewardSpeed = await feiDaiAutoRewardsDistributor.getNewRewardSpeed();
   expect(feiDaiRewardSpeed[1]).to.be.false;
@@ -167,7 +177,9 @@ export const validate: ValidateUpgradeFunc = async (addresses, oldContracts, con
   expect(feiDaiRewardSpeed[0]).to.be.equal(await rariRewardsDistributorDelegator.compSupplySpeeds(feiDaiCToken));
 
   expect(feiUsdcCToken).to.be.equal(await feiUsdcAutoRewardsDistributor.cTokenAddress());
-  expect(await feiUsdcStakingTokenWrapper.pid()).to.be.equal(await feiUsdcAutoRewardsDistributor.tribalChiefRewardIndex());
+  expect(await feiUsdcStakingTokenWrapper.pid()).to.be.equal(
+    await feiUsdcAutoRewardsDistributor.tribalChiefRewardIndex()
+  );
   expect((await tribalChief.poolInfo(await feiUsdcStakingTokenWrapper.pid())).allocPoint).to.be.equal(250);
   const feiUsdcRewardSpeed = await feiUsdcAutoRewardsDistributor.getNewRewardSpeed();
   expect(feiUsdcRewardSpeed[1]).to.be.false;

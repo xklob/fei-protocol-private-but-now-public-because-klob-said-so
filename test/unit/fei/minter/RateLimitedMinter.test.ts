@@ -103,7 +103,9 @@ describe('RateLimitedMinter', function () {
 
     it('too high fei rate reverts', async function () {
       await expectRevert(
-        this.rateLimitedMinter.connect(impersonatedSigners[governorAddress]).setRateLimitPerSecond(toBN('20000000000000000000000')),
+        this.rateLimitedMinter
+          .connect(impersonatedSigners[governorAddress])
+          .setRateLimitPerSecond(toBN('20000000000000000000000')),
         'RateLimited: rateLimitPerSecond too high'
       );
     });

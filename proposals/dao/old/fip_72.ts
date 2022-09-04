@@ -1,6 +1,12 @@
 import hre, { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { DeployUpgradeFunc, NamedAddresses, SetupUpgradeFunc, TeardownUpgradeFunc, ValidateUpgradeFunc } from '@custom-types/types';
+import {
+  DeployUpgradeFunc,
+  NamedAddresses,
+  SetupUpgradeFunc,
+  TeardownUpgradeFunc,
+  ValidateUpgradeFunc
+} from '@custom-types/types';
 
 /*
 
@@ -97,7 +103,8 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  const { oneConstantOracle, daiPCVDripController, daiFixedPricePSM, daiPSM, fei, dai, compoundDaiPCVDeposit } = contracts;
+  const { oneConstantOracle, daiPCVDripController, daiFixedPricePSM, daiPSM, fei, dai, compoundDaiPCVDeposit } =
+    contracts;
 
   expect(await daiFixedPricePSM.backupOracle()).to.be.equal(oneConstantOracle.address);
   expect(await daiFixedPricePSM.underlyingToken()).to.be.equal(dai.address);

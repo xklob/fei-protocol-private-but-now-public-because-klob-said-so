@@ -51,7 +51,10 @@ let pcvStatsBefore: PcvStats;
 const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: NamedAddresses, logging: boolean) => {
   // 1. Deploy new linear token timelock to hold the remaining investor LP tokens
   // Get the remaining duration on the Fei Tribe Liquidity timelock
-  const uniswapFeiTribeLiquidityTimelock = await ethers.getContractAt('LinearTokenTimelock', addresses.uniswapFeiTribeLiquidityTimelock);
+  const uniswapFeiTribeLiquidityTimelock = await ethers.getContractAt(
+    'LinearTokenTimelock',
+    addresses.uniswapFeiTribeLiquidityTimelock
+  );
   const uniswapFeiTribeLiquidityTimelockRemainingDuration = await uniswapFeiTribeLiquidityTimelock.remainingTime();
   console.log('Remaining time: ', uniswapFeiTribeLiquidityTimelockRemainingDuration.toString());
 
@@ -130,18 +133,24 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(feiBurned).to.be.bignumber.lessThan(UPPER_BOUND_FEI);
 
   // Validate TRIBE sent to Treasury
-  const tribeRedeemed = (await contracts.tribe.balanceOf(addresses.core)).sub(initialTribeTreasuryBalance).sub(DAO_TIMELOCK_TRIBE);
+  const tribeRedeemed = (await contracts.tribe.balanceOf(addresses.core))
+    .sub(initialTribeTreasuryBalance)
+    .sub(DAO_TIMELOCK_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.greaterThan(LOWER_BOUND_TRIBE);
   expect(tribeRedeemed).to.be.bignumber.lessThan(UPPER_BOUND_TRIBE);
   console.log('TRIBE redeemed from Uniswap liquidity [M]e18: ', Number(tribeRedeemed) / 1e24);
 
   // 6. Validate investor LP tokens
-  const investorUniswapTimelockFunds = await contracts.feiTribePair.balanceOf(addresses.investorUniswapFeiTribeTimelock);
+  const investorUniswapTimelockFunds = await contracts.feiTribePair.balanceOf(
+    addresses.investorUniswapFeiTribeTimelock
+  );
   console.log('Investor LP tokens locked in new timelock [M]e18: ', Number(investorUniswapTimelockFunds) / 1e24);
   expect(investorUniswapTimelockFunds).to.be.bignumber.greaterThan(LOWER_BOUND_LP_TOKENS);
   expect(investorUniswapTimelockFunds).to.be.bignumber.lessThan(UPPER_BOUND_LP_TOKENS);
 
-  const remainingLPTokensInUniswapTimelock = await contracts.feiTribePair.balanceOf(addresses.uniswapFeiTribeLiquidityTimelock);
+  const remainingLPTokensInUniswapTimelock = await contracts.feiTribePair.balanceOf(
+    addresses.uniswapFeiTribeLiquidityTimelock
+  );
   expect(remainingLPTokensInUniswapTimelock).to.be.equal(0);
 
   // 7. Validate TRIBE approval revoked from Tribal Council timelock
@@ -192,7 +201,11 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   console.log('----------------------------------------------------');
 };
 
-const validateBeneficiaryCanClaim = async (tokenTimelock: LinearUnlockTimelock, feiTribePair: ERC20, beneficiary: string) => {
+const validateBeneficiaryCanClaim = async (
+  tokenTimelock: LinearUnlockTimelock,
+  feiTribePair: ERC20,
+  beneficiary: string
+) => {
   const beneficiaryBalanceBefore = await feiTribePair.balanceOf(beneficiary);
 
   const feiLabsTreasurySigner = await getImpersonatedSigner(beneficiary);

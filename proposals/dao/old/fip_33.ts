@@ -22,7 +22,14 @@ export const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses
   }
 
   const factory = await ethers.getContractFactory('OtcEscrow');
-  const tribeBalOtcEscrow = await factory.deploy(balancerMultisig, feiDAOTimelock, bal, tribe, BAL_HALF_AMOUNT, TRIBE_AMOUNT);
+  const tribeBalOtcEscrow = await factory.deploy(
+    balancerMultisig,
+    feiDAOTimelock,
+    bal,
+    tribe,
+    BAL_HALF_AMOUNT,
+    TRIBE_AMOUNT
+  );
 
   await tribeBalOtcEscrow.deployed();
 

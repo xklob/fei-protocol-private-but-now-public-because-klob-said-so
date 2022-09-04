@@ -43,7 +43,12 @@ describe('CollateralizationOracleWrapper', function () {
 
     const proxyContract = await (
       await ethers.getContractFactory('TransparentUpgradeableProxy')
-    ).deploy(this.oracleWrapper.connect(impersonatedSigners[userAddress]).address, this.oracleWrapper.address, '0x', {});
+    ).deploy(
+      this.oracleWrapper.connect(impersonatedSigners[userAddress]).address,
+      this.oracleWrapper.address,
+      '0x',
+      {}
+    );
 
     // instantiate the tribalchief pointed at the proxy contract
     this.oracleWrapper = await ethers.getContractAt('CollateralizationOracleWrapper', proxyContract.address);
@@ -128,13 +133,19 @@ describe('CollateralizationOracleWrapper', function () {
 
   describe('setCollateralizationOracle()', function () {
     it('should emit CollateralizationOracleUpdate', async function () {
-      await expect(await this.oracleWrapper.connect(impersonatedSigners[governorAddress]).setCollateralizationOracle(this.oracle2.address))
+      await expect(
+        await this.oracleWrapper
+          .connect(impersonatedSigners[governorAddress])
+          .setCollateralizationOracle(this.oracle2.address)
+      )
         .to.emit(this.oracleWrapper, 'CollateralizationOracleUpdate')
         .withArgs(governorAddress, this.oracle.address, this.oracle2.address);
     });
     it('should revert if not governor', async function () {
       await expectRevert(
-        this.oracleWrapper.connect(impersonatedSigners[userAddress]).setCollateralizationOracle(this.oracle2.address, {}),
+        this.oracleWrapper
+          .connect(impersonatedSigners[userAddress])
+          .setCollateralizationOracle(this.oracle2.address, {}),
         'CoreRef: Caller is not a governor'
       );
     });
@@ -148,7 +159,9 @@ describe('CollateralizationOracleWrapper', function () {
 
   describe('setDeviationThresholdBasisPoints()', function () {
     it('should emit DeviationThresholdUpdate', async function () {
-      await expect(await this.oracleWrapper.connect(impersonatedSigners[governorAddress]).setDeviationThresholdBasisPoints('300'))
+      await expect(
+        await this.oracleWrapper.connect(impersonatedSigners[governorAddress]).setDeviationThresholdBasisPoints('300')
+      )
         .to.emit(this.oracleWrapper, 'DeviationThresholdUpdate')
         .withArgs(governorAddress, '500', '300');
     });
@@ -280,7 +293,10 @@ describe('CollateralizationOracleWrapper', function () {
     describe('isOvercollateralized()', function () {
       it('should revert if outdated', async function () {
         await time.increase('10000');
-        await expectRevert(this.oracleWrapper.isOvercollateralized(), 'CollateralizationOracleWrapper: cache is outdated');
+        await expectRevert(
+          this.oracleWrapper.isOvercollateralized(),
+          'CollateralizationOracleWrapper: cache is outdated'
+        );
       });
       it('should return true/false if the protocol is overcollateralized or not', async function () {
         expect(await this.oracleWrapper.isOvercollateralized()).to.be.equal(true);
