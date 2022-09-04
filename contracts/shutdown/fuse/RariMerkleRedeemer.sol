@@ -23,7 +23,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     modifier hasNotSigned() {
         require(
             keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
-            "User has already signed."
+            "User has already signed"
         );
         _;
     }
