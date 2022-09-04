@@ -1,6 +1,6 @@
-import { IERC20, IERC20__factory } from '../../types/contracts';
 import { BigNumber, ethers } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
+import { IERC20, IERC20__factory } from '../../types/contracts';
 import { cTokens } from './data/prod/cTokens';
 
 // ctoken address : { topHolder : tokenAmount }

@@ -1,9 +1,9 @@
-import { RariMerkleRedeemer__factory } from '../../types/contracts';
-import { MainnetContractsConfig } from '../../protocol-configuration/mainnetAddresses';
-import { ethers } from 'ethers';
-import { cTokens } from './data/prod/cTokens';
-import fs from 'fs';
 import * as dotenv from 'dotenv';
+import { ethers } from 'ethers';
+import fs from 'fs';
+import { MainnetContractsConfig } from '../../protocol-configuration/mainnetAddresses';
+import { RariMerkleRedeemer__factory } from '../../types/contracts';
+import { cTokens } from './data/prod/cTokens';
 
 dotenv.config();
 
@@ -121,8 +121,6 @@ async function main() {
   const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(MainnetContractsConfig.fei.address, cTokens, ratesArray, rootsArray);
 
   console.log(`Rari Merkle Redeemer deployed to ${rariMerkleRedeemer.address}`);
-
-  // todo: verify if *not* fork
 }
 
 main();

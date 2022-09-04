@@ -1,8 +1,7 @@
-import { ethers } from 'ethers';
-import fs from 'fs';
-import { cTokens } from './data/prod/cTokens';
 import { keccak256, solidityKeccak256 } from 'ethers/lib/utils';
+import fs from 'fs';
 import { MerkleTree } from 'merkletreejs';
+import { cTokens } from './data/prod/cTokens';
 
 async function main() {
   if (process.argv[2] === 'help') {

@@ -1,5 +1,5 @@
-import { Vm, Vm__factory } from '../../types/contracts';
 import { ethers } from 'ethers';
+import { Vm, Vm__factory } from '../../types/contracts';
 
 async function main() {
   if (process.argv[2] === 'help') {
