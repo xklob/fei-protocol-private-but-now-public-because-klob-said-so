@@ -7,13 +7,26 @@
 - easily grant ctokens to accounts for testing
 - add fake data into the real data so that we have real keys to test/sign with
 
-## Scripts
+## Individual Scripts
+
+- Run each command with a single param, "help" to get usage details. Example:
+
+```
+npx ts-node scripts/shutdown/createMerkleTree help
+```
 
 - createMerkleTree.ts - done. writes the roots to a file. optionally takes a sample/test data file to add in extra balances.
 - resetFork.ts - done. resets the forked-anvil instance to a fresh state and updated block.
 - deployMerkleRedeemer.ts - done. deploys the merkle redeemer contract to the forked-anvil instance.
 - setTokenBalance.ts - done. takes in process args and transfers the requested amount of ctoken from the top holder of the ctoken
-- E2E - not started; will combine all of the above scripts for repeatable testing
+
+## Combination Scripts
+
+- Note: All three of these scripts have filename params in them that you should edit if you are not using the defaults.
+
+- run-all-mainnet.sh - edit the filenames in here if needed. this is the production deploy script
+- run-all-forked-dry-run.sh - this is useful for testing the actual prod data, but on the anvil-forked instance
+- run-all-forked-test-run.sh - this is useful for incorporating fake data to test with the real ones, so that signatures can be tested
 
 ## Needed for Contract Deployment
 
@@ -23,8 +36,12 @@
 
 ## Initial Setup
 
+- This is run on nodeinator to create an anvil fork of mainnet. You can ignore it, only Caleb needs this info.
+
 - `anvil --fork-url http://127.0.0.1:8545 --host 0.0.0.0 --port 8546`
 - `const forkId = vm.createSelectFork("http://127.0.0.1:8545);`
+
+## Test Accounts - Forked Instance
 
 ```
 Available Accounts
