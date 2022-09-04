@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.8.4;
+pragma solidity =0.8.10;
 
 import "../../refs/CoreRef.sol";
 import "./MultiMerkleRedeemer.sol";
@@ -23,7 +23,7 @@ contract RariMerkleRedeemer is MultiMerkleRedeemer, ReentrancyGuard {
     modifier hasNotSigned() {
         require(
             keccak256(userSignatures[msg.sender]) == keccak256(userSignatures[address(0)]),
-            "User has already signed"
+            "User has already signed."
         );
         _;
     }

@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { ethers } from 'ethers';
+import { AbiCoder, defaultAbiCoder } from 'ethers/lib/utils';
 import fs from 'fs';
 import { MainnetContractsConfig } from '../../protocol-configuration/mainnetAddresses';
 import { RariMerkleRedeemer__factory } from '../../types/contracts';
@@ -31,8 +32,12 @@ async function main() {
   // defaults
   const ratesFilename = process.argv[2] ? process.argv[2] : './scripts/shutdown/data/sample/rates.json';
   const rootsFilename = process.argv[3] ? process.argv[3] : './scripts/shutdown/data/sample/roots.json';
-  const enableForking = process.argv[4] ? Boolean(process.argv[4]) : true;
-  const debug = process.argv[5] ? Boolean(process.argv[5]) : false;
+  let enableForking = true;
+  let debug = false;
+
+  if (process.argv[4] !== undefined && process.argv[4] === 'false') enableForking = false;
+
+  if (process.argv[5] !== undefined && process.argv[5] === 'true') debug = true;
 
   // sanity check rates & roots
   const rates: { [key: string]: string } = JSON.parse(fs.readFileSync(ratesFilename).toString());
@@ -121,6 +126,17 @@ async function main() {
   const rariMerkleRedeemer = await rariMerkleRedeemerFactory.deploy(MainnetContractsConfig.fei.address, cTokens, ratesArray, rootsArray);
 
   console.log(`Rari Merkle Redeemer deployed to ${rariMerkleRedeemer.address}`);
+
+  if (!enableForking) {
+    console.log(
+      `Here are the abi-encoded constructor args so that you can verify the contract on etherscan. Also writing to ./scripts/shutdown/data/prod/constructorArgs.txt.\n`
+    );
+
+    const args = defaultAbiCoder.encode(['address[]', 'uint256[]', 'bytes32[]'], [cTokens, ratesArray, rootsArray]);
+    console.log(args);
+    console.log('\n');
+    fs.writeFileSync('./scripts/shutdown/data/prod/constructorArgs.txt', args);
+  }
 }
 
 main();
