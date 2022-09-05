@@ -98,8 +98,8 @@ async function main() {
         debug = true|false (default: false)
 
       Examples: 
-        npx ts-node scripts/setTokenBalance 0xd8553552f8868c1ef160eedf031cf0bcf9686945 0x11e52c75998fe2E7928B191bfc5B25937Ca16741
-        npx ts-node scripts/shutdown/resetFork.ts 0xd8553552f8868c1ef160eedf031cf0bcf9686945 0x11e52c75998fe2E7928B191bfc5B25937Ca16741 1000 true
+        npx ts-node scripts/shutdown/setTokenBalance 0xd8553552f8868c1ef160eedf031cf0bcf9686945 0x11e52c75998fe2E7928B191bfc5B25937Ca16741
+        npx ts-node scripts/shutdown/setTokenBalance 0xd8553552f8868c1ef160eedf031cf0bcf9686945 0x11e52c75998fe2E7928B191bfc5B25937Ca16741 1000 true
     `);
     return;
   }
@@ -136,6 +136,7 @@ async function main() {
   if (debug) console.log('Nodeinator connected.');
 
   const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+  await provider.send('anvil_setBalance', [wallet.address, parseEther('10').toHexString()]);
 
   // check the ctokens to make sure the data looks good, adjust for up to date network conditions
   if (Object.keys(cTokenHolders).length !== 27) throw new Error('Must have exactly 27 cToken top holders.');
@@ -168,15 +169,9 @@ async function main() {
   }
 
   const topHolder = cTokenHolders[cTokenAddress as keyof typeof cTokenHolders][0];
+  await provider.send('anvil_setBalance', [topHolder, parseEther('10').toHexString()]);
 
   if (debug) console.log(`Top holder: ${topHolder}`);
-
-  const giveEthUnpopulatedTx = {
-    to: topHolder,
-    value: parseEther('10')
-  };
-
-  await wallet.sendTransaction(giveEthUnpopulatedTx);
 
   const cTokenContract = new ethers.Contract(cTokenAddress, IERC20__factory.createInterface(), provider) as IERC20;
   const topHolderActualBalance = await cTokenContract.balanceOf(topHolder);
@@ -186,11 +181,15 @@ async function main() {
       `Requested ${amount.toString()} of cToken ${cTokenAddress}, but top holder only has ${topHolderActualBalance.toString()}`
     );
 
+  await provider.send('anvil_impersonateAccount', [topHolder]);
+
   const unsignedTx = await cTokenContract.populateTransaction.transfer(giveToAddress, amount);
   unsignedTx.from = topHolder;
   const oldBalance = await cTokenContract.balanceOf(wallet.address);
   await provider.send('eth_sendUnsignedTransaction', [unsignedTx]);
   const newBalance = await cTokenContract.balanceOf(wallet.address);
+
+  await provider.send('anvil_stopImpersonatingAccount', [topHolder]);
 
   console.log(`Transfer complete.`);
   if (debug) console.log(`Old token balance: ${oldBalance.toString()}`);
