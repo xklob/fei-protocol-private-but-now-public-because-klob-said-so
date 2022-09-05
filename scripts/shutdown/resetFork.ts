@@ -1,6 +1,9 @@
 import { ethers } from 'ethers';
 import { Vm, Vm__factory } from '../../types/contracts';
 
+const NODE_URL = 'http://nodeinator.kryptoklob.io:8999';
+// const NODE_URL = 'http://localhost:8545';
+
 async function main() {
   if (process.argv[2] === 'help') {
     console.log(`
@@ -32,12 +35,13 @@ async function main() {
 
   if (debug) console.log('Connecting to nodeinator...');
 
-  const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
+  const provider = new ethers.providers.JsonRpcProvider(NODE_URL);
   await provider.ready;
 
   if (debug) console.log('Nodeinator connected.');
 
   const wallet = new ethers.Wallet('0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
+
   const vm = new ethers.Contract(
     '0x7109709ECfa91a80626fF3989D68f67F5b1DD12D',
     Vm__factory.createInterface(),
