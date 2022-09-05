@@ -135,6 +135,7 @@ async function main() {
   if (debug) console.log('Connecting to nodeinator...');
 
   const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
+  // const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
   await provider.ready;
 
   if (debug) console.log('Nodeinator connected.');
@@ -174,6 +175,7 @@ async function main() {
 
   const topHolder =
     cTokenAddress === feiAddress ? feiHolder : cTokenHolders[cTokenAddress as keyof typeof cTokenHolders][0];
+
   await provider.send('anvil_setBalance', [topHolder, parseEther('10').toHexString()]);
 
   if (debug) console.log(`Top holder: ${topHolder}`);
