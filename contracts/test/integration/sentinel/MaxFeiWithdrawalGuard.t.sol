@@ -42,10 +42,11 @@ contract MaxFeiWithdrawalGuardIntegrationTest is DSTest, StdLib {
         sentinel.knight(address(guard));
 
         // Test assumes withdraw amount greater than liquidity
-        // Mint and remove liquidity to set that up
+        // Mint and remove liquidity to set that up`
         vm.startPrank(MainnetAddresses.FEI_DAO_TIMELOCK);
         Fei(MainnetAddresses.FEI).mint(deposit, 500_000e18);
         IPCVDeposit(deposit).deposit();
+        vm.stopPrank();
 
         uint256 sourceBurn = fei.balanceOf(liquiditySource) - 1000e18;
         vm.prank(liquiditySource);
