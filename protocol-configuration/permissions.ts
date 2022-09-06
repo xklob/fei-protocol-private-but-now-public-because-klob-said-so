@@ -1,19 +1,13 @@
 // This config lists all of the contracts that (should) be hold each listed role.
 
 export const PermissionsConfig = {
-  MINTER_ROLE: ['feiDAOTimelock', 'pcvEquityMinter', 'daiFixedPricePSM'],
+  MINTER_ROLE: ['daiFixedPricePSM'],
   BURNER_ROLE: [],
-  GOVERN_ROLE: ['core', 'feiDAOTimelock', 'roleBastion'],
-  PCV_CONTROLLER_ROLE: [
-    'feiDAOTimelock',
-    'ratioPCVControllerV2',
-    'pcvGuardian',
-    'daiPCVDripController',
-    'daiFixedPricePSMFeiSkimmer'
-  ],
-  GUARDIAN_ROLE: ['guardianMultisig', 'pcvGuardian', 'pcvSentinel'],
+  GOVERN_ROLE: ['core', 'feiDAOTimelock'],
+  PCV_CONTROLLER_ROLE: ['pcvGuardian', 'ratioPCVControllerV2', 'daiPCVDripController', 'daiFixedPricePSMFeiSkimmer'],
+  GUARDIAN_ROLE: ['guardianMultisig', 'pcvGuardian'],
   ORACLE_ADMIN_ROLE: ['tribalCouncilTimelock'],
-  SWAP_ADMIN_ROLE: ['pcvEquityMinter', 'tribalCouncilTimelock', 'tribalCouncilSafe'],
+  SWAP_ADMIN_ROLE: ['tribalCouncilTimelock', 'tribalCouncilSafe'],
   BALANCER_MANAGER_ADMIN_ROLE: [],
   RATE_LIMITED_MINTER_ADMIN: [],
   PARAMETER_ADMIN: [],
@@ -23,9 +17,9 @@ export const PermissionsConfig = {
   VOTIUM_ADMIN_ROLE: [],
   PCV_GUARDIAN_ADMIN_ROLE: ['tribalCouncilTimelock'],
   PCV_SAFE_MOVER_ROLE: ['tribalCouncilTimelock'],
-  METAGOVERNANCE_VOTE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
-  METAGOVERNANCE_TOKEN_STAKING: ['feiDAOTimelock'],
-  METAGOVERNANCE_GAUGE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
+  METAGOVERNANCE_VOTE_ADMIN: ['tribalCouncilTimelock'],
+  METAGOVERNANCE_TOKEN_STAKING: [],
+  METAGOVERNANCE_GAUGE_ADMIN: ['tribalCouncilTimelock'],
   ROLE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
   POD_METADATA_REGISTER_ROLE: [
     'tribalCouncilSafe',
