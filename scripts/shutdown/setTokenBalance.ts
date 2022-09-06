@@ -3,6 +3,9 @@ import { parseEther } from 'ethers/lib/utils';
 import { IERC20, IERC20__factory } from '../../types/contracts';
 import { cTokens } from './data/prod/cTokens';
 
+const feiHolder = '0x19C549357034d10DB8D75ed812b45bE1Dd8A7218'.toLowerCase();
+const feiAddress = '0x956F47F50A910163D8BF957Cf5846D573E7f87CA'.toLowerCase();
+
 // ctoken address : { topHolder : tokenAmount }
 const cTokenHolders = {
   '0xd8553552f8868c1ef160eedf031cf0bcf9686945': [
@@ -92,7 +95,7 @@ async function main() {
         npx ts-node scripts/shutdown/setTokenBalance tokenAddress giveToAddress [amount] [debug]
       
       Args:
-        tokenAddress = string (default: undefined) (must be one of the 27 cTokens)
+        tokenAddress = string (default: undefined) (must be one of the 27 cTokens or Fei)
         giveToAddress = string (default: undefined)
         amount = string (default: "1000000000000000000")
         debug = true|false (default: false)
@@ -111,7 +114,8 @@ async function main() {
 
   if (process.argv[2] !== undefined) {
     cTokenAddress = process.argv[2];
-    if (!cTokens.includes(cTokenAddress)) throw new Error(`Invalid cToken address: ${cTokenAddress}`);
+    if (!cTokens.includes(cTokenAddress) && cTokenAddress != feiAddress)
+      throw new Error(`Invalid token address: ${cTokenAddress}`);
   } else throw new Error("Must provide cToken address. Run with single param 'help' for usage.");
 
   if (process.argv[3] !== undefined) {
@@ -126,7 +130,7 @@ async function main() {
     debug = process.argv[4] === 'true';
   }
 
-  if (debug) console.log(`Will give ${amount} of cToken ${cTokenAddress} to ${giveToAddress}`);
+  if (debug) console.log(`Will give ${amount} of token ${cTokenAddress} to ${giveToAddress}`);
 
   if (debug) console.log('Connecting to nodeinator...');
 
@@ -168,7 +172,8 @@ async function main() {
     console.log(`All cToken balances accumulated, testing shall proceed.`);
   }
 
-  const topHolder = cTokenHolders[cTokenAddress as keyof typeof cTokenHolders][0];
+  const topHolder =
+    cTokenAddress === feiAddress ? feiHolder : cTokenHolders[cTokenAddress as keyof typeof cTokenHolders][0];
   await provider.send('anvil_setBalance', [topHolder, parseEther('10').toHexString()]);
 
   if (debug) console.log(`Top holder: ${topHolder}`);
@@ -178,7 +183,7 @@ async function main() {
 
   if (topHolderActualBalance.lt(amount))
     throw new Error(
-      `Requested ${amount.toString()} of cToken ${cTokenAddress}, but top holder only has ${topHolderActualBalance.toString()}`
+      `Requested ${amount.toString()} of token ${cTokenAddress}, but top holder only has ${topHolderActualBalance.toString()}`
     );
 
   await provider.send('anvil_impersonateAccount', [topHolder]);
