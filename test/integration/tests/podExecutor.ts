@@ -74,8 +74,8 @@ describe('Pod executor', function () {
     ({ contracts, contractAddresses } = await e2eCoord.loadEnvironment());
     doLogging && console.log(`Environment loaded.`);
 
-    await forceEth(tcMultisigSigner.address, parseEther('10').toString());
     tcMultisigSigner = await getImpersonatedSigner(contractAddresses.tribalCouncilSafe);
+    await forceEth(tcMultisigSigner.address, parseEther('10').toString());
     tribalCouncilTimelock = contracts.tribalCouncilTimelock as TimelockController;
     podExecutor = contracts.podExecutorV2 as PodExecutor;
 
