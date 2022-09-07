@@ -12,8 +12,9 @@ import {
 
 TIP_121c: Deprecate Tribe DAO and Fei sub-systems
 
-
 */
+
+const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
 
 const fipNumber = '9001'; // Change me!
 
@@ -56,6 +57,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // 4. Verify Tribe Reserve Stabiliser is paused
   expect(await contracts.tribeReserveStabilizer.paused()).to.be.true;
+
+  // 5. Verify ProxyAdmin is deprecated
+  expect(await contracts.proxyAdmin.owner()).to.equal(ADDRESS_ONE);
 };
 
 export { deploy, setup, teardown, validate };

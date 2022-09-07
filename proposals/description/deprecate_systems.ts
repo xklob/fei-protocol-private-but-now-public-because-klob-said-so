@@ -1,6 +1,8 @@
 import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
+const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
+
 const deprecate_systems: TemplatedProposalDescription = {
   title: 'TIP_121c: Deprecate Tribe DAO and Fei sub-systems',
   commands: [
@@ -146,6 +148,18 @@ const deprecate_systems: TemplatedProposalDescription = {
       method: 'pause()',
       arguments: (addresses) => [],
       description: 'Pause Tribe Reserve Stabilizer, prevent exchangeFei() being called'
+    },
+    // 5. Deprecate ProxyAdmin
+    {
+      target: 'proxyAdmin',
+      values: '0',
+      method: 'transferOwnership(address)',
+      arguments: (addresses) => [ADDRESS_ONE],
+      description: `
+        Transfer ownership of ProxyAdmin to 0x1 address, to prevent any future upgrades.
+        The version of Ownable the ProxyAdmin contract inherits from prevents ownership
+        transfers to the zero address
+      `
     }
   ],
   description: `
@@ -155,6 +169,7 @@ const deprecate_systems: TemplatedProposalDescription = {
                              Subsequent proposal will set it to zero address
   3. Deprecate PCV Sentinel - remove all guards
   4. Deprecate Tribe Reserve Stabiliser
+  5. Deprecate ProxyAdmin - revoke ownership so future upgrades not possible
   `
 };
 

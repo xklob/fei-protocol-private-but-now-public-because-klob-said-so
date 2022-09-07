@@ -14,7 +14,7 @@ export const MainnetContractsConfig = {
   proxyAdmin: {
     artifactName: 'ProxyAdmin',
     address: '0xf8c2b645988b7658E7748BA637fE25bdD46A704A',
-    category: AddressCategory.Core
+    category: AddressCategory.Deprecated
   },
   tribe: {
     artifactName: 'Tribe',
