@@ -47,7 +47,15 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 1. Verify init impossible to call on core
   expect(await contracts.core.init()).to.be.revertedWith('Initializable: contract is already initialized');
 
-  // 2.
+  // 2. Verify Tribe minter set to DAO timelock and inflation is the minimum of 0.01% (1 basis point)
+  expect(await contracts.tribe.minter()).to.equal(addresses.feiDAOTimelock);
+  expect(await contracts.tribeMinter.annualMaxInflationBasisPoints()).to.equal(1);
+
+  // 3. Verify PCV Sentinel has all guards removed
+  expect((await contracts.pcvSentinel.allGuards()).length).to.equal(0);
+
+  // 4. Verify Tribe Reserve Stabiliser is paused
+  expect(await contracts.tribeReserveStabilizer.paused()).to.be.true;
 };
 
 export { deploy, setup, teardown, validate };

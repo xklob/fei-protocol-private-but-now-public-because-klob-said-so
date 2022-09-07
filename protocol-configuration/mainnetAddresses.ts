@@ -24,7 +24,7 @@ export const MainnetContractsConfig = {
   tribeMinter: {
     artifactName: 'TribeMinter',
     address: '0xFC3532b443383d9022b1B2c6FD5Fd0895943360A',
-    category: AddressCategory.Core
+    category: AddressCategory.Deprecated
   },
   restrictedPermissions: {
     artifactName: 'RestrictedPermissions',
@@ -34,7 +34,7 @@ export const MainnetContractsConfig = {
   pcvSentinel: {
     artifactName: 'PCVSentinel',
     address: '0xC297705Acf50134d256187c754B92FA37826C019',
-    category: AddressCategory.Security
+    category: AddressCategory.Deprecated
   },
   pcvGuardian: {
     artifactName: 'PCVGuardian',
@@ -211,7 +211,7 @@ export const MainnetContractsConfig = {
   tribeReserveStabilizer: {
     artifactName: 'TribeReserveStabilizer',
     address: '0xE1A468418f4D8D3F070A06d49b3575A9562b6CfD',
-    category: AddressCategory.Peg
+    category: AddressCategory.Deprecated
   },
 
   daiFixedPricePSM: {

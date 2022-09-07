@@ -97,10 +97,53 @@ const deprecate_systems: TemplatedProposalDescription = {
       method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'), addresses.feiDAOTimelock],
       description: 'Revoke TOKEMAK_DEPOSIT_ADMIN_ROLE from feiDAOTimelock'
+    },
+    // 2. Deprecate Tribe Minter
+    {
+      target: 'tribeMinter',
+      values: '0',
+      method: 'setAnnualMaxInflationBasisPoints(uint256)',
+      arguments: (addresses) => ['1'],
+      description: 'Set Tribe minter max annual inflation to the minimum of 0.01% (1 basis point)'
+    },
+    {
+      target: 'tribeMinter',
+      values: '0',
+      method: 'setMinter(address)',
+      arguments: (addresses) => [addresses.feiDAOTimelock],
+      description: 'Set Tribe minter address to DAO timelock. Subsequent proposal will set to the zero address to burn'
+    },
+    // 3. Deprecate the PCV Sentinel
+    {
+      target: 'pcvSentinel',
+      values: '0',
+      method: 'slay(address)',
+      arguments: (addresses) => [addresses.fuseWithdrawalGuard],
+      description: 'Remove FuseWithdrawlGuard from PCV Sentinel'
+    },
+    {
+      target: 'pcvSentinel',
+      values: '0',
+      method: 'slay(address)',
+      arguments: (addresses) => [addresses.maxFeiWithdrawalGuard],
+      description: 'Remove Aave/Compound max Fei withdrawl guard from PCV sentinel'
+    },
+    // 4. Deprecate Tribe Reserve Stabiliser
+    {
+      target: 'tribeReserveStabilizer',
+      values: '0',
+      method: 'pause()',
+      arguments: (addresses) => [addresses.tribeReserveStabilizer],
+      description: 'Pause Tribe Reserve Stabilizer, prevent exchangeFei() being called'
     }
   ],
   description: `
   TIP_121c: Deprecate Tribe DAO and Fei sub-systems
+  1. Revoke all Tribe Roles
+  2. Deprecate TribeMinter - set inflation to 0% and transfer minter to DAO timelock.
+                             Subsequent proposal will set it to zero address
+  3. Deprecate PCV Sentinel - remove all guards
+  4. Deprecate Tribe Reserve Stabiliser
   `
 };
 
