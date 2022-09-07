@@ -19,16 +19,16 @@ contract ERC20Dripper is PCVDeposit, Timed {
     /// @notice ERC20 PCV Dripper constructor
     /// @param _core Fei Core for reference
     /// @param _target address to drip to
-    /// @param _frequency frequency of dripping
+    /// @param _dripPeriod period of dripping; cannot drip more than once per this # of seconds
     /// @param _amountToDrip amount to drip on each drip
     /// @param _token amount to drip on each drip
     constructor(
         address _core,
         address _target,
-        uint256 _frequency,
+        uint256 _dripPeriod,
         uint256 _amountToDrip,
         address _token
-    ) CoreRef(_core) Timed(_frequency) {
+    ) CoreRef(_core) Timed(_dripPeriod) {
         require(_target != address(0), "ERC20Dripper: invalid address");
         require(_token != address(0), "ERC20Dripper: invalid token address");
         require(_amountToDrip > 0, "ERC20Dripper: invalid drip amount");
@@ -42,12 +42,17 @@ contract ERC20Dripper is PCVDeposit, Timed {
     }
 
     /// @notice drip ERC20 tokens to target
-    function drip() external afterTime whenNotPaused {
+    function drip() public virtual afterTime whenNotPaused {
         // reset timer
         _initTimed();
 
-        // drip
-        _withdrawERC20(token, target, amountToDrip);
+        // drip amountToDrip if we have that much, otherwise drip the entire balance
+        if (balance() >= amountToDrip) {
+            _withdrawERC20(token, target, amountToDrip);
+        } else {
+            _withdrawERC20(token, target, balance());
+        }
+
         emit Dripped(amountToDrip);
     }
 

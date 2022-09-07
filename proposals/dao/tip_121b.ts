@@ -1,3 +1,9 @@
+import {
+  Fei,
+  MerkleRedeemerDripper,
+  MerkleRedeemerDripper__factory,
+  RariMerkleRedeemer
+} from '@custom-types/contracts';
 import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
 import {
   DeployUpgradeFunc,
@@ -10,13 +16,17 @@ import { cTokens } from '@proposals/data/hack_repayment/cTokens';
 import { rates } from '@proposals/data/hack_repayment/rates';
 import { roots } from '@proposals/data/hack_repayment/roots';
 import { MainnetContractsConfig } from '@protocol/mainnetAddresses';
+import { getImpersonatedSigner } from '@test/helpers';
+import { forceEth } from '@test/integration/setup/utils';
+import { expect } from 'chai';
+import { parseEther } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
 
 /*
 
 DAO Proposal Part 2
 
-Description: Enable and mint FEI into the RariMerkleRedeeemr contract, allowing those that are specified 
+Description: Enable and mint FEI into the MerkleRedeeemrDripper contract, allowing those that are specified 
 in the snapshot [insert link] and previous announcement to redeem an amount of cTokens for FEI.
 
 Steps:
@@ -24,6 +34,12 @@ Steps:
 */
 
 const fipNumber = 'tip_121b';
+
+const dripPeriod = 3600; // 1 hour
+const dripAmount = ethers.utils.parseEther('2500000'); // 2.5m Fei
+
+const rariMerkleRedeemerInitialBalance = ethers.utils.parseEther('5000000'); // 5m Fei
+const merkleRedeemerDripperInitialBalance = ethers.utils.parseEther('45000000'); // 45m Fei
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -36,8 +52,18 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     roots // roots (bytes32[])
   );
 
+  const merkleRedeeemrDripperFactory = new MerkleRedeemerDripper__factory((await ethers.getSigners())[0]);
+  const merkleRedeemerDripper = await merkleRedeeemrDripperFactory.deploy(
+    addresses.core,
+    rariMerkleRedeemer.address,
+    dripPeriod,
+    dripAmount,
+    addresses.fei
+  );
+
   return {
-    rariMerkleRedeemer
+    rariMerkleRedeemer,
+    merkleRedeemerDripper
   };
 };
 
@@ -57,8 +83,62 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // validate the first few and last few ctokens, rates, and proofs
-  // @todo do this
+  const rariMerkleRedeemer = contracts.rariMerkleRedeemer as RariMerkleRedeemer;
+  const merkleRedeemerDripper = contracts.merkleRedeemerDripper as MerkleRedeemerDripper;
+
+  // validate that all 27 ctokens exist & are set
+  for (let i = 0; i < cTokens.length; i++) {
+    expect(await rariMerkleRedeemer.merkleRoots(cTokens[i])).to.be.equal(roots[i]);
+    expect(await rariMerkleRedeemer.cTokenExchangeRates(cTokens[i])).to.be.equal(rates[i]);
+  }
+
+  //console.log(`Sending ETH to both contracts...`);
+
+  // send eth to both contracts so that we can impersonate them later
+  await forceEth(rariMerkleRedeemer.address, parseEther('1').toString());
+  await forceEth(merkleRedeemerDripper.address, parseEther('1').toString());
+
+  // check initial balances of dripper & redeemer
+  const fei = contracts.fei as Fei;
+  expect(await fei.balanceOf(rariMerkleRedeemer.address)).to.be.equal(rariMerkleRedeemerInitialBalance);
+  expect(await fei.balanceOf(merkleRedeemerDripper.address)).to.be.equal(merkleRedeemerDripperInitialBalance);
+
+  //console.log('Advancing time 1 hour...');
+
+  // advance time > 1 hour to drip again
+  await ethers.provider.send('evm_increaseTime', [dripPeriod + 1]);
+
+  // expect a drip to fail because the redeemer has enough tokens already
+  await expect(merkleRedeemerDripper.drip()).to.be.revertedWith(
+    'MerkleRedeemerDripper: dripper target already has enough tokens.'
+  );
+
+  //console.log('Sending tokens away from redeemer...');
+
+  // impersonate the redeemer and send away its tokens so that we can drip again
+  const redeemerSigner = await getImpersonatedSigner(rariMerkleRedeemer.address);
+  const redeemerFeiBalance = await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address);
+  await (contracts.fei as Fei).connect(redeemerSigner).transfer(addresses.timelock, redeemerFeiBalance);
+  expect(await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address)).to.be.equal(0);
+
+  // impersonate the dripper and sent most of its tokens away, so that it has less than the drip amount remaining,
+  // and then call drip again so that we can make sure it can still actually transfers the remaining tokens
+  const dripperSigner = await getImpersonatedSigner(merkleRedeemerDripper.address);
+  const feiAsDripper = (contracts.fei as Fei).connect(dripperSigner);
+
+  //console.log('Transferring all but 100k tokens away from dripper...');
+
+  // after this transfer, dripper should have only 100,000 FEI left
+  const dripperFeiBalance = await feiAsDripper.balanceOf(merkleRedeemerDripper.address);
+  await feiAsDripper.transfer(addresses.timelock, dripperFeiBalance.sub(parseEther('100000')));
+  expect(await feiAsDripper.balanceOf(merkleRedeemerDripper.address)).to.be.equal(parseEther('100000'));
+
+  //console.log('Doing final drip test...');
+
+  // finally, call drip again to make sure it works
+  await merkleRedeemerDripper.drip();
+  expect(await feiAsDripper.balanceOf(merkleRedeemerDripper.address)).to.be.equal(0);
+  expect(await feiAsDripper.balanceOf(rariMerkleRedeemer.address)).to.be.equal(parseEther('100000'));
 };
 
 export { deploy, setup, teardown, validate };
