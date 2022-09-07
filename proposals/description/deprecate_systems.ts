@@ -133,7 +133,7 @@ const deprecate_systems: TemplatedProposalDescription = {
       target: 'tribeReserveStabilizer',
       values: '0',
       method: 'pause()',
-      arguments: (addresses) => [addresses.tribeReserveStabilizer],
+      arguments: (addresses) => [],
       description: 'Pause Tribe Reserve Stabilizer, prevent exchangeFei() being called'
     }
   ],

@@ -49,12 +49,12 @@ export const MainnetContractsConfig = {
   fuseWithdrawalGuard: {
     artifactName: 'FuseWithdrawalGuard',
     address: '0xd079ec4b442600a381eAc7E95662eB1b313cd113',
-    category: AddressCategory.Security
+    category: AddressCategory.Deprecated
   },
   maxFeiWithdrawalGuard: {
     artifactName: 'MaxFeiWithdrawalGuard',
     address: '0x2Ee70721909b9673C6f5029243804b98C12a1bF2',
-    category: AddressCategory.Security
+    category: AddressCategory.Deprecated
   },
   ratioPCVControllerV2: {
     artifactName: 'RatioPCVControllerV2',
@@ -76,7 +76,7 @@ export const MainnetContractsConfig = {
   pcvEquityMinter: {
     artifactName: 'PCVEquityMinter',
     address: '0x904Deb2Dac1EdfCBBb69b9c279aE5F75E57Cf5E9',
-    category: AddressCategory.Utility
+    category: AddressCategory.Deprecated
   },
 
   daiPCVDripController: {
@@ -205,7 +205,7 @@ export const MainnetContractsConfig = {
   roleBastion: {
     artifactName: 'RoleBastion',
     address: '0x8096314D9014EbB69Fc777ED3791DDE6FFbaFAed',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   tribeReserveStabilizer: {

@@ -45,7 +45,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 0. No check for revoked Tribe roles - there is a seperate e2e
 
   // 1. Verify init impossible to call on core
-  expect(await contracts.core.init()).to.be.revertedWith('Initializable: contract is already initialized');
+  await expect(contracts.core.init()).to.be.revertedWith('Initializable: contract is already initialized');
 
   // 2. Verify Tribe minter set to DAO timelock and inflation is the minimum of 0.01% (1 basis point)
   expect(await contracts.tribe.minter()).to.equal(addresses.feiDAOTimelock);
