@@ -7,8 +7,8 @@ const tip_121b: TemplatedProposalDescription = {
       target: 'fei',
       values: '0',
       method: 'mint(address,uint256)',
-      arguments: (addresses) => [addresses.rariMerkleRedeemer, '10000000000000000000000'], // @todo - hardcoded for now, fix later
-      description: 'Mint Fei to the RariMerkleRedeemer'
+      arguments: (addresses) => [addresses.merkleRedeemerDripper, '10000000000000000000000'], // @todo - hardcoded for now, fix later
+      description: 'Mint Fei to the MerkleRedeemerDripper'
     }
   ],
   description: `

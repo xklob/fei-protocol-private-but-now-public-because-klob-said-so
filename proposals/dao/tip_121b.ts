@@ -1,3 +1,9 @@
+import {
+  Fei,
+  MerkleRedeemerDripper,
+  MerkleRedeemerDripper__factory,
+  RariMerkleRedeemer
+} from '@custom-types/contracts';
 import { RariMerkleRedeemer__factory } from '@custom-types/contracts/factories/RariMerkleRedeemer__factory';
 import {
   DeployUpgradeFunc,
@@ -10,13 +16,14 @@ import { cTokens } from '@proposals/data/hack_repayment/cTokens';
 import { rates } from '@proposals/data/hack_repayment/rates';
 import { roots } from '@proposals/data/hack_repayment/roots';
 import { MainnetContractsConfig } from '@protocol/mainnetAddresses';
+import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 /*
 
 DAO Proposal Part 2
 
-Description: Enable and mint FEI into the RariMerkleRedeeemr contract, allowing those that are specified 
+Description: Enable and mint FEI into the MerkleRedeeemrDripper contract, allowing those that are specified 
 in the snapshot [insert link] and previous announcement to redeem an amount of cTokens for FEI.
 
 Steps:
@@ -24,6 +31,9 @@ Steps:
 */
 
 const fipNumber = 'tip_121b';
+
+const dripPeriod = 1;
+const dripAmount = ethers.utils.parseEther('2_500_000');
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -36,8 +46,18 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
     roots // roots (bytes32[])
   );
 
+  const merkleRedeeemrDripperFactory = new MerkleRedeemerDripper__factory((await ethers.getSigners())[0]);
+  const merkleRedeemerDripper = await merkleRedeeemrDripperFactory.deploy(
+    addresses.core,
+    rariMerkleRedeemer.address,
+    dripPeriod,
+    dripAmount,
+    addresses.fei
+  );
+
   return {
-    rariMerkleRedeemer
+    rariMerkleRedeemer,
+    merkleRedeemerDripper
   };
 };
 
@@ -57,8 +77,23 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // validate the first few and last few ctokens, rates, and proofs
-  // @todo do this
+  const rariMerkleRedeemer = contracts.rariMerkleRedeemer as RariMerkleRedeemer;
+  const merkleRedeemerDripper = contracts.merkleRedeemerDripper as MerkleRedeemerDripper;
+
+  // validate that all 27 ctokens exist & are set
+  for (let i = 0; i < cTokens.length; i++) {
+    expect(await rariMerkleRedeemer.merkleRoots(cTokens[i])).to.be.equal(roots[i]);
+    expect(await rariMerkleRedeemer.cTokenExchangeRates(cTokens[i])).to.be.equal(rates[i]);
+  }
+
+  // try to call drip & then ensure the dripper and merkle redeemer have correct balances
+  const dripperBalanceBefore = await (contracts.fei as Fei).balanceOf(merkleRedeemerDripper.address);
+  await merkleRedeemerDripper.drip();
+  const dripperBalanceAfter = await (contracts.fei as Fei).balanceOf(merkleRedeemerDripper.address);
+  const rariMerkleRedeemerBalance = await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address);
+
+  expect(dripperBalanceAfter.sub(dripperBalanceBefore)).to.be.equal(dripAmount);
+  expect(rariMerkleRedeemerBalance).to.be.equal(dripAmount);
 };
 
 export { deploy, setup, teardown, validate };
