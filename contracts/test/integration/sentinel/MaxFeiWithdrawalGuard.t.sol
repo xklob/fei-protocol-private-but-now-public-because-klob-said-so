@@ -25,7 +25,7 @@ contract MaxFeiWithdrawalGuardIntegrationTest is DSTest, StdLib {
     function setUp() public {
         sentinel = PCVSentinel(MainnetAddresses.PCV_SENTINEL);
 
-        uint256 len = 2;
+        uint256 len = 1;
         address[] memory deposits = new address[](len);
         address[] memory destinations = new address[](len);
         address[] memory liquiditySources = new address[](len);
@@ -56,14 +56,14 @@ contract MaxFeiWithdrawalGuardIntegrationTest is DSTest, StdLib {
     function testGuardCanProtec() public {
         // 1. Check preconditions of deposit 1 withdraw
         assertTrue(guard.check());
-        uint256 deposit1BalanceBefore = fei.balanceOf(liquiditySource);
+        uint256 depositBalanceBefore = fei.balanceOf(liquiditySource);
         uint256 feiPSMBalanceBefore = fei.balanceOf(MainnetAddresses.DAI_PSM);
-        assertEq(guard.getAmountToWithdraw(IPCVDeposit(deposit)), deposit1BalanceBefore);
+        assertEq(guard.getAmountToWithdraw(IPCVDeposit(deposit)), depositBalanceBefore);
 
         // 2. Withdraw from pool 8 FEI.
         sentinel.protec(address(guard));
         assertEq(fei.balanceOf(liquiditySource), 0);
-        assertEq(fei.balanceOf(MainnetAddresses.DAI_PSM), feiPSMBalanceBefore + deposit1BalanceBefore);
+        assertEq(fei.balanceOf(MainnetAddresses.DAI_PSM), feiPSMBalanceBefore + depositBalanceBefore);
 
         // 5. Check no more withdrawals
         assertFalse(guard.check());
