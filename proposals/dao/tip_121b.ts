@@ -92,7 +92,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   const dripperBalanceAfter = await (contracts.fei as Fei).balanceOf(merkleRedeemerDripper.address);
   const rariMerkleRedeemerBalance = await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address);
 
-  expect(dripperBalanceAfter.sub(dripperBalanceBefore)).to.be.equal(dripAmount);
+  expect(dripperBalanceBefore.sub(dripperBalanceAfter)).to.be.equal(dripAmount);
   expect(rariMerkleRedeemerBalance).to.be.equal(dripAmount);
 };
 
