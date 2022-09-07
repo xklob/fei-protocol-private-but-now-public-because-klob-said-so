@@ -149,7 +149,7 @@ const deprecate_systems: TemplatedProposalDescription = {
       arguments: (addresses) => [],
       description: 'Pause Tribe Reserve Stabilizer, prevent exchangeFei() being called'
     },
-    // 5. Deprecate ProxyAdmin
+    // 5. Deprecate ProxyAdmin - set owner to a burn address
     {
       target: 'proxyAdmin',
       values: '0',
@@ -160,6 +160,21 @@ const deprecate_systems: TemplatedProposalDescription = {
         The version of Ownable the ProxyAdmin contract inherits from prevents ownership
         transfers to the zero address
       `
+    },
+    // 6. Clawback La Tribu FEI and TRIBE timelocks
+    {
+      target: 'laTribuFeiTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback La Tribu FEI timelock'
+    },
+    {
+      target: 'laTribuTribeTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback La Tribue TRIBE timelock'
     }
   ],
   description: `
@@ -170,6 +185,7 @@ const deprecate_systems: TemplatedProposalDescription = {
   3. Deprecate PCV Sentinel - remove all guards
   4. Deprecate Tribe Reserve Stabiliser
   5. Deprecate ProxyAdmin - revoke ownership so future upgrades not possible
+  6. Clawback La Tribu FEI and TRIBE timelocks
   `
 };
 
