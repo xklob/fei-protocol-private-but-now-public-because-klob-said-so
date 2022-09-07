@@ -73,6 +73,30 @@ const deprecate_systems: TemplatedProposalDescription = {
       method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('METAGOVERNANCE_GAUGE_ADMIN'), addresses.feiDAOTimelock],
       description: 'Revoke METAGOVERNANCE_GAUGE_ADMIN from feiDAOTimelock'
+    },
+    // FEI_MINT_ADMIN
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('FEI_MINT_ADMIN'), addresses.feiDAOTimelock],
+      description: 'Revoke FEI_MINT_ADMIN from feiDAOTimelock'
+    },
+    // PCV_MINOR_PARAM_ROLE
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('PCV_MINOR_PARAM_ROLE'), addresses.feiDAOTimelock],
+      description: 'Revoke PCV_MINOR_PARAM_ROLE from feiDAOTimelock'
+    },
+    // TOKEMAK_DEPOSIT_ADMIN_ROLE
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'), addresses.feiDAOTimelock],
+      description: 'Revoke TOKEMAK_DEPOSIT_ADMIN_ROLE from feiDAOTimelock'
     }
   ],
   description: `

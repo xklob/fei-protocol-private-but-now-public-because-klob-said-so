@@ -43,6 +43,11 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   // 0. No check for revoked Tribe roles - there is a seperate e2e
+
+  // 1. Verify init impossible to call on core
+  expect(await contracts.core.init()).to.be.revertedWith('Initializable: contract is already initialized');
+
+  // 2.
 };
 
 export { deploy, setup, teardown, validate };
