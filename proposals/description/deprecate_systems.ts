@@ -111,7 +111,18 @@ const deprecate_systems: TemplatedProposalDescription = {
       values: '0',
       method: 'setMinter(address)',
       arguments: (addresses) => [addresses.feiDAOTimelock],
-      description: 'Set Tribe minter address to DAO timelock. Subsequent proposal will set to the zero address to burn'
+      description: `
+        Set Tribe minter address to DAO timelock. This is an intermediate step and a subsequent action
+        will set the minter address to the zero address, effectively burning it (Tribe Minter doesn't allow
+        setting to zero).
+      `
+    },
+    {
+      target: 'tribe',
+      values: '0',
+      method: 'setMinter(address)',
+      arguments: (addresses) => [ethers.constants.AddressZero],
+      description: 'Set Tribe minter address to the Zero address'
     },
     // 3. Deprecate the PCV Sentinel
     {
