@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "../../refs/CoreRef.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Abstract contract for exchange a number of ERC20 tokens for specific base token, permissioned via Merkle root(s)
