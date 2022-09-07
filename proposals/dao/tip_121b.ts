@@ -32,8 +32,8 @@ Steps:
 
 const fipNumber = 'tip_121b';
 
-const dripPeriod = 1;
-const dripAmount = ethers.utils.parseEther('2500000');
+const dripPeriod = 3600; // 1 hour
+const dripAmount = ethers.utils.parseEther('2500000'); // 2.5m Fei
 
 // Do any deployments
 // This should exclusively include new contract deployments
