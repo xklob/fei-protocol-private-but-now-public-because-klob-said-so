@@ -99,9 +99,11 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   await forceEth(merkleRedeemerDripper.address, parseEther('1').toString());
 
   // check initial balances of dripper & redeemer
+  // ensure that initial balance of the dripper is a multiple of drip amount
   const fei = contracts.fei as Fei;
   expect(await fei.balanceOf(rariMerkleRedeemer.address)).to.be.equal(rariMerkleRedeemerInitialBalance);
   expect(await fei.balanceOf(merkleRedeemerDripper.address)).to.be.equal(merkleRedeemerDripperInitialBalance);
+  expect((await fei.balanceOf(merkleRedeemerDripper.address)).mod(dripAmount)).to.be.equal(0);
 
   //console.log('Advancing time 1 hour...');
 
@@ -113,32 +115,19 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
     'MerkleRedeemerDripper: dripper target already has enough tokens.'
   );
 
-  //console.log('Sending tokens away from redeemer...');
-
   // impersonate the redeemer and send away its tokens so that we can drip again
   const redeemerSigner = await getImpersonatedSigner(rariMerkleRedeemer.address);
   const redeemerFeiBalance = await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address);
   await (contracts.fei as Fei).connect(redeemerSigner).transfer(addresses.timelock, redeemerFeiBalance);
   expect(await (contracts.fei as Fei).balanceOf(rariMerkleRedeemer.address)).to.be.equal(0);
 
-  // impersonate the dripper and sent most of its tokens away, so that it has less than the drip amount remaining,
-  // and then call drip again so that we can make sure it can still actually transfers the remaining tokens
-  const dripperSigner = await getImpersonatedSigner(merkleRedeemerDripper.address);
-  const feiAsDripper = (contracts.fei as Fei).connect(dripperSigner);
-
-  //console.log('Transferring all but 100k tokens away from dripper...');
-
-  // after this transfer, dripper should have only 100,000 FEI left
-  const dripperFeiBalance = await feiAsDripper.balanceOf(merkleRedeemerDripper.address);
-  await feiAsDripper.transfer(addresses.timelock, dripperFeiBalance.sub(parseEther('100000')));
-  expect(await feiAsDripper.balanceOf(merkleRedeemerDripper.address)).to.be.equal(parseEther('100000'));
-
   //console.log('Doing final drip test...');
 
   // finally, call drip again to make sure it works
+  const redeemerBalBeforeDrip = await fei.balanceOf(rariMerkleRedeemer.address);
   await merkleRedeemerDripper.drip();
-  expect(await feiAsDripper.balanceOf(merkleRedeemerDripper.address)).to.be.equal(0);
-  expect(await feiAsDripper.balanceOf(rariMerkleRedeemer.address)).to.be.equal(parseEther('100000'));
+  const redeemerBalAfterDrip = await fei.balanceOf(rariMerkleRedeemer.address);
+  expect(redeemerBalAfterDrip.sub(redeemerBalBeforeDrip)).to.be.equal(dripAmount);
 };
 
 export { deploy, setup, teardown, validate };
