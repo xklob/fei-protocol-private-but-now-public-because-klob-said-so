@@ -124,9 +124,10 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   //console.log('Doing final drip test...');
 
   // finally, call drip again to make sure it works
+  const redeemerBalBeforeDrip = await fei.balanceOf(rariMerkleRedeemer.address);
   await merkleRedeemerDripper.drip();
-  expect(await fei.balanceOf(merkleRedeemerDripper.address)).to.be.equal(0);
-  expect(await fei.balanceOf(rariMerkleRedeemer.address)).to.be.equal(parseEther('100000'));
+  const redeemerBalAfterDrip = await fei.balanceOf(rariMerkleRedeemer.address);
+  expect(redeemerBalAfterDrip.sub(redeemerBalBeforeDrip)).to.be.equal(dripAmount);
 };
 
 export { deploy, setup, teardown, validate };
