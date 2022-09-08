@@ -42,7 +42,7 @@ contract ERC20Dripper is PCVDeposit, Timed {
     }
 
     /// @notice drip ERC20 tokens to target
-    function drip() external virtual afterTime whenNotPaused {
+    function drip() public virtual afterTime whenNotPaused {
         // reset timer
         _initTimed();
 
