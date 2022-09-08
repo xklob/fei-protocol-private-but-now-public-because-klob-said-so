@@ -8,6 +8,8 @@ import {
   ValidateUpgradeFunc
 } from '@custom-types/types';
 import { BigNumber } from 'ethers';
+import { getImpersonatedSigner } from '@test/helpers';
+import { forceEth } from '@test/integration/setup/utils';
 
 /*
 
@@ -22,7 +24,7 @@ const MIN_LA_TRIBUE_TRIBE = ethers.constants.WeiPerEther.mul(100_000);
 let initialDAOFeiBalance: BigNumber;
 let initialDAOTribeBalance: BigNumber;
 
-const fipNumber = '9001'; // Change me!
+const fipNumber = 'tip_121a_cleanup';
 
 // Do any deployments
 // This should exclusively include new contract deployments
@@ -39,6 +41,13 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   initialDAOFeiBalance = await contracts.fei.balanceOf(addresses.feiDAOTimelock);
   initialDAOTribeBalance = await contracts.tribe.balanceOf(addresses.feiDAOTimelock);
+
+  // Set pending beneficiary of Rari Infra timelocks to be Fei DAO timelock
+  const tcTimelockSigner = await getImpersonatedSigner(addresses.tribalCouncilTimelock);
+  await forceEth(addresses.tribalCouncilTimelock);
+
+  await contracts.rariInfraFeiTimelock.connect(tcTimelockSigner).setPendingBeneficiary(addresses.feiDAOTimelock);
+  await contracts.rariInfraTribeTimelock.connect(tcTimelockSigner).setPendingBeneficiary(addresses.feiDAOTimelock);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -50,7 +59,9 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  // 6. Clawback of La Tribu FEI and TRIBE timelocks worked
+  // 1. No verification of revoked Tribe roles - there are seperate e2e tests for that
+
+  // 2. Clawback of La Tribu FEI and TRIBE timelocks worked
   // Verify no funds on timelocks
   expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.equal(0);
@@ -61,6 +72,10 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   const daoTribeGain = (await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOTribeBalance);
   expect(daoTribeGain).to.be.bignumber.greaterThan(MIN_LA_TRIBUE_TRIBE);
+
+  // 3. Verify admin accepted on deprecated Rari timelocks
+  expect(await contracts.rariInfraFeiTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
+  expect(await contracts.rariInfraTribeTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
 };
 
 export { deploy, setup, teardown, validate };

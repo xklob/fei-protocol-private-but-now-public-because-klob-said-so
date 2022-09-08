@@ -44,6 +44,21 @@ const tip_121a_cleanup: TemplatedProposalDescription = {
       arguments: (addresses) => [],
       description: 'Clawback La Tribu FEI timelock'
     },
+    // 3. Accept admin of Rari deprecated timelocks
+    {
+      target: 'rariInfraFeiTimelock',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary of the deprecated Rari Infra FEI timelock'
+    },
+    {
+      target: 'rariInfraTribeTimelock',
+      values: '0',
+      method: 'acceptBeneficiary()',
+      arguments: (addresses) => [],
+      description: 'Accept beneficiary of the deprecated Rari Infra TRIBE timelock'
+    },
     {
       target: 'laTribuTribeTimelock',
       values: '0',
