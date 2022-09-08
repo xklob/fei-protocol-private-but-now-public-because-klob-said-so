@@ -1,20 +1,28 @@
 import { TemplatedProposalDescription } from '@custom-types/types';
 
-const fip_x: TemplatedProposalDescription = {
-  title: 'FIP-X: Title',
+const tip_121a_cleanup: TemplatedProposalDescription = {
+  title: 'TIP_121a(pt. 2): Technical cleanup, minor role revokation and La Tribu clawback',
   commands: [
+    // 6. Clawback La Tribu FEI and TRIBE timelocks
     {
-      target: '',
-      values: '',
-      method: '',
+      target: 'laTribuFeiTimelock',
+      values: '0',
+      method: 'clawback()',
       arguments: (addresses) => [],
-      description: ''
+      description: 'Clawback La Tribu FEI timelock'
+    },
+    {
+      target: 'laTribuTribeTimelock',
+      values: '0',
+      method: 'clawback()',
+      arguments: (addresses) => [],
+      description: 'Clawback La Tribue TRIBE timelock'
     }
   ],
   description: `
-  [TITLE] /n/n
-  [BODY OF PROPOSAL] \n\n
+  TIP_121a(pt. 2): Technical cleanup, minor role revokation and La Tribu clawback
+  
   `
 };
 
-export default fip_x;
+export default tip_121a_cleanup;

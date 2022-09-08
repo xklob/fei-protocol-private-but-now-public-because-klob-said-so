@@ -393,12 +393,12 @@ export const MainnetContractsConfig = {
   laTribuFeiTimelock: {
     artifactName: 'LinearTokenTimelock',
     address: '0xdb02630ed4f4994414122894B5082dc6D88a4ED4',
-    category: AddressCategory.Distribution
+    category: AddressCategory.Deprecated
   },
   laTribuTribeTimelock: {
     artifactName: 'QuadraticTokenTimelock',
     address: '0x552b8A441E945D021D29ae58B6Ae3dE96da75A05',
-    category: AddressCategory.Distribution
+    category: AddressCategory.Deprecated
   },
   rariInfraFeiTimelock: {
     artifactName: 'LinearTokenTimelock',

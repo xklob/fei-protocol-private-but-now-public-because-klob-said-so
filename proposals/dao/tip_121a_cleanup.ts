@@ -7,19 +7,20 @@ import {
   TeardownUpgradeFunc,
   ValidateUpgradeFunc
 } from '@custom-types/types';
+import { BigNumber } from 'ethers';
 
 /*
 
 DAO Proposal #9001
 
-Description:
-
-Steps:
-  1 - 
-  2 -
-  3 - 
-
 */
+
+// Minimum expected to be clawed back from La Tribu
+const MIN_LA_TRIBUE_FEI = ethers.constants.WeiPerEther.mul(100_000);
+const MIN_LA_TRIBUE_TRIBE = ethers.constants.WeiPerEther.mul(100_000);
+
+let initialDAOFeiBalance: BigNumber;
+let initialDAOTribeBalance: BigNumber;
 
 const fipNumber = '9001'; // Change me!
 
@@ -36,7 +37,8 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // This could include setting up Hardhat to impersonate accounts,
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  console.log(`No actions to complete in setup for fip${fipNumber}`);
+  initialDAOFeiBalance = await contracts.fei.balanceOf(addresses.feiDAOTimelock);
+  initialDAOTribeBalance = await contracts.tribe.balanceOf(addresses.feiDAOTimelock);
 };
 
 // Tears down any changes made in setup() that need to be
@@ -48,7 +50,17 @@ const teardown: TeardownUpgradeFunc = async (addresses, oldContracts, contracts,
 // Run any validations required on the fip using mocha or console logging
 // IE check balances, check state of contracts, etc.
 const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  console.log(`No actions to complete in validate for fip${fipNumber}`);
+  // 6. Clawback of La Tribu FEI and TRIBE timelocks worked
+  // Verify no funds on timelocks
+  expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.equal(0);
+  expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.equal(0);
+
+  // Verify DAO timelock received FEI and TRIBE
+  const daoFeiGain = (await contracts.fei.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOFeiBalance);
+  expect(daoFeiGain).to.be.bignumber.greaterThan(MIN_LA_TRIBUE_FEI);
+
+  const daoTribeGain = (await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOTribeBalance);
+  expect(daoTribeGain).to.be.bignumber.greaterThan(MIN_LA_TRIBUE_TRIBE);
 };
 
 export { deploy, setup, teardown, validate };
