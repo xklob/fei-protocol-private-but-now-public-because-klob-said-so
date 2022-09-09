@@ -222,11 +222,7 @@ export const MainnetContractsConfig = {
   daiFixedPricePSMFeiSkimmer: {
     artifactName: 'FeiSkimmer',
     address: '0xe49B608663EeB89f1E3AbBe75744e5318F85029C',
-<<<<<<< HEAD
     category: AddressCategory.Deprecated
-=======
-    category: AddressCategory.Peg
->>>>>>> develop
   },
 
   tribalCouncilTimelockFeiLens: {
@@ -574,7 +570,6 @@ export const MainnetContractsConfig = {
     artifactName: 'IConvexERC4626',
     address: '0xaa189e7f4aac757216b62849f78f1236749ba814',
     category: AddressCategory.FeiRari
-<<<<<<< HEAD
   },
 
   rariCErc20PluginImpl: {
@@ -583,16 +578,6 @@ export const MainnetContractsConfig = {
     category: AddressCategory.FeiRari
   },
 
-=======
-  },
-
-  rariCErc20PluginImpl: {
-    artifactName: 'unknown',
-    address: '0xbfb8D550B53F64F581df1Da41DDa0CB9E596Aa0E',
-    category: AddressCategory.FeiRari
-  },
-
->>>>>>> develop
   rariPool8Comptroller: {
     artifactName: 'Unitroller',
     address: '0xc54172e34046c1653d1920d40333dd358c7a1af4',
@@ -1500,11 +1485,7 @@ export const MainnetContractsConfig = {
   wethHoldingPCVDeposit: {
     artifactName: 'ERC20HoldingPCVDeposit',
     address: '0xC6D675ca5217d39C3A5E366141060fC2D1ea2b82',
-<<<<<<< HEAD
-    category: AddressCategory.PCV
-=======
     category: AddressCategory.Deprecated
->>>>>>> develop
   },
 
   orcaPodController: {

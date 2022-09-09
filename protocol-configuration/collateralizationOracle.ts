@@ -3,18 +3,14 @@
 // Values are arrays of contracts that hold that token
 
 export const CollateralizationOracleConfig = {
-<<<<<<< HEAD
   fei: [
     'aaveFeiPCVDepositWrapper',
     'rariPool79FeiPCVDepositWrapper',
-    'compoundFeiPCVDepositWrapper',
     'rariTimelockFeiOldLens',
     'tribalCouncilTimelockFeiLens'
   ],
   lusd: ['lusdToDaiLensLusd'],
   dai: ['simpleFeiDaiPSM', 'ethToDaiLensDai', 'daiHoldingPCVDeposit', 'lusdToDaiLensDai'],
-=======
->>>>>>> develop
   bal: ['balancerDepositBalWeth', 'balancerLensVeBalBal', 'balancerGaugeStaker'],
   fei: ['rariPool79FeiPCVDepositWrapper', 'rariTimelockFeiOldLens'],
   dai: ['daiFixedPricePSM', 'daiHoldingPCVDeposit', 'ethToDaiLensDai'],
