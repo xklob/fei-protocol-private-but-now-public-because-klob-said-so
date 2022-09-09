@@ -1,9 +1,12 @@
 # reset the fork
 npx ts-node scripts/shutdown/resetFork 15488875 true
 
-# give 0xf39 some pool-8-FEI and pool-8-ETH
+# give 0xf39 (account 6) some pool-8-FEI and pool-8-ETH
 npx ts-node scripts/shutdown/setTokenBalance 0xd8553552f8868c1ef160eedf031cf0bcf9686945 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 10000000000 true
 npx ts-node scripts/shutdown/setTokenBalance 0xbb025d470162cc5ea24daf7d4566064ee7f5f111 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 200000000 true
+
+# give 0x3c4
+npx ts-node scripts/shutdown/setTokenBalance 0xbb025d470162cc5ea24daf7d4566064ee7f5f111 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc 200000000 true
 
 # create merkle trees and deploy redeemer contract
 npx ts-node scripts/shutdown/createMerkleTrees scripts/shutdown/data/sample/snapshot.json scripts/shutdown/data/test/roots.json true scripts/shutdown/test-scenarios/003-multiple-ctokens.json
