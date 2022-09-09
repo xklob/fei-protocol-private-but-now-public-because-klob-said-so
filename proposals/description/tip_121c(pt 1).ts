@@ -1,10 +1,8 @@
 import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
-const ADDRESS_ONE = '0x0000000000000000000000000000000000000001';
-
-const deprecate_systems: TemplatedProposalDescription = {
-  title: 'TIP_121c: Deprecate Tribe DAO and Fei sub-systems',
+const tip_121c_pt1: TemplatedProposalDescription = {
+  title: 'TIP_121c: Deprecate systems and revoke non-final roles',
   commands: [
     // 1. Revoke all non-final Tribe roles
     // MINTER
@@ -144,4 +142,4 @@ const deprecate_systems: TemplatedProposalDescription = {
   `
 };
 
-export default deprecate_systems;
+export default tip_121c_pt1;
