@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { TemplatedProposalDescription } from '@custom-types/types';
 
 const tip_121c_pt1: TemplatedProposalDescription = {
-  title: 'TIP_121c: Deprecate systems and revoke non-final roles',
+  title: 'TIP_121c (pt. 1): Deprecate sub-systems and revoke non-final roles',
   commands: [
     // 1. Revoke all non-final Tribe roles
     // MINTER
@@ -133,12 +133,18 @@ const tip_121c_pt1: TemplatedProposalDescription = {
     }
   ],
   description: `
-  TIP_121c: Deprecate Tribe DAO and Fei sub-systems
-  1. Revoke all Tribe Roles
-  2. Deprecate TribeMinter - set inflation to 0% and transfer minter to DAO timelock.
-                             Subsequent proposal will set it to zero address
-  3. Deprecate PCV Sentinel - remove all guards
-  4. Deprecate Tribe Reserve Stabiliser
+  TIP_121c (pt. 1): Deprecate sub-systems and revoke non-final roles
+
+  This proposal deprecates various sub-systems and revokes all non-final roles. It prepares the 
+  protocol to move towards a governanceless state. 
+
+  Specifically, it:
+  1. Deprecates the pcvEquityMinter, by revoking its roles
+  2. Deprecates the TribeMinter, by settling the max inflation rate to effectively 0% and transferring
+     the minter role to the zero address
+  3. Deprecate TribeReserveStabilizer, by pausing the contract
+  4. Deprecate the PCV Sentinel - an automated security mechanism - by removing all of its deployed guards
+  5. Remove all remaining non-final Tribe Roles 
   `
 };
 
