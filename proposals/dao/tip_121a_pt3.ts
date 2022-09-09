@@ -76,6 +76,18 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 3. Verify admin accepted on deprecated Rari timelocks
   expect(await contracts.rariInfraFeiTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
   expect(await contracts.rariInfraTribeTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
+
+  // 4. Verify Tribal Council disbanded
+  // Should be 1 member left
+  // Should have no roles
+  // Gnosis safe should have 1 signer
+  const tcPodId = 25;
+  const remainingTCMember = '0xc8eefb8b3d50ca87Da7F99a661720148acf97EfA';
+
+  expect(await contracts.podFactory.getNumMembers(tcPodId)).to.equal(1);
+  const remainingPodMembers = await contracts.podFactory.getPodMembers(tcPodId);
+  expect(remainingPodMembers.length).to.equal(1);
+  expect(remainingPodMembers[0]).to.equal(remainingTCMember);
 };
 
 export { deploy, setup, teardown, validate };
