@@ -13,7 +13,7 @@ import { forceEth } from '@test/integration/setup/utils';
 
 /*
 
-DAO Proposal #9001
+TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
 
 */
 
