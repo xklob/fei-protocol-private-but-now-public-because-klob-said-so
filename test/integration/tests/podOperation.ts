@@ -156,6 +156,12 @@ describe('Pod operation and veto', function () {
     const treasurySigner = await getImpersonatedSigner(contractAddresses.core);
     await forceEth(contractAddresses.core);
     await contracts.tribe.connect(treasurySigner).delegate(contractAddresses.guardianMultisig);
+
+    // 5.0 Grant Role Bastion Governor role for test, so can createRole
+    const daoTimelockSigner = await getImpersonatedSigner(contractAddresses.feiDAOTimelock);
+    await contracts.core
+      .connect(daoTimelockSigner)
+      .grantRole(ethers.utils.id('GOVERN_ROLE'), contractAddresses.roleBastion);
   });
 
   it('should allow a proposal to be proposed and executed', async () => {
