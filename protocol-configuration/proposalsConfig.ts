@@ -14,6 +14,7 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     deprecatedContractSignoff: [],
     category: ProposalCategory.DAO
   },
+  /*
   tip_121c: {
     deploy: true, // deploy flag for whether to run deploy action during e2e tests or use mainnet state
     totalValue: 0, // amount of ETH to send to DAO execution
@@ -23,6 +24,7 @@ export const ProposalsConfig: TemplatedProposalsConfigMap = {
     deprecatedContractSignoff: [],
     category: ProposalCategory.DAO
   }
+  */
 };
 
 export default ProposalsConfig;
