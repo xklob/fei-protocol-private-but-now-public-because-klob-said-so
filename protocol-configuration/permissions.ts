@@ -3,7 +3,7 @@
 export const PermissionsConfig = {
   MINTER_ROLE: ['daiFixedPricePSM'],
   BURNER_ROLE: [],
-  GOVERN_ROLE: ['core', 'feiDAOTimelock'],
+  GOVERN_ROLE: ['core', 'feiDAOTimelock', 'roleBastion'],
   PCV_CONTROLLER_ROLE: ['pcvGuardian', 'ratioPCVControllerV2', 'daiPCVDripController', 'daiFixedPricePSMFeiSkimmer'],
   GUARDIAN_ROLE: ['guardianMultisig', 'pcvGuardian'],
   ORACLE_ADMIN_ROLE: ['tribalCouncilTimelock'],
@@ -32,7 +32,7 @@ export const PermissionsConfig = {
   POD_VETO_ADMIN: ['nopeDAO'],
   POD_ADMIN: ['tribalCouncilTimelock', 'podFactory'],
   PCV_MINOR_PARAM_ROLE: ['tribalCouncilTimelock'],
-  TOKEMAK_DEPOSIT_ADMIN_ROLE: ['tribalCouncilTimelock']
+  TOKEMAK_DEPOSIT_ADMIN_ROLE: ['tribalCouncilTimelock', 'feiDAOTimelock']
 };
 
 export type PermissionsConfigType = typeof PermissionsConfig;

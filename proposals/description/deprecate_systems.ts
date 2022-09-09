@@ -22,14 +22,6 @@ const deprecate_systems: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('MINTER_ROLE'), addresses.feiDAOTimelock],
       description: 'Revoke MINTER_ROLE from feiDAOTimelock'
     },
-    // GOVERN
-    {
-      target: 'core',
-      values: '0',
-      method: 'revokeRole(bytes32,address)',
-      arguments: (addresses) => [ethers.utils.id('GOVERN_ROLE'), addresses.roleBastion],
-      description: 'Revoke GOVERN_ROLE from roleBastion'
-    },
     // PCV_CONTROLLER_ROLE
     {
       target: 'core',
@@ -92,14 +84,6 @@ const deprecate_systems: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('PCV_MINOR_PARAM_ROLE'), addresses.feiDAOTimelock],
       description: 'Revoke PCV_MINOR_PARAM_ROLE from feiDAOTimelock'
     },
-    // TOKEMAK_DEPOSIT_ADMIN_ROLE
-    {
-      target: 'core',
-      values: '0',
-      method: 'revokeRole(bytes32,address)',
-      arguments: (addresses) => [ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'), addresses.feiDAOTimelock],
-      description: 'Revoke TOKEMAK_DEPOSIT_ADMIN_ROLE from feiDAOTimelock'
-    },
     // 2. Deprecate Tribe Minter
     {
       target: 'tribeMinter',
@@ -148,33 +132,6 @@ const deprecate_systems: TemplatedProposalDescription = {
       method: 'pause()',
       arguments: (addresses) => [],
       description: 'Pause Tribe Reserve Stabilizer, prevent exchangeFei() being called'
-    },
-    // 5. Deprecate ProxyAdmin - set owner to a burn address
-    {
-      target: 'proxyAdmin',
-      values: '0',
-      method: 'transferOwnership(address)',
-      arguments: (addresses) => [ADDRESS_ONE],
-      description: `
-        Transfer ownership of ProxyAdmin to 0x1 address, to prevent any future upgrades.
-        The version of Ownable the ProxyAdmin contract inherits from prevents ownership
-        transfers to the zero address
-      `
-    },
-    // 6. Clawback La Tribu FEI and TRIBE timelocks
-    {
-      target: 'laTribuFeiTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback La Tribu FEI timelock'
-    },
-    {
-      target: 'laTribuTribeTimelock',
-      values: '0',
-      method: 'clawback()',
-      arguments: (addresses) => [],
-      description: 'Clawback La Tribue TRIBE timelock'
     }
   ],
   description: `
@@ -184,8 +141,6 @@ const deprecate_systems: TemplatedProposalDescription = {
                              Subsequent proposal will set it to zero address
   3. Deprecate PCV Sentinel - remove all guards
   4. Deprecate Tribe Reserve Stabiliser
-  5. Deprecate ProxyAdmin - revoke ownership so future upgrades not possible
-  6. Clawback La Tribu FEI and TRIBE timelocks
   `
 };
 
