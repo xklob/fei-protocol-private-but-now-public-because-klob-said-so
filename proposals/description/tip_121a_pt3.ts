@@ -1,7 +1,7 @@
 import { TemplatedProposalDescription } from '@custom-types/types';
 import { ethers } from 'ethers';
 
-const tip_121a_cleanup: TemplatedProposalDescription = {
+const tip_121a_pt3: TemplatedProposalDescription = {
   title: 'TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback',
   commands: [
     // 1. Revoke non-major Tribe roles
@@ -77,4 +77,4 @@ const tip_121a_cleanup: TemplatedProposalDescription = {
   `
 };
 
-export default tip_121a_cleanup;
+export default tip_121a_pt3;
