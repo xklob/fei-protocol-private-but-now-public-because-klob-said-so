@@ -134,8 +134,8 @@ async function main() {
 
   if (debug) console.log('Connecting to nodeinator...');
 
-  const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
-  // const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+  // const provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
+  const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
   await provider.ready;
 
   if (debug) console.log('Nodeinator connected.');

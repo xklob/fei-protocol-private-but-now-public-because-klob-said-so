@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import { Vm, Vm__factory } from '../../types/contracts';
 
-const NODE_URL = 'http://nodeinator.kryptoklob.io:8999';
-// const NODE_URL = 'http://localhost:8545';
+// const NODE_URL = 'http://nodeinator.kryptoklob.io:8999';
+const NODE_URL = 'http://localhost:8545';
 
 async function main() {
   if (process.argv[2] === 'help') {

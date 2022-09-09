@@ -102,11 +102,11 @@ async function main() {
   let provider: ethers.providers.JsonRpcProvider;
 
   if (!enableForking) {
-    // provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-    provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8545');
+    provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+    // provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8545');
   } else {
-    // provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-    provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
+    provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
+    // provider = new ethers.providers.JsonRpcProvider('http://nodeinator.kryptoklob.io:8999');
   }
 
   await provider.ready;
