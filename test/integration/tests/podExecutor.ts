@@ -75,7 +75,6 @@ describe('Pod executor', function () {
 
     tcMultisigSigner = await getImpersonatedSigner(contractAddresses.tribalCouncilSafe);
     await forceEth(contractAddresses.tribalCouncilSafe);
-
     tribalCouncilTimelock = contracts.tribalCouncilTimelock as TimelockController;
     podExecutor = contracts.podExecutorV2 as PodExecutor;
 
