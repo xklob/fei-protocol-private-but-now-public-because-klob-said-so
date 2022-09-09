@@ -13,14 +13,6 @@ const tip_121a_cleanup: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('GOVERN_ROLE'), addresses.roleBastion],
       description: 'Revoke GOVERN_ROLE from roleBastion'
     },
-    // SWAP_ADMIN_ROLE
-    {
-      target: 'core',
-      values: '0',
-      method: 'revokeRole(bytes32,address)',
-      arguments: (addresses) => [ethers.utils.id('SWAP_ADMIN_ROLE'), addresses.pcvEquityMinter],
-      description: 'Revoke SWAP_ADMIN_ROLE from pcvEquityMinter'
-    },
     // TOKEMAK_DEPOSIT_ADMIN_ROLE
     {
       target: 'core',
