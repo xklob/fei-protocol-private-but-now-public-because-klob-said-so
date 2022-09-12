@@ -1,6 +1,8 @@
 import { TemplatedProposalDescription } from '@custom-types/types';
 import { ethers } from 'ethers';
 
+const TC_POD_ID = 25;
+
 const tip_121a_pt3: TemplatedProposalDescription = {
   title: 'TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback',
   commands: [
@@ -64,7 +66,7 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       values: '0',
       method: 'batchRemovePodMember(uint256,address[])',
       arguments: (addresses) => [
-        25,
+        TC_POD_ID,
         [
           '0x72b7448f470D07222Dbf038407cD69CC380683F3',
           '0xA6D08774604d6Da7C96684ca6c4f61f89c4e5b96',

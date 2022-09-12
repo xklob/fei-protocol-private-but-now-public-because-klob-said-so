@@ -205,7 +205,7 @@ export const MainnetContractsConfig = {
   roleBastion: {
     artifactName: 'RoleBastion',
     address: '0x8096314D9014EbB69Fc777ED3791DDE6FFbaFAed',
-    category: AddressCategory.Governance
+    category: AddressCategory.Deprecated
   },
 
   tribeReserveStabilizer: {
