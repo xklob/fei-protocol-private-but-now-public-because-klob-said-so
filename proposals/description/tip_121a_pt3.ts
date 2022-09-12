@@ -28,14 +28,6 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'), addresses.tribalCouncilTimelock],
       description: 'Revoke TOKEMAK_DEPOSIT_ADMIN_ROLE from Tribal Council Timelock'
     },
-    // POD_METADATA_REGISTER_ROLE
-    {
-      target: 'core',
-      values: '0',
-      method: 'revokeRole(bytes32,address)',
-      arguments: (addresses) => [ethers.utils.id('POD_METADATA_REGISTER_ROLE'), addresses.tribeDev1Deployer],
-      description: 'Revoke POD_METADATA_REGISTER_ROLE from Tribe dev 1 deployer'
-    },
     // 2. Clawback La Tribu FEI and TRIBE timelocks
     {
       target: 'laTribuFeiTimelock',

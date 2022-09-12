@@ -18,8 +18,8 @@ TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
 */
 
 // Minimum expected to be clawed back from La Tribu
-const MIN_LA_TRIBUE_FEI = ethers.constants.WeiPerEther.mul(100_000);
-const MIN_LA_TRIBUE_TRIBE = ethers.constants.WeiPerEther.mul(100_000);
+const MIN_LA_TRIBU_FEI = ethers.constants.WeiPerEther.mul(100_000);
+const MIN_LA_TRIBU_TRIBE = ethers.constants.WeiPerEther.mul(100_000);
 
 let initialDAOFeiBalance: BigNumber;
 let initialDAOTribeBalance: BigNumber;
@@ -68,10 +68,10 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // Verify DAO timelock received FEI and TRIBE
   const daoFeiGain = (await contracts.fei.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOFeiBalance);
-  expect(daoFeiGain).to.be.bignumber.greaterThan(MIN_LA_TRIBUE_FEI);
+  expect(daoFeiGain).to.be.bignumber.greaterThan(MIN_LA_TRIBU_FEI);
 
   const daoTribeGain = (await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOTribeBalance);
-  expect(daoTribeGain).to.be.bignumber.greaterThan(MIN_LA_TRIBUE_TRIBE);
+  expect(daoTribeGain).to.be.bignumber.greaterThan(MIN_LA_TRIBU_TRIBE);
 
   // 3. Verify admin accepted on deprecated Rari timelocks
   expect(await contracts.rariInfraFeiTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
