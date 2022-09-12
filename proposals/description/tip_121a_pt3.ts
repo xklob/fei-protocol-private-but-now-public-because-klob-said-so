@@ -30,6 +30,14 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('TOKEMAK_DEPOSIT_ADMIN_ROLE'), addresses.tribalCouncilTimelock],
       description: 'Revoke TOKEMAK_DEPOSIT_ADMIN_ROLE from Tribal Council Timelock'
     },
+    // ROLE_ADMIN
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('ROLE_ADMIN'), addresses.tribalCouncilTimelock],
+      description: 'Revoke ROLE_ADMIN from Tribal Council Timelock'
+    },
     // 2. Clawback La Tribu FEI and TRIBE timelocks
     {
       target: 'laTribuFeiTimelock',
@@ -59,29 +67,6 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       method: 'acceptBeneficiary()',
       arguments: (addresses) => [],
       description: 'Accept beneficiary of the deprecated Rari Infra TRIBE timelock'
-    },
-    // 4. Disband Tribal Council by removing pod members
-    {
-      target: 'podAdminGateway',
-      values: '0',
-      method: 'batchRemovePodMember(uint256,address[])',
-      arguments: (addresses) => [
-        TC_POD_ID,
-        [
-          '0x72b7448f470D07222Dbf038407cD69CC380683F3',
-          '0xA6D08774604d6Da7C96684ca6c4f61f89c4e5b96',
-          '0xe0ac4559739bD36f0913FB0A3f5bFC19BCBaCD52',
-          '0xC2138f77E97A9Ac0A4bC26F42D80D29D1a091866',
-          '0x9f5e6F58CC8823D3c022AeBE3942EeF689E9AcD9',
-          '0xaB339ae6eab3C3CF4f5885E56F7B49391a01DDA6',
-          '0xd90E9181B20D8D1B5034d9f5737804Da182039F6',
-          '0x7671f0615B1764fb4bf4b8dF06B7338843f99678'
-        ]
-      ],
-      description: `
-        Disband the Tribal Council by removing all but one pod member.
-        The remaining pod member will transfer ownership to a zero address
-      `
     }
   ],
   description: `
@@ -96,7 +81,6 @@ const tip_121a_pt3: TemplatedProposalDescription = {
 
   Specifically, it:
   - Revokes remaining access roles granted to the optimistic governance smart contracts
-  - Disbands the Tribal Council, by removing all members from the Tribal Council Safe/Pod
   - Revokes the minor, non-security role TOKEMAK_DEPOSIT_ADMIN_ROLE from the Fei system
   - Ends the FEI and TRIBE vesting of La Tribu
   - Has the Tribe DAO timelock accept the admin of the deprecated Rari Infrastructure team timelocks

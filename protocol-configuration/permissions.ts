@@ -26,7 +26,7 @@ export const PermissionsConfig = {
   METAGOVERNANCE_VOTE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
   METAGOVERNANCE_TOKEN_STAKING: ['feiDAOTimelock'],
   METAGOVERNANCE_GAUGE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
-  ROLE_ADMIN: ['feiDAOTimelock', 'tribalCouncilTimelock'],
+  ROLE_ADMIN: ['feiDAOTimelock'],
   POD_METADATA_REGISTER_ROLE: [
     'tribalCouncilSafe',
     'tribeDev2Deployer',
