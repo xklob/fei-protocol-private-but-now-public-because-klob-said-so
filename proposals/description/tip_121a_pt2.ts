@@ -47,6 +47,13 @@ const tip_121a_pt2: TemplatedProposalDescription = {
       target: 'core',
       values: '0',
       method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('POD_METADATA_REGISTER_ROLE'), addresses.tribeDev1Deployer],
+      description: 'Revoke POD_METADATA_REGISTER_ROLE from the Tribe Dev 1'
+    },
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('POD_METADATA_REGISTER_ROLE'), addresses.tribeDev2Deployer],
       description: 'Revoke POD_METADATA_REGISTER_ROLE from the Tribe Dev 2'
     },
