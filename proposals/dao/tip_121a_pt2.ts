@@ -17,8 +17,6 @@ Deprecate Optimistic Governance and Tribal Council
 
 */
 
-const ADDRESS_FOUR = '0x0000000000000000000000000000000000000004';
-
 // Lower bounds on the deprecated Rari vested TRIBE and FEI
 const DEPRECATED_RARI_VESTED_TRIBE_LOWER = '471669647387113140537798';
 const DEPRECATED_RARI_VESTED_FEI_LOWER = '471669393708777270421106';
@@ -86,27 +84,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 5. Verify that deprecated Rari FEI/TRIBE vesting timelock pending admins set to DAO timelock
   expect(await contracts.rariInfraFeiTimelock.pendingBeneficiary()).to.equal(addresses.feiDAOTimelock);
   expect(await contracts.rariInfraTribeTimelock.pendingBeneficiary()).to.equal(addresses.feiDAOTimelock);
-
-  // 6. Verify Tribal Council disbanded
-  // Directly query Gnosis Safe
-  const gnosisABI = ['function getOwners() view returns (address[])', 'function getThreshold() view returns (uint256)'];
-  const signer = (await ethers.getSigners())[0];
-  const tcSafe = new ethers.Contract(addresses.tribalCouncilSafe, gnosisABI, signer);
-  const owners = await tcSafe.getOwners();
-  expect(owners.length).to.equal(1);
-  expect(owners[0]).to.equal(ADDRESS_FOUR);
-
-  const threshold = await tcSafe.getThreshold();
-  expect(threshold).to.equal(1);
-
-  // Query podFactory
-  const tcPodId = 25;
-  expect(await contracts.podFactory.getNumMembers(tcPodId)).to.equal(1);
-  const remainingPodMembers = await contracts.podFactory.getPodMembers(tcPodId);
-  expect(remainingPodMembers.length).to.equal(1);
-  expect(remainingPodMembers[0]).to.equal(ADDRESS_FOUR);
-
-  expect(await contracts.podFactory.getPodThreshold(tcPodId)).to.equal(1);
 };
 
 export { deploy, setup, teardown, validate };

@@ -199,7 +199,7 @@ export const MainnetContractsConfig = {
   tribalCouncilSafe: {
     artifactName: 'unknown',
     address: '0x2EC598d8e3DF35E5D6F13AE2f05a7bB2704e92Ea',
-    category: AddressCategory.Deprecated
+    category: AddressCategory.Governance
   },
 
   roleBastion: {

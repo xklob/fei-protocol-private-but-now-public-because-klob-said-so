@@ -7,50 +7,10 @@ const TC_CANCELLER_ROLE = ethers.utils.id('CANCELLER_ROLE');
 const TC_EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE');
 const TC_TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE');
 
-const TC_POD_ID = 25;
-
 const tip_121a_pt2: TemplatedProposalDescription = {
   title: 'TIP_121a(pt. 2): Deprecate Optimistic Governance and the Tribal Council',
   commands: [
-    // 1. Disband Tribal Council by removing pod members and adding the zero address
-    // (technically not possible to have a Gnosis Safe with no owners, so adding zero address)
-    {
-      target: 'podAdminGateway',
-      values: '0',
-      method: 'addPodMember(uint256,address)',
-      arguments: (addresses) => [TC_POD_ID, '0x0000000000000000000000000000000000000004'],
-      description: `
-        Add address(4) as a pod member. Done to allow the Tribal Council multisig
-        to be fully disbanded, as not possible to have a Safe with no owners. Also not 
-        possible to add zero address as an owner.
-        
-        Last owner will be address(4)
-      `
-    },
-    {
-      target: 'podAdminGateway',
-      values: '0',
-      method: 'batchRemovePodMember(uint256,address[])',
-      arguments: (addresses) => [
-        TC_POD_ID,
-        [
-          '0xc8eefb8b3d50ca87Da7F99a661720148acf97EfA',
-          '0x72b7448f470D07222Dbf038407cD69CC380683F3',
-          '0xA6D08774604d6Da7C96684ca6c4f61f89c4e5b96',
-          '0xe0ac4559739bD36f0913FB0A3f5bFC19BCBaCD52',
-          '0xC2138f77E97A9Ac0A4bC26F42D80D29D1a091866',
-          '0x9f5e6F58CC8823D3c022AeBE3942EeF689E9AcD9',
-          '0xaB339ae6eab3C3CF4f5885E56F7B49391a01DDA6',
-          '0xd90E9181B20D8D1B5034d9f5737804Da182039F6',
-          '0x7671f0615B1764fb4bf4b8dF06B7338843f99678'
-        ]
-      ],
-      description: `
-        Disband the Tribal Council by removing all but one pod member.
-        The remaining pod member is the address(4) address.
-      `
-    },
-    // 2. Revoke all Tribe governance roles from the optimistic governance system
+    // 1. Revoke all Tribe governance roles from the optimistic governance system
     // POD_ADMIN
     {
       target: 'core',
@@ -198,7 +158,7 @@ const tip_121a_pt2: TemplatedProposalDescription = {
       description: 'Revoke POD_VETO_ADMIN from the NopeDAO'
     },
 
-    // 3. Revoke all CANCELLERS, PROPOSERS, EXECUTORS and TIMELOCK_ADMINS
+    // 2. Revoke all CANCELLERS, PROPOSERS, EXECUTORS and TIMELOCK_ADMINS
     {
       target: 'tribalCouncilTimelock',
       values: '0',
@@ -244,7 +204,7 @@ const tip_121a_pt2: TemplatedProposalDescription = {
       arguments: (addresses) => [TC_TIMELOCK_ADMIN_ROLE, addresses.tribalCouncilTimelock],
       description: 'Revoke TC_TIMELOCK_ADMIN_ROLE from the TC timelock'
     },
-    // 4. Change beneficiary of deprecated Rari timelocks to DAO timelock
+    // 3. Change beneficiary of deprecated Rari timelocks to DAO timelock
     // Claim vested funds
     {
       target: 'rariInfraFeiTimelock',
@@ -287,8 +247,7 @@ const tip_121a_pt2: TemplatedProposalDescription = {
   it is being deprecated. Future governance proposals will be proposed and executed by the DAO.
 
   To deprecate, this proposal performs the following:
-  1. Disbands the Tribal Council multisig, leaving behind one burned member
-  2. Revoke Tribe roles from the optimistic governance smart contracts. This prevents the optimistic governance
+  1. Revoke Tribe roles from the optimistic governance smart contracts. This prevents the optimistic governance
      and Tribal Council contracts from interacting with the Fei system. A small number of high level access
      roles will later be removed by the DAO.
   3. Revoke all internal Tribal Council timelock EXECUTOR, PROPOSER, CANCELLER and TIMELOCK_ADMIN roles.
