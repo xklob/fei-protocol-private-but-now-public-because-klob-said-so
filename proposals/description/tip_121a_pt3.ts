@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 const TC_POD_ID = 25;
 
 const tip_121a_pt3: TemplatedProposalDescription = {
-  title: 'TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback',
+  title: 'TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback',
   commands: [
     // 1. Revoke non-major Tribe roles
     // GOVERN_ROLE on optimistic governance
