@@ -25,14 +25,14 @@ const tip_121a_pt2: TemplatedProposalDescription = {
       values: '0',
       method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('POD_ADMIN'), addresses.tribalCouncilTimelock],
-      description: 'Revoke POD_ADMIN_ROLE from the TC timelock'
+      description: 'Revoke POD_ADMIN from the TC timelock'
     },
     {
       target: 'core',
       values: '0',
       method: 'revokeRole(bytes32,address)',
       arguments: (addresses) => [ethers.utils.id('POD_ADMIN'), addresses.podFactory],
-      description: 'Revoke POD_ADMIN_ROLE from the Pod Factory'
+      description: 'Revoke POD_ADMIN from the Pod Factory'
     },
     // PCV_MINOR_PARAM_ROLE
     {
