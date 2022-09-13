@@ -75,7 +75,7 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       target: 'ratioPCVControllerV2',
       values: '0',
       method: 'transferFromRatio(address,address,address,uint256)',
-      arguments: (addresses) => [addresses.laTribuFeiTimelock, addresses.fei, addresses.daiFixedPricePSM, '10000'],
+      arguments: (addresses) => [addresses.feiDAOTimelock, addresses.fei, addresses.daiFixedPricePSM, '10000'],
       description: `
       Transfer all FEI from the la Tribu FEI timelock to the DAI PSM. It will later be 
       burned.
@@ -114,10 +114,18 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       method: 'acceptBeneficiary()',
       arguments: (addresses) => [],
       description: 'Accept beneficiary of the deprecated Rari Infra TRIBE timelock'
+    },
+    // 4. Remove Aave PCV Sentinel guard, as now fully withdrawn
+    {
+      target: 'pcvSentinel',
+      values: '0',
+      method: 'slay(address)',
+      arguments: (addresses) => [addresses.maxFeiWithdrawalGuard],
+      description: 'Remove Aave/Compound max Fei withdrawl guard from PCV sentinel'
     }
   ],
   description: `
-TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback
+  TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback
   
   This proposal is a continuation of the first stage of TIP-121
   (https://tribe.fei.money/t/tip-121-proposal-for-the-future-of-the-tribe-dao/4475). 
@@ -126,7 +134,7 @@ TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback
   
   It also claws back ~1M FEI and TRIBE from La Tribu, closing out the last DAO funded initiative.
   
-It cleans up the timelocks and deprecated roles in the system, where any of these changes can be reversed in a further DAO vote if needed.
+  It cleans up the timelocks and deprecated roles in the system, where any of these changes can be reversed in a further DAO vote if needed.
   `
 };
 

@@ -21,7 +21,7 @@ TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
 const MIN_LA_TRIBU_FEI_RECOVERED = ethers.constants.WeiPerEther.mul(700_000);
 
 let initialPSMFeiBalance: BigNumber;
-let initialDAOTribeBalance: BigNumber;
+let initialTreasuryTribeBalance: BigNumber;
 
 const fipNumber = 'tip_121a_cleanup';
 
@@ -39,7 +39,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   initialPSMFeiBalance = await contracts.fei.balanceOf(addresses.daiFixedPricePSM);
-  initialDAOTribeBalance = await contracts.tribe.balanceOf(addresses.feiDAOTimelock);
+  initialTreasuryTribeBalance = await contracts.tribe.balanceOf(addresses.core);
 
   // Set pending beneficiary of Rari Infra timelocks to be Fei DAO timelock
   const tcTimelockSigner = await getImpersonatedSigner(addresses.tribalCouncilTimelock);
@@ -66,7 +66,7 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.equal(0);
 
   // Verify Core Treasury received TRIBE
-  const daoTribeGain = (await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOTribeBalance);
+  const daoTribeGain = (await contracts.tribe.balanceOf(addresses.core)).sub(initialTreasuryTribeBalance);
   expect(daoTribeGain).to.equal(ethers.constants.WeiPerEther.mul(1_000_000));
 
   // Verify FEI moved to DAI PSM
@@ -76,6 +76,9 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 3. Verify admin accepted on deprecated Rari timelocks
   expect(await contracts.rariInfraFeiTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
   expect(await contracts.rariInfraTribeTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);
+
+  // 4. Verify Aave/Compound PCV Sentinel guard removed
+  expect(await contracts.pcvSentinel.isGuard(addresses.maxFeiWithdrawalGuard)).to.be.false;
 };
 
 export { deploy, setup, teardown, validate };
