@@ -17,11 +17,10 @@ TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
 
 */
 
-// Minimum expected to be clawed back from La Tribu
-const MIN_LA_TRIBU_FEI = ethers.constants.WeiPerEther.mul(100_000);
-const MIN_LA_TRIBU_TRIBE = ethers.constants.WeiPerEther.mul(100_000);
+// Minimum amount of FEI that should have been clawed back
+const MIN_LA_TRIBU_FEI_RECOVERED = ethers.constants.WeiPerEther.mul(700_000);
 
-let initialDAOFeiBalance: BigNumber;
+let initialPSMFeiBalance: BigNumber;
 let initialDAOTribeBalance: BigNumber;
 
 const fipNumber = 'tip_121a_cleanup';
@@ -39,7 +38,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 // This could include setting up Hardhat to impersonate accounts,
 // ensuring contracts have a specific state, etc.
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
-  initialDAOFeiBalance = await contracts.fei.balanceOf(addresses.feiDAOTimelock);
+  initialPSMFeiBalance = await contracts.fei.balanceOf(addresses.daiFixedPricePSM);
   initialDAOTribeBalance = await contracts.tribe.balanceOf(addresses.feiDAOTimelock);
 
   // Set pending beneficiary of Rari Infra timelocks to be Fei DAO timelock
@@ -66,12 +65,13 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.fei.balanceOf(addresses.laTribuFeiTimelock)).to.equal(0);
   expect(await contracts.tribe.balanceOf(addresses.laTribuTribeTimelock)).to.equal(0);
 
-  // Verify DAO timelock received FEI and TRIBE
-  const daoFeiGain = (await contracts.fei.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOFeiBalance);
-  expect(daoFeiGain).to.be.bignumber.greaterThan(MIN_LA_TRIBU_FEI);
-
+  // Verify Core Treasury received TRIBE
   const daoTribeGain = (await contracts.tribe.balanceOf(addresses.feiDAOTimelock)).sub(initialDAOTribeBalance);
-  expect(daoTribeGain).to.be.bignumber.greaterThan(MIN_LA_TRIBU_TRIBE);
+  expect(daoTribeGain).to.equal(ethers.constants.WeiPerEther.mul(1_000_000));
+
+  // Verify FEI moved to DAI PSM
+  const psmFeiBalanceDiff = (await contracts.fei.balanceOf(addresses.daiFixedPricePSM)).sub(initialPSMFeiBalance);
+  expect(psmFeiBalanceDiff).to.be.bignumber.greaterThan(MIN_LA_TRIBU_FEI_RECOVERED);
 
   // 3. Verify admin accepted on deprecated Rari timelocks
   expect(await contracts.rariInfraFeiTimelock.beneficiary()).to.equal(addresses.feiDAOTimelock);

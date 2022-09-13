@@ -1,7 +1,8 @@
 import { TemplatedProposalDescription } from '@custom-types/types';
 import { ethers } from 'ethers';
 
-const TC_POD_ID = 25;
+// Total amount of Fei on La Tribu timelock
+const LA_TRIBU_FEI_UPPER_BOUND = '1050000000000000000000000';
 
 const tip_121a_pt3: TemplatedProposalDescription = {
   title: 'TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback',
@@ -38,7 +39,24 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       arguments: (addresses) => [ethers.utils.id('ROLE_ADMIN'), addresses.tribalCouncilTimelock],
       description: 'Revoke ROLE_ADMIN from Tribal Council Timelock'
     },
+    // MINTER_ROLE
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('MINTER_ROLE'), addresses.pcvEquityMinter],
+      description: 'Revoke MINTER_ROLE from PCV Equity Minter'
+    },
+    // SWAP_ADMIN_ROLE
+    {
+      target: 'core',
+      values: '0',
+      method: 'revokeRole(bytes32,address)',
+      arguments: (addresses) => [ethers.utils.id('SWAP_ADMIN_ROLE'), addresses.pcvEquityMinter],
+      description: 'Revoke SWAP_ADMIN_ROLE from PCV Equity Minter'
+    },
     // 2. Clawback La Tribu FEI and TRIBE timelocks
+    // Burn FEI
     {
       target: 'laTribuFeiTimelock',
       values: '0',
@@ -47,11 +65,40 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       description: 'Clawback La Tribu FEI timelock'
     },
     {
+      target: 'fei',
+      values: '0',
+      method: 'approve(address,uint256)',
+      arguments: (addresses) => [addresses.ratioPCVControllerV2, LA_TRIBU_FEI_UPPER_BOUND],
+      description: 'Approve the ratioPCVController to move the FEI on the La Tribu FEI timelock'
+    },
+    {
+      target: 'ratioPCVControllerV2',
+      values: '0',
+      method: 'transferFromRatio(address,address,address,uint256)',
+      arguments: (addresses) => [addresses.laTribuFeiTimelock, addresses.fei, addresses.daiFixedPricePSM, '10000'],
+      description: `
+      Transfer all FEI from the la Tribu FEI timelock to the DAI PSM. It will later be 
+      burned.
+      `
+    },
+
+    // Send TRIBE to Core
+    {
       target: 'laTribuTribeTimelock',
       values: '0',
       method: 'clawback()',
       arguments: (addresses) => [],
       description: 'Clawback La Tribue TRIBE timelock'
+    },
+    {
+      target: 'tribe',
+      values: '0',
+      method: 'transfer(address,uint256)',
+      arguments: (addresses) => [
+        addresses.core,
+        ethers.constants.WeiPerEther.mul(1_000_000) // 1M TRIBE, as cliff not reached
+      ],
+      description: 'Send all 1M TRIBE clawed back to the Core Treasury'
     },
     // 3. Accept admin of Rari deprecated timelocks
     {
