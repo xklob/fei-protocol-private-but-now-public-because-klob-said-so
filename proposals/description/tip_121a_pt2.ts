@@ -238,21 +238,23 @@ const tip_121a_pt2: TemplatedProposalDescription = {
     }
   ],
   description: `
-  TIP_121a(pt. 2): Deprecate Optimistic Governance and the Tribal Council
+TIP_123: Deprecate Optimistic Governance and the Tribal Council
 
   This is a Tribal Council proposal that deprecates the Optimistic Governance and Tribal Council governance smart contracts. 
 
-  The optimistic governance upgrade was introduced in FIP_82 (https://tribe.fei.money/t/fip-82-governance-enhancements/3945) 
-  and in line with TIP_121 (https://tribe.fei.money/t/tip-121-proposal-for-the-future-of-the-tribe-dao/4475) 
-  it is being deprecated. Future governance proposals will be proposed and executed by the DAO.
+  The optimistic governance upgrade was introduced in FIP-82 (https://tribe.fei.money/t/fip-82-governance-enhancements/3945) 
+  and in line with TIP-121 (https://tribe.fei.money/t/tip-121-proposal-for-the-future-of-the-tribe-dao/4475) 
+  the tribal council would likely not be needed. Future governance proposals can be proposed and executed by the DAO.
 
   To deprecate, this proposal performs the following:
   1. Revoke Tribe roles from the optimistic governance smart contracts. This prevents the optimistic governance
      and Tribal Council contracts from interacting with the Fei system. A small number of high level access
-     roles will later be removed by the DAO.
-  3. Revoke all internal Tribal Council timelock EXECUTOR, PROPOSER, CANCELLER and TIMELOCK_ADMIN roles.
-     This will render the Tribal Council timelock deprecated.
-  4. Change the admin of deprecated timelocks from the TC timelock to the DAO timelock
+     roles can later be removed by the DAO.
+  2. Revoke all internal Tribal Council timelock EXECUTOR, PROPOSER, CANCELLER and TIMELOCK_ADMIN roles.
+     This will render the Tribal Council timelock unusable by the Tribal Council Multisig.
+  3. Change the admin of deprecated timelocks from the TC timelock to the DAO timelock
+
+Critically, this proposal if passed can be undone at any time by the DAO to reintroduce the Tribal Council while the DAO retains any governance power.
 
   The Tribe DAO optimistic governance process is outlined here: https://docs.tribedao.xyz/docs/Governance/Overview 
   `
