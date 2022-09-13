@@ -158,6 +158,7 @@ const tip_121a_pt2: TemplatedProposalDescription = {
       description: 'Revoke ORACLE_ADMIN_ROLE from the Tribal Council timelock'
     },
     // 3. Revoke CANCELLERS, PROPOSERS, EXECUTORS and TIMELOCK_ADMINS
+    // Not revoking CANCELLER from the podAdminGateway, so the NopeDAO can still Nope
     {
       target: 'tribalCouncilTimelock',
       values: '0',

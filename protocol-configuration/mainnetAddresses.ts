@@ -187,7 +187,7 @@ export const MainnetContractsConfig = {
   nopeDAO: {
     artifactName: 'NopeDAO',
     address: '0x6C7aF43Ce97686e0C8AcbBc03b2E4f313c0394C7',
-    category: AddressCategory.Deprecated
+    category: AddressCategory.Governance
   },
 
   tribalCouncilTimelock: {

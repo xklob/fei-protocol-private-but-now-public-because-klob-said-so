@@ -120,6 +120,10 @@ describe('Pod operation and veto', function () {
       .connect(daoTimelockSigner)
       .grantRole(ethers.utils.id('PROPOSER_ROLE'), contractAddresses.tribalCouncilSafe);
 
+    await contracts.tribalCouncilTimelock
+      .connect(daoTimelockSigner)
+      .grantRole(ethers.utils.id('EXECUTOR_ROLE'), contractAddresses.podExecutorV2);
+
     // 1. Deploy a pod through which a proposal will be executed
     tribalCouncilTimelockSigner = await getImpersonatedSigner(contractAddresses.tribalCouncilTimelock);
     const deployTx = await podFactory.connect(tribalCouncilTimelockSigner).createOptimisticPod(podConfig);
@@ -304,7 +308,7 @@ describe('Pod operation and veto', function () {
     expect(dummyRoleAdmin).to.be.equal(ethers.utils.id('ROLE_ADMIN'));
   });
 
-  it.only('should allow deployed NopeDAO to veto a TribalCouncil proposal', async () => {
+  it('should allow deployed NopeDAO to veto a TribalCouncil proposal', async () => {
     // 1. Get Gnosis SDK connections for each TC member
     const tribalCouncilTimelock = contracts.tribalCouncilTimelock;
     const tribalCouncilSafeSigner = await getImpersonatedSigner(contractAddresses.tribalCouncilSafe);
