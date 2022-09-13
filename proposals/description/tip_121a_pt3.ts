@@ -70,20 +70,16 @@ const tip_121a_pt3: TemplatedProposalDescription = {
     }
   ],
   description: `
-  TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
+TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback
   
-  This proposal is a continuation of the first stage of TIP_121
+  This proposal is a continuation of the first stage of TIP-121
   (https://tribe.fei.money/t/tip-121-proposal-for-the-future-of-the-tribe-dao/4475). 
   
-  It performs the remaining cleanup actions necessary to deprecate the optimistic governance system, 
-  revokes minor, non-security related permissions and ends the vesting of the DAO
-  funded La Tribu organisation (https://tribe.fei.money/t/fip-83-la-tribu-hiring-devs-from-a-dao-like-structure/3956).
-
-  Specifically, it:
-  - Revokes remaining access roles granted to the optimistic governance smart contracts
-  - Revokes the minor, non-security role TOKEMAK_DEPOSIT_ADMIN_ROLE from the Fei system
-  - Ends the FEI and TRIBE vesting of La Tribu
-  - Has the Tribe DAO timelock accept the admin of the deprecated Rari Infrastructure team timelocks
+  This proposal sells the last ~100k LUSD for DAI using a curve swap. 
+  
+  It also claws back ~1M FEI and TRIBE from La Tribu, closing out the last DAO funded initiative.
+  
+It cleans up the timelocks and deprecated roles in the system, where any of these changes can be reversed in a further DAO vote if needed.
   `
 };
 
