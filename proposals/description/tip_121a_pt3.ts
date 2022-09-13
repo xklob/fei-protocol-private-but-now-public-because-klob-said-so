@@ -4,6 +4,12 @@ import { ethers } from 'ethers';
 // Total amount of Fei on La Tribu timelock
 const LA_TRIBU_FEI_UPPER_BOUND = '1050000000000000000000000';
 
+// Remaining LUSD balance
+const LUSD_BALANCE = '102813103625677039438144';
+
+// Expected amount of Curve swap DAI out, minus a 2% slippage
+const EXPECTED_DAI_OUT = '100756841553163498649381';
+
 const tip_121a_pt3: TemplatedProposalDescription = {
   title: 'TIP-121a (cont.): Sell last LUSD, Timelock and Role Cleanup + La Tribu Clawback',
   commands: [
@@ -122,6 +128,34 @@ const tip_121a_pt3: TemplatedProposalDescription = {
       method: 'slay(address)',
       arguments: (addresses) => [addresses.maxFeiWithdrawalGuard],
       description: 'Remove Aave/Compound max Fei withdrawl guard from PCV sentinel'
+    },
+    // 5. Sell last LUSD
+    {
+      target: 'lusdHoldingPCVDeposit',
+      values: '0',
+      method: 'withdraw(address,uint256)',
+      arguments: (addresses) => [addresses.feiDAOTimelock, LUSD_BALANCE],
+      description: 'Withdraw all 100k LUSD from the LUSD holding deposit to the DAO timelock'
+    },
+    {
+      target: 'lusd',
+      values: '0',
+      method: 'approve(address,uint256)',
+      arguments: (addresses) => [addresses.lusdCurveMetapool, LUSD_BALANCE],
+      description: 'Approve Curve Metapool to make LUSD swap'
+    },
+    {
+      target: 'lusdCurveMetapool',
+      values: '0',
+      method: 'exchange_underlying(int128,int128,uint256,uint256,address)',
+      arguments: (addresses) => [
+        '0', // LUSD
+        '1', // DAI
+        LUSD_BALANCE, // dx - amount of LUSD being swapped
+        EXPECTED_DAI_OUT, // dy  - minimum amount of DAI to receive
+        addresses.daiHoldingPCVDeposit // receiving address
+      ],
+      description: 'Sell last 100k of LUSD on Curve. Accept up to 2% slippage'
     }
   ],
   description: `
@@ -133,6 +167,8 @@ const tip_121a_pt3: TemplatedProposalDescription = {
   This proposal sells the last ~100k LUSD for DAI using a curve swap. 
   
   It also claws back ~1M FEI and TRIBE from La Tribu, closing out the last DAO funded initiative.
+
+  It disables the PCV Sentinel Aave/Compound Fei withdrawal guard as the Fei has been withdrawn.
   
   It cleans up the timelocks and deprecated roles in the system, where any of these changes can be reversed in a further DAO vote if needed.
   `

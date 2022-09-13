@@ -20,8 +20,12 @@ TIP_121a(pt. 3): Technical cleanup, minor role revokation and La Tribu clawback
 // Minimum amount of FEI that should have been clawed back
 const MIN_LA_TRIBU_FEI_RECOVERED = ethers.constants.WeiPerEther.mul(700_000);
 
+// Minimum expected DAI to be gained from swapping LUSD on Curve
+const MIN_DAI_GAIN_LUSD_SWAP = ethers.constants.WeiPerEther.mul(90_000);
+
 let initialPSMFeiBalance: BigNumber;
 let initialTreasuryTribeBalance: BigNumber;
+let initialDaiHoldingDepositBalance: BigNumber;
 
 const fipNumber = 'tip_121a_cleanup';
 
@@ -40,6 +44,7 @@ const deploy: DeployUpgradeFunc = async (deployAddress: string, addresses: Named
 const setup: SetupUpgradeFunc = async (addresses, oldContracts, contracts, logging) => {
   initialPSMFeiBalance = await contracts.fei.balanceOf(addresses.daiFixedPricePSM);
   initialTreasuryTribeBalance = await contracts.tribe.balanceOf(addresses.core);
+  initialDaiHoldingDepositBalance = await contracts.dai.balanceOf(addresses.daiHoldingPCVDeposit);
 
   // Set pending beneficiary of Rari Infra timelocks to be Fei DAO timelock
   const tcTimelockSigner = await getImpersonatedSigner(addresses.tribalCouncilTimelock);
@@ -79,6 +84,12 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
 
   // 4. Verify Aave/Compound PCV Sentinel guard removed
   expect(await contracts.pcvSentinel.isGuard(addresses.maxFeiWithdrawalGuard)).to.be.false;
+
+  // 5. Sold last LUSD
+  expect(await contracts.lusd.balanceOf(addresses.lusdHoldingPCVDeposit)).to.equal(0);
+
+  const daiGain = (await contracts.dai.balanceOf(addresses.daiHoldingPCVDeposit)).sub(initialDaiHoldingDepositBalance);
+  expect(daiGain).to.be.bignumber.greaterThan(MIN_DAI_GAIN_LUSD_SWAP);
 };
 
 export { deploy, setup, teardown, validate };

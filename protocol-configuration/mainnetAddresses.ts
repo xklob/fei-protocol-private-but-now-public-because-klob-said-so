@@ -224,7 +224,11 @@ export const MainnetContractsConfig = {
     address: '0xe49B608663EeB89f1E3AbBe75744e5318F85029C',
     category: AddressCategory.Peg
   },
-
+  lusdCurveMetapool: {
+    artifactName: 'ICurvePool',
+    address: '0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA',
+    category: AddressCategory.External
+  },
   tribalCouncilTimelockFeiLens: {
     artifactName: 'ERC20PCVDepositWrapper',
     address: '0x4037a70152F4c88Ad40522f35BD4dDD17E6B2052',
