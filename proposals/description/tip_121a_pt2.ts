@@ -8,7 +8,7 @@ const TC_EXECUTOR_ROLE = ethers.utils.id('EXECUTOR_ROLE');
 const TC_TIMELOCK_ADMIN_ROLE = ethers.utils.id('TIMELOCK_ADMIN_ROLE');
 
 const tip_121a_pt2: TemplatedProposalDescription = {
-  title: 'TIP_121a(pt. 2): Deprecate Optimistic Governance and the Tribal Council',
+  title: 'TIP_123: Deprecate Optimistic Governance and the Tribal Council',
   commands: [
     // 1. Revoke all Tribe governance roles from the optimistic governance system
     // POD_ADMIN
