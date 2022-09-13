@@ -76,7 +76,6 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   expect(await contracts.tribalCouncilTimelock.hasRole(TC_EXECUTOR_ROLE, addresses.podExecutorV2)).to.be.false;
 
   expect(await contracts.tribalCouncilTimelock.hasRole(TC_CANCELLER_ROLE, addresses.tribalCouncilSafe)).to.be.false;
-  expect(await contracts.tribalCouncilTimelock.hasRole(TC_CANCELLER_ROLE, addresses.podAdminGateway)).to.be.false;
 
   expect(await contracts.tribalCouncilTimelock.hasRole(TC_TIMELOCK_ADMIN_ROLE, addresses.tribalCouncilTimelock)).to.be
     .false;
@@ -84,6 +83,13 @@ const validate: ValidateUpgradeFunc = async (addresses, oldContracts, contracts,
   // 5. Verify that deprecated Rari FEI/TRIBE vesting timelock pending admins set to DAO timelock
   expect(await contracts.rariInfraFeiTimelock.pendingBeneficiary()).to.equal(addresses.feiDAOTimelock);
   expect(await contracts.rariInfraTribeTimelock.pendingBeneficiary()).to.equal(addresses.feiDAOTimelock);
+
+  // 6. Verify podAdminGateway still has cancellor role, so NopeDAO can veto
+  expect(await contracts.tribalCouncilTimelock.hasRole(ethers.utils.id('CANCELLER_ROLE'), addresses.podAdminGateway)).to
+    .be.true;
+  expect(
+    await contracts.tribalCouncilTimelock.hasRole(ethers.utils.id('TIMELOCK_ADMIN_ROLE'), addresses.feiDAOTimelock)
+  ).to.be.true;
 };
 
 export { deploy, setup, teardown, validate };
