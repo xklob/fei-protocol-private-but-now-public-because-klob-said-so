@@ -135,10 +135,7 @@ const tip_121c_pt1: TemplatedProposalDescription = {
   description: `
   TIP_121c (pt. 1): Deprecate sub-systems and revoke non-final roles
 
-  This proposal deprecates various sub-systems and revokes all non-final roles. It prepares the 
-  protocol to move towards a governanceless state. 
-
-  Specifically, it:
+  This proposal deprecates various sub-systems and revokes all non-final roles. Specifically, it:
   1. Deprecates the pcvEquityMinter, by revoking its roles
   2. Deprecates the TribeMinter, by settling the max inflation rate to effectively 0% and transferring
      the minter role to the zero address
